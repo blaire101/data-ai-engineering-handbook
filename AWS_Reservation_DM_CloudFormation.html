@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>AWS Reservation Analytics Platform — Preparation</title>
+<style>
+:root{--bg:#FAFAF9;--card:#fff;--ink:#1A1A18;--muted:#57564F;--line:#E5E5E3;--brand:#2971A8;--soft:#E8F2FA;--green:#1E7A4C;--green-bg:#E4F5EC;--purple:#7B4FA0;--purple-bg:#F1E9F7;--orange:#B66A10;--orange-bg:#FFF4E5;--red:#B42318;--red-bg:#FDECEC;--radius:11px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;line-height:1.55}
+header{max-width:1180px;margin:0 auto;padding:24px 20px 8px}header h1{font-size:25px;margin:0 0 5px}header p{font-size:13.5px;color:var(--muted);margin:0 0 14px}
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.toolbar label{font-size:12px;font-weight:700;color:var(--muted)}select,input[type=range]{padding:6px;border:1px solid #d6d6d2;border-radius:8px;background:#fff}.stop{border:1px solid var(--brand);background:var(--soft);color:var(--brand);border-radius:999px;padding:7px 12px;font-weight:700;cursor:pointer}
+.tabs{position:sticky;top:0;z-index:80;max-width:1180px;margin:0 auto 14px;display:flex;gap:8px;overflow-x:auto;padding:9px 20px 12px;background:rgba(250,250,249,.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.tab-btn{padding:8px 13px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--muted);font-size:12.5px;font-weight:750;cursor:pointer;white-space:nowrap}.tab-btn.active{background:linear-gradient(135deg,#2971A8,#5b9cc9);color:#fff;border-color:transparent;box-shadow:0 7px 16px rgba(41,113,168,.22)}
+.tab-panel{display:none;max-width:1180px;margin:0 auto;padding:8px 20px 70px}.tab-panel.active{display:block}.tab-panel h2{font-size:21px;margin:15px 0 13px}.tab-panel h3{font-size:15px;margin:0}.tab-panel h4{font-size:13.5px;margin:0}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:13px;box-shadow:0 8px 20px rgba(0,0,0,.035)}.accent{border-left:5px solid var(--brand)}.orange-accent{border-left:5px solid #ff9900}.green-accent{border-left:5px solid var(--green)}
+.section-head,.sentence-row,.qa-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.section-head{align-items:center;margin-bottom:7px}.lead{font-weight:650;color:#344054}.sentence{border-top:1px dashed #e8e8e5;padding:8px 0}.sentence:first-child{border-top:0}.sentence-row p{flex:1;min-width:0;margin:0}.cn{font-size:12.3px;color:#88877f;margin-top:3px}.note{font-size:12px;color:var(--muted)}strong{color:#0f5b99}
+.listen{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:78px;height:30px;padding:4px 10px;border:1px solid var(--brand);border-radius:999px;background:var(--soft);color:var(--brand);font-size:11.5px;font-weight:650;line-height:1;white-space:nowrap;cursor:pointer}.listen.speaking{background:var(--brand);color:#fff}
+.local-toc{position:sticky;top:62px;z-index:20;display:flex;gap:7px;align-items:center;overflow-x:auto;background:#fff;color:var(--ink);padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:14px;box-shadow:0 3px 10px rgba(0,0,0,.035)}.local-toc strong{white-space:nowrap}.local-toc a{color:var(--brand);text-decoration:none;white-space:nowrap;padding:5px 9px;border-radius:999px;background:var(--soft);font-size:11.5px;font-weight:650}
+.memory-strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#f7f9fc;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin-top:10px;font-size:12.5px}.memory-strip b{color:var(--purple)}
+.tag-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}.tag{background:var(--soft);color:var(--brand);border:1px solid #c7d7fe;border-radius:999px;padding:5px 9px;font-size:11.5px;font-weight:750}.tag.green{background:var(--green-bg);color:var(--green);border-color:#b8dfca}.tag.orange{background:var(--orange-bg);color:var(--orange);border-color:#f3d2a6}.tag.purple{background:var(--purple-bg);color:var(--purple);border-color:#dcc9ea}
+.major{border:1px solid var(--line);background:#fff;border-radius:12px;margin:0 0 13px;overflow:hidden;box-shadow:0 6px 17px rgba(0,0,0,.03)}.major>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:38px 1fr 34px;align-items:center;gap:10px;padding:13px 15px;background:#fff}.major>summary::-webkit-details-marker{display:none}.major-icon{width:34px;height:34px;border-radius:9px;background:var(--soft);display:grid;place-items:center}.major-copy{display:flex;flex-direction:column}.major-copy small{font-size:10px;color:var(--muted);letter-spacing:.08em}.chev{font-size:22px;color:#9a9994;transition:transform .2s}.major[open] .chev{transform:rotate(90deg)}.major-body{padding:0 13px 13px}
+.arch-wrap{border:1px solid var(--line);border-radius:12px;background:#fbfcfd;padding:16px;overflow:auto}.arch-grid{display:grid;grid-template-columns:1fr 44px 1fr 44px 1.15fr 44px 1.3fr;align-items:center;gap:6px;min-width:980px}.arch-box{background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px;min-height:112px}.arch-box h4{margin-bottom:6px}.arch-box small{display:block;color:var(--muted);font-size:11.5px}.arch-arrow{font-size:27px;color:#9a9994;text-align:center}.aws{border-top:4px solid #ff9900}.data{border-top:4px solid var(--brand)}.success{border-top:4px solid var(--green)}.platform-shell{border:2px dashed #b7c9dc;background:#f7fbff;border-radius:14px;padding:14px;margin-top:12px}.platform-shell>div:first-child{font-size:12px;color:var(--brand);font-weight:800;margin-bottom:8px}.parallel{display:grid;grid-template-columns:1fr 1fr;gap:9px}.mini{border:1px solid var(--line);border-radius:8px;background:#fff;padding:9px;font-size:12px}.mini b{display:block;color:#344054;margin-bottom:2px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.concept{border:1px solid var(--line);border-radius:10px;background:#fff;padding:13px}.concept .kicker{font-size:10.5px;color:#ff7900;font-weight:850;text-transform:uppercase;letter-spacing:.06em}.concept p{font-size:12.7px;color:#57564f;margin:5px 0}.concept code{font-size:11px}
+.table-wrap{overflow:auto;margin-top:10px}table{border-collapse:collapse;width:100%;font-size:12.6px}th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:top;background:#fff}th{background:var(--soft);color:var(--brand)}
+pre{background:#101827;color:#e4e9f0;border-radius:10px;padding:15px;overflow:auto;font-size:11.8px;line-height:1.55}code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.code-title{display:flex;justify-content:space-between;align-items:center;margin:2px 0 7px}.code-title span{font-size:11px;color:var(--muted)}
+.callout{border-radius:10px;padding:11px 13px;margin:10px 0;font-size:12.5px}.callout.blue{background:var(--soft);border:1px solid #cfe3f3}.callout.green{background:var(--green-bg);border:1px solid #b8dfca}.callout.orange{background:var(--orange-bg);border:1px solid #f3d2a6}.callout.red{background:var(--red-bg);border:1px solid #f2c6c2}.callout b{display:block;margin-bottom:3px}
+.qa-item{border-left:3px solid var(--brand);padding:10px 12px;margin:8px 0;background:#fbfdff;border-radius:0 9px 9px 0}.qa-item p{margin:5px 0 0;color:var(--muted);font-size:13px}.qa-top b{font-size:13px}.qa-tag{display:inline-block;margin-left:7px;padding:2px 7px;border-radius:999px;background:var(--purple-bg);color:var(--purple);font-size:9.5px;font-weight:800;vertical-align:middle}.qa-section-title{display:flex;align-items:center;gap:8px;margin:16px 0 7px;font-size:14px}.qa-section-title span{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:var(--soft);color:var(--brand);font-weight:800;font-size:11px}
+.layer-line{display:grid;grid-template-columns:90px 1fr;gap:10px;padding:8px 0;border-top:1px dashed #e8e8e5}.layer-line:first-child{border-top:0}.layer-name{font-weight:800;color:var(--brand)}.layer-desc{font-size:12.5px;color:var(--muted)}
+.flow-line{display:flex;align-items:center;gap:7px;overflow:auto;padding:10px 0}.flow-node{min-width:135px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px;text-align:center;font-size:12px}.flow-node b{display:block}.flow-line .arr{font-size:21px;color:#aaa9a4}
+@media(max-width:850px){.grid-2,.grid-3{grid-template-columns:1fr}.local-toc{top:58px}.tab-panel{padding-left:14px;padding-right:14px}.arch-grid{min-width:860px}}
+</style>
+<style id="v2-hdb-system-overrides">
+/* =========================================================
+   V2 — HDB v86 visual alignment + system diagrams + audio
+   ========================================================= */
+:root{--bg:#FAFAF9;--card:#fff;--ink:#1d2734;--muted:#667085;--line:#dfe5ee;--brand:#2971A8;--nav:#173f5f;--soft:#E8F2FA;--green:#067647}
+body{background:var(--bg);color:var(--ink);line-height:1.6}
+header{max-width:none;margin:0;background:linear-gradient(135deg,#0b1f44,#155eef);color:#fff;padding:28px 4vw 24px}
+header h1{margin:0;font-size:clamp(27px,4vw,43px);line-height:1.15;letter-spacing:-.02em}
+header p{margin:7px 0 0;color:#dbe7ff;font-size:14px}
+header .toolbar{margin-top:18px;padding:11px 13px;background:rgba(255,255,255,.13);border:0;border-radius:12px;box-shadow:none}
+header .toolbar label{color:#fff;font-size:13px;font-weight:700}
+header .stop{border:0;background:#fff;color:#b42318;padding:8px 13px;border-radius:9px;font-weight:750}
+.tabs{position:sticky;top:0;z-index:80;max-width:none;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;padding:10px 3vw;background:rgba(250,250,249,.97);backdrop-filter:blur(9px);border-bottom:1px solid #e2e5e9;box-shadow:0 2px 8px rgba(16,24,40,.05)}
+.tab-btn{min-width:0;min-height:52px;display:flex;align-items:center;gap:10px;padding:9px 12px;text-align:left;white-space:normal;line-height:1.25;border:1px solid #e2e5e9;border-radius:11px;background:#fff;color:#474b52;box-shadow:0 2px 7px rgba(16,24,40,.035);transition:.16s ease}
+.tab-btn:hover{transform:translateY(-1px);border-color:#a9cde6;box-shadow:0 6px 14px rgba(41,113,168,.10)}
+.tab-btn .tab-no{flex:0 0 28px;width:28px;height:28px;display:grid;place-items:center;border-radius:8px;background:#edf3f8;color:#2971A8;font-size:12px;font-weight:800}
+.tab-btn .tab-label{min-width:0;font-size:12.5px;font-weight:750}
+.tab-btn.active{background:linear-gradient(135deg,#286fa4,#4b94c4);color:#fff;border-color:transparent;box-shadow:0 8px 18px rgba(41,113,168,.23)}
+.tab-btn.active .tab-no{background:rgba(255,255,255,.20);color:#fff}
+.tab-panel{max-width:1250px;padding:28px 3vw 70px}
+.tab-panel>h2{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 12px;padding:12px 16px;border-left:5px solid #2f7fae;border-radius:10px;background:#f3f8fb;color:#123f60;font-size:22px;font-weight:900;letter-spacing:-.01em}
+.local-toc{position:sticky;top:72px;z-index:20;margin:0 0 14px;padding:9px 11px;border:1px solid #d9e6ed;border-radius:11px;background:#fbfdfe;color:#173f5f;box-shadow:0 3px 10px rgba(0,0,0,.025)}
+.local-toc strong{color:#173f5f}.local-toc a{font-weight:800;color:#245c7d;background:#edf5fa;border-radius:8px}.local-toc a:hover{background:#dcecf5}
+.card{border-radius:16px;padding:18px 19px;box-shadow:0 3px 12px rgba(16,24,40,.04)}
+.major{border:0;background:transparent;box-shadow:none;overflow:visible;margin:18px 0 20px}
+.major>summary{display:grid;grid-template-columns:48px minmax(0,1fr) 32px 52px;gap:12px;align-items:center;min-height:74px;padding:12px 16px;border:0;border-radius:17px;background:linear-gradient(105deg,#173f5f 0%,#245f85 46%,#3f98c5 100%);box-shadow:0 9px 22px rgba(23,63,95,.14);color:#fff}
+.major[open]>summary{background:linear-gradient(105deg,#173f5f 0%,#245f85 46%,#3f98c5 100%)}
+.major-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:13px;background:rgba(255,255,255,.14);color:#fff;font-size:21px}
+.major-copy strong{display:block;color:#fff;font-size:19px;font-weight:900;line-height:1.2;letter-spacing:-.005em}
+.major-copy small{display:block;margin-top:3px;color:#d8e8f2;font-size:10px;font-weight:800;letter-spacing:.08em}
+.major .chev{width:30px;height:30px;margin:0;color:#fff;font-size:27px;font-weight:900;display:grid;place-items:center;transition:transform .2s}
+.major[open] .chev{transform:rotate(90deg)}
+.major-badge{width:50px;height:36px;display:grid;place-items:center;justify-self:end;border-radius:999px;background:#fff5df;border:2px solid #efbd58;color:#9e5d00;font-size:13px;font-weight:900;line-height:1}
+.major-body{padding:14px 10px 10px}
+.qa-major .qa-card{margin-top:0}.qa-major:not([open]){margin-bottom:13px}
+
+/* service system map */
+.service-system-card{background:linear-gradient(180deg,#fbfdff,#fff)}
+.system-lanes{display:grid;gap:9px;margin-top:12px}.system-lane{display:grid;grid-template-columns:175px minmax(0,1fr);gap:12px;align-items:center;border:1px solid #dce6ee;border-radius:13px;padding:12px;background:#fbfdff}.lane-label span{display:inline-block;padding:3px 7px;border-radius:999px;background:#e9f3fa;color:#2971A8;font-size:9.5px;font-weight:900;letter-spacing:.08em}.lane-label b{display:block;margin-top:5px;color:#173f5f;font-size:13px}.lane-services{display:flex;align-items:stretch;gap:9px}.lane-services.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.service-card{position:relative;flex:1;display:grid;grid-template-columns:48px minmax(0,1fr);gap:9px;align-items:center;border:1px solid #dce5ed;border-radius:11px;background:#fff;padding:10px 11px;min-height:72px}.service-card b{display:block;color:#173f5f;font-size:12.7px}.service-card small{display:block;color:#667085;font-size:11.2px;line-height:1.35;margin-top:2px}.svc-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:12px;background:#fff3df;color:#e78200}.svc-icon svg{width:33px;height:33px}.orchestration-lane .svc-icon{background:#f0ebfb;color:#7b4fa0}.data-lane .svc-icon{background:#e9f7ef;color:#19764a}.control-lane .svc-icon{background:#eaf3fa;color:#2971A8}.system-arrow{align-self:center;font-size:24px;color:#98a2b3;font-weight:900}.lane-down{text-align:center;color:#98a2b3;font-size:22px;line-height:1}.system-equation{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:12px;padding:10px;background:#f7fafc;border:1px dashed #cfdbe5;border-radius:10px;font-size:11.5px}.system-equation span{background:#fff;border:1px solid #dce5ed;border-radius:8px;padding:5px 8px;font-weight:800;color:#173f5f}.system-equation b{color:#7b8794}
+
+/* DM visual */
+.layer-map{display:flex;align-items:center;justify-content:center;gap:11px;overflow:auto;padding:14px 4px}.layer-source-wrap,.ads-split{display:grid;gap:8px}.layer-source-wrap{grid-template-columns:1fr 24px 1fr;align-items:center}.layer-node{position:relative;min-width:170px;border:1px solid #dce5ed;border-radius:12px;background:#fff;padding:12px;text-align:center;box-shadow:0 4px 10px rgba(16,24,40,.03)}.layer-node b{display:block;color:#173f5f}.layer-node small{display:block;color:#667085;font-size:11.2px;margin-top:3px}.layer-node em{display:block;margin-top:7px;padding:4px 6px;border-radius:7px;background:#eaf4fb;color:#2971A8;font-style:normal;font-size:10.5px;font-weight:800}.layer-icon{display:grid;place-items:center;width:36px;height:36px;margin:0 auto 6px;border-radius:10px;background:#f2f5f8;font-size:19px}.dm-focus{border:2px solid #2971A8;background:#f4f9fd;min-width:205px}.ads{border-top:4px solid #067647}.plus-sign,.big-arrow{font-size:25px;font-weight:900;color:#98a2b3;text-align:center}
+
+/* CloudFormation mental model */
+.cf-mental-map{display:grid;grid-template-columns:180px 34px 210px 34px minmax(330px,1fr);align-items:center;gap:8px;margin-top:16px;padding:14px;background:#fbfdff;border:1px solid #dce6ee;border-radius:13px;overflow:auto}.cf-stage{position:relative;min-width:170px;display:flex;flex-direction:column;align-items:center;text-align:center;border:1px solid #dce5ed;border-radius:12px;background:#fff;padding:12px}.cf-stage.emphasis{border:2px solid #2971A8;background:#f3f9fd}.cf-stage b{color:#173f5f;font-size:12.8px;margin-top:5px}.cf-stage small{color:#667085;font-size:10.8px}.cf-map-arrow{font-size:25px;color:#98a2b3;font-weight:900;text-align:center}.cf-resource-cloud{min-width:330px;border:2px dashed #9dc3db;border-radius:14px;background:#f7fbfd;padding:11px}.cf-cloud-title{text-align:center;color:#173f5f;font-weight:900;font-size:12px;margin-bottom:8px}.cf-resource-icons{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.cf-resource-icons>div{display:grid;place-items:center;border:1px solid #dce5ed;border-radius:9px;background:#fff;padding:7px}.cf-resource-icons .svc-icon{width:34px;height:34px;border-radius:9px}.cf-resource-icons .svc-icon svg{width:25px;height:25px}.cf-resource-icons span{font-size:10.5px;font-weight:800;color:#475467;margin-top:3px}
+
+/* deployment vs runtime plane */
+.plane-visual{margin-top:14px;border:1px solid #dce6ee;border-radius:13px;overflow:hidden}.plane-row{display:grid;grid-template-columns:210px minmax(0,1fr);gap:12px;align-items:center;padding:13px}.control-plane{background:#f7fbfe}.runtime-plane{background:#fbfdfb}.plane-title span{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#2971A8;color:#fff;font-weight:900}.plane-title b{display:block;margin-top:5px;color:#173f5f}.plane-title small{display:block;color:#667085;font-size:10.8px}.plane-flow{display:flex;align-items:center;gap:8px;overflow:auto}.plane-flow>span{font-size:22px;color:#98a2b3;font-weight:900}.plane-node{position:relative;min-width:120px;display:grid;place-items:center;border:1px solid #dce5ed;border-radius:10px;background:#fff;padding:8px;text-align:center}.plane-node .svc-icon{width:34px;height:34px;border-radius:9px}.plane-node .svc-icon svg{width:25px;height:25px}.plane-node b{font-size:11px;color:#173f5f}.plane-node small{font-size:10px;color:#667085}.plane-node.multi{min-width:165px}.plane-separator{text-align:center;padding:7px;background:#173f5f;color:#dcecf6;font-size:10.8px;font-weight:750}
+
+/* audio coverage */
+.auto-audio,.cell-audio,.title-audio{position:absolute;top:6px;right:6px;width:26px;height:26px;min-width:26px;padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid #b9c8e6;background:#f7f9ff;color:#1747a6;font-size:12px;font-weight:800;cursor:pointer;z-index:2}.auto-audio.speaking,.cell-audio.speaking,.title-audio.speaking{background:#1747a6;color:#fff}.concept,.arch-box,.mini,.layer-line,.flow-node,.callout,.memory-strip,.service-card,.cf-stage,.cf-resource-icons>div,.layer-node,.plane-node{position:relative;padding-right:38px}.tab-panel>h2{position:relative;padding-right:50px}.title-audio{top:50%;transform:translateY(-50%);right:12px}.table-wrap th,.table-wrap td{position:relative;padding-right:38px}.cell-audio{top:7px;right:6px}.qa-item .listen{min-width:78px}
+
+/* make code / diagrams feel structured */
+.code-title{padding:7px 9px;border-radius:8px;background:#f6f8fb;border:1px solid #e4e8ee}.callout b{color:#173f5f}.qa-item{background:#fcfdff;border-left:4px solid #2971A8;padding:11px 12px}.qa-tag{background:#fff5df;color:#9e5d00;border:1px solid #efd59f}
+
+@media(max-width:900px){.tabs{grid-template-columns:1fr}.system-lane{grid-template-columns:1fr}.lane-services,.lane-services.three{display:grid;grid-template-columns:1fr}.system-arrow{transform:rotate(90deg)}.cf-mental-map{grid-template-columns:1fr;min-width:0}.cf-map-arrow{transform:rotate(90deg)}.cf-resource-cloud{min-width:0}.plane-row{grid-template-columns:1fr}.layer-map{justify-content:flex-start}.local-toc{top:210px}}
+@media(max-width:620px){.major>summary{grid-template-columns:42px minmax(0,1fr) 28px 46px;gap:9px;padding:10px 12px;min-height:66px}.major-icon{width:40px;height:40px}.major-copy strong{font-size:16px}.major-badge{width:44px;height:34px}.cf-resource-icons{grid-template-columns:repeat(2,1fr)}}
+</style><style id="v3-exact-hdb-style">
+/* =========================================================
+   V3 — exact HDB v86 top-level visual alignment
+   ========================================================= */
+:root{
+  --bg:#FAFAF9!important;--card:#FFFFFF!important;--ink:#1A1A18!important;
+  --muted:#57564F!important;--line:#E5E5E3!important;--brand:#2971A8!important;
+  --soft:#E8F2FA!important;--green:#1E7A4C!important;--radius:10px!important;
+}
+body{background:var(--bg)!important;color:var(--ink)!important;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif!important;line-height:1.55!important}
+header{max-width:1180px!important;margin:0 auto!important;background:transparent!important;color:var(--ink)!important;padding:24px 20px 10px!important}
+header h1{font-size:25px!important;font-weight:700!important;line-height:1.25!important;letter-spacing:0!important;margin:0 0 5px!important;color:var(--ink)!important}
+header p{color:var(--muted)!important;font-size:13.5px!important;margin:0 0 14px!important}
+header .toolbar{position:static!important;background:#fff!important;border:1px solid var(--line)!important;border-radius:10px!important;box-shadow:0 2px 10px rgba(0,0,0,.04)!important;color:var(--muted)!important;padding:10px 14px!important;margin:0 0 14px!important}
+header .toolbar label{color:var(--muted)!important;font-size:13px!important;font-weight:700!important}
+header .stop{border:1px solid var(--brand)!important;background:var(--soft)!important;color:var(--brand)!important;border-radius:999px!important;padding:7px 12px!important}
+
+/* Exact HDB main-tab redesign proportions, adapted from 4 columns to 3. */
+.tabs{position:sticky!important;top:0!important;z-index:70!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important;max-width:1180px!important;margin:0 auto 18px!important;padding:12px 20px!important;overflow:visible!important;background:rgba(250,250,249,.97)!important;border-bottom:1px solid var(--line)!important;box-shadow:0 5px 16px rgba(16,24,40,.04)!important;backdrop-filter:blur(10px)!important}
+.tab-btn{min-width:0!important;min-height:52px!important;display:flex!important;align-items:center!important;gap:10px!important;padding:9px 12px!important;text-align:left!important;white-space:normal!important;line-height:1.25!important;border:1px solid #e2e5e9!important;border-radius:11px!important;background:#fff!important;color:#474b52!important;box-shadow:0 2px 7px rgba(16,24,40,.035)!important;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease!important}
+.tab-btn:hover{transform:translateY(-1px)!important;border-color:#a9cde6!important;box-shadow:0 6px 14px rgba(41,113,168,.10)!important}
+.tab-btn .tab-no{flex:0 0 28px!important;width:28px!important;height:28px!important;display:grid!important;place-items:center!important;border-radius:8px!important;background:#edf3f8!important;color:#2971A8!important;font-size:12px!important;font-weight:800!important}
+.tab-btn .tab-label{min-width:0!important;font-size:12.5px!important;font-weight:750!important}
+.tab-btn.active{background:linear-gradient(135deg,#286fa4,#4b94c4)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 8px 18px rgba(41,113,168,.23)!important}
+.tab-btn.active .tab-no{background:rgba(255,255,255,.20)!important;color:#fff!important}
+
+.tab-panel{max-width:1180px!important;margin:auto!important;padding:8px 20px 70px!important}
+.tab-panel>.page-section-title{display:block!important;background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;color:var(--ink)!important;font-size:21px!important;font-weight:700!important;letter-spacing:0!important;margin:15px 0 13px!important;box-shadow:none!important}
+.tab-panel>.page-section-title .title-audio{display:none!important}
+
+/* HDB-style TOC cards: quiet grid, not a dark sticky strip. */
+.local-toc{position:static!important;z-index:auto!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important;overflow:visible!important;padding:14px!important;margin:0 0 20px!important;background:#fff!important;color:var(--ink)!important;border:1px solid #E5E5E3!important;border-radius:14px!important;box-shadow:0 4px 14px rgba(0,0,0,.035)!important}
+.local-toc strong{grid-column:1/-1!important;color:#1A1A18!important;font-size:13px!important;margin-bottom:1px!important;white-space:normal!important}
+.local-toc a{display:flex!important;align-items:flex-start!important;min-height:44px!important;white-space:normal!important;line-height:1.35!important;padding:9px 11px!important;border-radius:10px!important;color:#173F5F!important;background:#F7FAFC!important;border:1px solid #DCE6EE!important;font-size:11.8px!important;font-weight:700!important;text-decoration:none!important}
+.local-toc a:hover{background:#E8F2FA!important;border-color:#AFCFE5!important;color:#2971A8!important}
+
+/* Exact HDB V83 major-title geometry. */
+.major{border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;margin:18px 0 20px!important}
+.major>summary{list-style:none!important;display:grid!important;grid-template-columns:54px minmax(0,1fr) 36px 58px!important;gap:14px!important;align-items:center!important;min-height:82px!important;padding:14px 18px!important;border:0!important;border-radius:18px!important;background:linear-gradient(105deg,#173f5f 0%,#245f85 46%,#3f98c5 100%)!important;box-shadow:0 10px 24px rgba(23,63,95,.14)!important;color:#fff!important;cursor:pointer!important;user-select:none!important}
+.major>summary::-webkit-details-marker{display:none!important}
+.major[open]>summary{background:linear-gradient(105deg,#173f5f 0%,#245f85 46%,#3f98c5 100%)!important}
+.major-icon{width:52px!important;height:52px!important;display:grid!important;place-items:center!important;border-radius:14px!important;background:rgba(255,255,255,.14)!important;color:#fff!important;font-size:23px!important}
+.major-copy strong{display:block!important;color:#fff!important;font-size:21px!important;font-weight:900!important;line-height:1.2!important;letter-spacing:-.01em!important}
+.major-copy small{display:none!important}
+.major .chev{width:34px!important;height:34px!important;border:0!important;background:transparent!important;color:#fff!important;font-size:31px!important;font-weight:900!important;justify-self:center!important;display:grid!important;place-items:center!important}
+.major-badge{display:grid!important;place-items:center!important;width:54px!important;height:38px!important;justify-self:end!important;border-radius:999px!important;background:#fff5df!important;border:2px solid #efbd58!important;color:#9e5d00!important;font-size:14px!important;font-weight:900!important;letter-spacing:.02em!important;box-shadow:0 2px 0 rgba(255,255,255,.15) inset!important}
+.major-body{padding:14px 10px 10px!important}
+
+/* Match HDB card / Listen / table proportions. */
+.card{border:1px solid var(--line)!important;border-radius:10px!important;padding:16px 18px!important;margin:0 0 13px!important;box-shadow:0 8px 20px rgba(0,0,0,.035)!important;background:#fff!important}
+.section-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;min-width:0!important}
+.section-head h3,.section-head h4{min-width:0!important;flex:1!important}
+.listen{flex:0 0 auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;min-width:78px!important;height:30px!important;padding:4px 10px!important;border:1px solid var(--brand)!important;border-radius:999px!important;background:var(--soft)!important;color:var(--brand)!important;font-size:11.5px!important;font-weight:650!important;line-height:1!important;white-space:nowrap!important;margin:0!important}
+.listen.speaking{background:var(--brand)!important;color:#fff!important}
+th,td{padding:8px 9px!important;font-size:12.4px!important}th{background:var(--soft)!important;color:var(--brand)!important}
+.cell-audio,.auto-audio{min-width:25px!important;width:25px!important;height:25px!important;padding:0!important;border:1px solid #B8CCE0!important;background:#F8FBFD!important;color:#3977A7!important;border-radius:999px!important;font-size:0!important}
+.cell-audio::before,.auto-audio::before{content:'🔊';font-size:11px!important}
+
+@media(max-width:900px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}.local-toc{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:620px){.tabs{grid-template-columns:1fr!important;padding:10px 14px!important;max-height:255px!important;overflow-y:auto!important}.tab-btn{min-height:46px!important}.local-toc{grid-template-columns:1fr!important}.major>summary{grid-template-columns:46px minmax(0,1fr) 30px 48px!important;min-height:70px!important;padding:12px 13px!important;gap:10px!important}.major-icon{width:44px!important;height:44px!important;font-size:20px!important}.major-copy strong{font-size:17px!important}.major-badge{width:46px!important;height:34px!important;font-size:12px!important}}
+</style><style id="v4-one-day-tab3">
+#tab3 .one-day-card{border-left:5px solid #d97706!important;background:linear-gradient(135deg,#fffaf2,#fff)!important}
+#tab3 .one-day-card .lead{font-size:14px!important}
+#tab3 .qa-major{margin:14px 0 16px!important}
+#tab3 .qa-major>summary{min-height:72px!important;padding:12px 16px!important}
+#tab3 .qa-item{padding:11px 12px!important;margin:7px 0!important}
+#tab3 .qa-item p{font-size:12.9px!important;line-height:1.52!important}
+#tab3 .qa-item .cn{font-size:11.8px!important}
+#tab3 .qa-tag{background:#fff5df!important;color:#9e5d00!important;border:1px solid #efd59f!important}
+#tab3 .one-day-final{margin-top:20px!important;border-left:5px solid #067647!important;background:#f7fffa!important}
+</style><style id="v41-aws-experience">
+.aws-exp-card{
+  border-left:5px solid #d97706!important;
+  background:linear-gradient(135deg,#fffaf2 0%,#fff 58%)!important;
+}
+.aws-exp-question{
+  margin:10px 0 8px;
+  padding:9px 11px;
+  border-radius:9px;
+  background:#173F5F;
+  color:#fff;
+  font-size:12.5px;
+  font-weight:750;
+}
+.aws-exp-answer{
+  padding:12px 14px;
+  background:#fff;
+  border:1px solid #eadfcf;
+  border-radius:11px;
+}
+.aws-exp-answer p{
+  margin:0;
+  font-size:13.4px;
+  line-height:1.65;
+  color:#344054;
+}
+.aws-exp-tech{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  margin:11px 0 0;
+}
+.aws-exp-chip{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  min-height:58px;
+  justify-content:center;
+  padding:8px 10px;
+  border:1px solid #DCE6EE;
+  border-radius:9px;
+  background:#F7FAFC;
+}
+.aws-exp-chip b{
+  color:#173F5F;
+  font-size:11.8px;
+}
+.aws-exp-chip span{
+  color:#667085;
+  font-size:10.5px;
+  margin-top:2px;
+}
+@media(max-width:850px){
+  .aws-exp-tech{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:520px){
+  .aws-exp-tech{grid-template-columns:1fr}
+}
+</style><style id="v42-interview-focused-style">
+#tab1 .local-toc{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.simple-runtime-map{display:flex;align-items:center;gap:8px;overflow:auto;padding:14px 2px}
+.runtime-stage{position:relative;min-width:155px;min-height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px solid #dfe5ee;border-radius:12px;background:#fff;padding:10px 36px 10px 10px;box-shadow:0 4px 12px rgba(16,24,40,.03)}
+.runtime-stage b{display:block;color:#173f5f;font-size:12.5px}.runtime-stage small{display:block;color:#667085;font-size:10.7px;line-height:1.35;margin-top:3px}.runtime-icon{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:#eef4f8;font-size:19px;margin-bottom:6px}.runtime-arrow{font-size:24px;color:#98a2b3;font-weight:900;text-align:center}.runtime-stage.event{border-top:4px solid #d97706}.runtime-stage.steps{border-top:4px solid #7c3aed}.runtime-stage.dm{border-top:4px solid #2971A8}.runtime-stage.ads{border-top:4px solid #067647}.runtime-stage.upstream{border-top:4px solid #475467}
+.infra-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.infra-strip span{padding:8px 9px;border:1px solid #dce6ee;border-radius:8px;background:#f7fafc;font-size:11px;color:#667085}.infra-strip b{display:block;color:#173f5f}
+.compact-dm-map{display:flex;align-items:center;justify-content:center;gap:10px;overflow:auto;margin:12px 0 16px;padding:12px;background:#f8fafc;border:1px solid #e1e7ed;border-radius:11px}.dm-source{display:flex;align-items:center;gap:7px}.dm-source>div:not(.plus),.dm-center,.dm-ads>div{min-width:145px;padding:10px;border:1px solid #dce5ed;border-radius:9px;background:#fff;text-align:center}.dm-source b,.dm-center b,.dm-ads b{display:block;color:#173f5f}.dm-source small,.dm-center small,.dm-ads small{display:block;color:#667085;font-size:10.7px;margin-top:2px}.dm-center{border:2px solid #2971A8;background:#f3f9fd;min-width:185px}.dm-ads{display:grid;gap:7px}.plus{font-size:20px;font-weight:900;color:#98a2b3}
+.event-contract-box{margin:13px 0;padding:13px;border:1px solid #d7e4ec;border-radius:11px;background:#fbfdff}.event-title{display:flex;align-items:center;gap:7px;margin-bottom:8px;color:#173f5f}.event-title b{font-size:13px}.event-contract-box pre{margin:0 0 10px!important;font-size:11.3px!important}.event-logic{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:10.8px}.event-logic span{padding:5px 7px;background:#fff;border:1px solid #dce5ed;border-radius:7px;color:#475467}.event-logic b{color:#98a2b3}.event-logic .go{background:#ecfdf3;border-color:#a7e0c4;color:#047857;font-weight:800}
+.last-minute-card{max-width:900px;margin:0 auto!important}.last-minute-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px}.last-minute-grid>div{padding:11px;border:1px solid #dfe5ee;border-radius:10px;background:#f8fafc;min-height:112px}.last-minute-grid span{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#2971A8;color:#fff;font-size:11px;font-weight:900}.last-minute-grid b{display:block;color:#173f5f;margin-top:8px;font-size:12px}.last-minute-grid small{display:block;color:#667085;font-size:10.8px;line-height:1.4;margin-top:3px}
+#tab1 .aws-exp-tech{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#tab1 .qa-item{margin:8px 0!important}
+@media(max-width:900px){#tab1 .local-toc{grid-template-columns:repeat(2,minmax(0,1fr))!important}.infra-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.last-minute-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){#tab1 .local-toc,.infra-strip,.last-minute-grid{grid-template-columns:1fr!important}}
+</style><style id="v45-readiness-runtime-compact">
+/* Compact readiness runtime flow — softer palette + per-sentence audio */
+.readiness-runtime-details{
+  margin-top:11px;
+  border:1px solid #d8e3e9;
+  border-radius:11px;
+  background:#fbfcfd;
+  overflow:hidden;
+}
+.readiness-runtime-summary{
+  list-style:none;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) 24px;
+  gap:9px;
+  align-items:center;
+  padding:9px 11px;
+  cursor:pointer;
+  user-select:none;
+  background:linear-gradient(90deg,#f2f7fa 0%,#fbfcfd 100%);
+}
+.readiness-runtime-summary::-webkit-details-marker{display:none}
+.readiness-runtime-details[open]>.readiness-runtime-summary{
+  border-bottom:1px solid #dce5ea;
+  background:linear-gradient(90deg,#edf5f9 0%,#f8fbfc 100%);
+}
+.rrs-icon{
+  width:32px;height:32px;
+  display:grid;place-items:center;
+  border-radius:9px;
+  background:#e3f0f6;
+  color:#245f85;
+  font-size:16px;
+}
+.rrs-copy{min-width:0;display:grid;gap:2px}
+.rrs-line{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  min-width:0;
+}
+.rrs-line strong{
+  min-width:0;
+  color:#164968;
+  font-size:12.8px;
+  font-weight:850;
+  line-height:1.25;
+}
+.rrs-line small{
+  min-width:0;
+  color:#6b7b88;
+  font-size:10.2px;
+  line-height:1.25;
+}
+.rrs-chevron{
+  display:grid;place-items:center;
+  color:#4b86a7;
+  font-size:21px;
+  font-weight:900;
+  transition:transform .2s ease;
+}
+.readiness-runtime-details[open] .rrs-chevron{transform:rotate(90deg)}
+
+.readiness-runtime-body{padding:9px 10px 10px}
+.readiness-runtime-toolbar{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:8px;
+  padding:7px 9px;
+  border:1px solid #e1e8ec;
+  border-radius:8px;
+  background:#fff;
+}
+.readiness-runtime-toolbar>div{min-width:0;flex:1}
+.rr-toolbar-line{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.rr-toolbar-line b{
+  min-width:0;
+  color:#244c64;
+  font-size:11.7px;
+}
+.rr-toolbar-small{margin-top:2px}
+.rr-toolbar-small small{
+  min-width:0;
+  color:#71808b;
+  font-size:9.9px;
+  line-height:1.25;
+}
+
+.readiness-flow-track{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  max-width:650px;
+  margin:0 auto;
+}
+.rf-node{
+  display:grid;
+  grid-template-columns:22px 30px minmax(0,1fr);
+  gap:7px;
+  align-items:center;
+  min-height:49px;
+  padding:6px 8px;
+  border:1px solid #e0e6ea;
+  border-left:3px solid #9aa8b2;
+  border-radius:8px;
+  background:#fff;
+}
+.rf-step-badge{
+  display:grid;place-items:center;
+  width:20px;height:20px;
+  border-radius:6px;
+  background:#f0f3f5;
+  color:#667784;
+  font-size:9px;
+  font-weight:900;
+}
+.rf-main-icon{
+  width:28px;height:28px;
+  display:grid;place-items:center;
+  border-radius:8px;
+  background:#f4f6f8;
+  font-size:14px;
+}
+.rf-copy{min-width:0;display:grid;gap:1px}
+.rf-sentence{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:7px;
+  min-width:0;
+}
+.rf-title-line b{
+  min-width:0;
+  color:#29485c;
+  font-size:10.9px;
+  line-height:1.2;
+}
+.rf-desc-line small{
+  min-width:0;
+  color:#75818a;
+  font-size:9.65px;
+  line-height:1.2;
+}
+.rf-arrow{
+  height:12px;
+  display:grid;
+  place-items:center;
+  color:#a7b2b9;
+  font-size:13px;
+  font-weight:900;
+  line-height:1;
+}
+
+/* Softer category accents */
+.rf-node.upstream{border-left-color:#667784}
+.rf-node.publish{border-left-color:#c98a3e}
+.rf-node.eventbridge{border-left-color:#d69a49}
+.rf-node.steps,.rf-node.state{border-left-color:#8268a8}
+.rf-node.gluecall,.rf-node.dmjob{border-left-color:#4c83a5}
+.rf-node.python,.rf-node.sql{border-left-color:#4a8b82}
+.rf-node.output{
+  border-left-color:#4b8b68;
+  background:#f8fcf9;
+}
+
+/* Tiny sentence-level audio controls */
+.rf-listen{
+  flex:0 0 auto!important;
+  width:22px!important;
+  min-width:22px!important;
+  height:22px!important;
+  padding:0!important;
+  margin:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid #c6d5df!important;
+  border-radius:999px!important;
+  background:#f8fbfd!important;
+  color:#3d7293!important;
+  font-size:10px!important;
+  line-height:1!important;
+  box-shadow:none!important;
+}
+.rf-listen:hover{
+  background:#eaf3f8!important;
+  border-color:#9bbcd0!important;
+}
+.rf-listen.speaking{
+  background:#3977a7!important;
+  color:#fff!important;
+  border-color:#3977a7!important;
+}
+
+@media(max-width:620px){
+  .readiness-flow-track{max-width:none}
+  .rf-node{grid-template-columns:20px 28px minmax(0,1fr);gap:6px;padding:6px 7px}
+  .rf-main-icon{width:26px;height:26px;font-size:13px}
+  .rf-title-line b{font-size:10.5px}
+  .rf-desc-line small{font-size:9.4px}
+}
+</style><style id="v46-tab1-clean-compact">
+/* ---------- Tab 1: English-only, sentence-by-sentence ---------- */
+#tab1 .tab1-sentence-list{
+  display:grid;
+  gap:5px;
+  margin:8px 0;
+}
+#tab1 .tab1-sentence-row{
+  display:grid;
+  grid-template-columns:18px minmax(0,1fr) 24px;
+  gap:7px;
+  align-items:center;
+  min-height:31px;
+  padding:5px 7px;
+  border:1px solid #d8e1e7;
+  border-radius:7px;
+  background:#fff;
+}
+#tab1 .tab1-sentence-icon{
+  display:grid;
+  place-items:center;
+  color:#245f85;
+  font-size:11px;
+  font-weight:900;
+}
+#tab1 .tab1-sentence-text{
+  color:#263f50;
+  font-size:11.5px;
+  line-height:1.35;
+}
+#tab1 .tab1-sentence-listen,
+#tab1 .readiness-runtime-details .tab1-sentence-listen{
+  width:22px!important;
+  min-width:22px!important;
+  height:22px!important;
+  padding:0!important;
+  margin:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid #9fb9c9!important;
+  border-radius:999px!important;
+  background:#eef5f9!important;
+  color:#245f85!important;
+  font-size:10px!important;
+  box-shadow:none!important;
+}
+#tab1 .tab1-sentence-listen:hover{
+  background:#dcecf4!important;
+  border-color:#6e9db8!important;
+}
+#tab1 .tab1-sentence-listen.speaking{
+  background:#245f85!important;
+  color:#fff!important;
+  border-color:#245f85!important;
+}
+
+/* ---------- Readiness flow: narrower, darker, shorter ---------- */
+#tab1 .readiness-runtime-details{
+  max-width:590px;
+  margin:10px auto 0;
+  border:1px solid #aebfca;
+  background:#f7f9fa;
+}
+#tab1 .readiness-runtime-summary{
+  grid-template-columns:30px minmax(0,1fr) 22px;
+  gap:8px;
+  padding:7px 9px;
+  background:linear-gradient(90deg,#dfeaf0 0%,#f2f6f8 100%);
+}
+#tab1 .readiness-runtime-details[open]>.readiness-runtime-summary{
+  background:linear-gradient(90deg,#d8e6ed 0%,#eef4f7 100%);
+  border-bottom:1px solid #aebfca;
+}
+#tab1 .rrs-icon{
+  width:28px;height:28px;
+  border-radius:7px;
+  background:#c8dde8;
+  color:#173f5f;
+  font-size:14px;
+}
+#tab1 .rrs-line strong{
+  color:#153f58;
+  font-size:12px;
+  font-weight:900;
+}
+#tab1 .rrs-line small{
+  color:#506673;
+  font-size:9.7px;
+}
+#tab1 .rrs-chevron{color:#245f85;font-size:18px}
+#tab1 .readiness-runtime-body{padding:7px 8px 8px}
+#tab1 .readiness-runtime-toolbar{
+  margin-bottom:6px;
+  padding:5px 7px;
+  border-color:#c2cfd7;
+  background:#edf3f6;
+}
+#tab1 .readiness-runtime-toolbar .rr-toolbar-line span{
+  color:#294b60;
+  font-size:10.2px;
+  font-weight:700;
+}
+
+#tab1 .readiness-flow-track{
+  max-width:520px;
+}
+#tab1 .rf-node{
+  grid-template-columns:19px 25px minmax(0,1fr);
+  gap:6px;
+  min-height:40px;
+  padding:4px 6px;
+  border:1px solid #bfcbd2;
+  border-left-width:4px;
+  border-radius:6px;
+  background:#fff;
+}
+#tab1 .rf-step-badge{
+  width:18px;height:18px;
+  border-radius:5px;
+  background:#dfe5e9;
+  color:#405563;
+  font-size:8.5px;
+}
+#tab1 .rf-main-icon{
+  width:23px;height:23px;
+  border-radius:6px;
+  background:#e8edf0;
+  font-size:12px;
+}
+#tab1 .rf-title-line b{
+  color:#193f57;
+  font-size:10.4px;
+  font-weight:850;
+}
+#tab1 .rf-desc-line small{
+  color:#526874;
+  font-size:9.2px;
+}
+#tab1 .rf-arrow{
+  height:8px;
+  color:#718897;
+  font-size:11px;
+}
+#tab1 .rf-node.upstream{border-left-color:#4f6573}
+#tab1 .rf-node.publish{border-left-color:#b66f20}
+#tab1 .rf-node.eventbridge{border-left-color:#d07a17}
+#tab1 .rf-node.steps,#tab1 .rf-node.state{border-left-color:#6e4f9c}
+#tab1 .rf-node.gluecall,#tab1 .rf-node.dmjob{border-left-color:#2e7199}
+#tab1 .rf-node.python,#tab1 .rf-node.sql{border-left-color:#267a70}
+#tab1 .rf-node.output{
+  border-left-color:#2f7a4e;
+  background:#eef8f1;
+}
+
+/* Make the readiness QA area more compact too. */
+#tab1 .readiness-answer-list{gap:4px}
+#tab1 .event-contract-box{
+  max-width:720px;
+  margin-left:auto;
+  margin-right:auto;
+}
+#tab1 .event-contract-box pre{
+  font-size:10.4px!important;
+  padding:10px!important;
+}
+#tab1 .event-logic{
+  gap:4px!important;
+  font-size:9.8px!important;
+}
+#tab1 .event-logic span{padding:4px 6px!important}
+
+/* No Chinese notes in Tab 1. */
+#tab1 .cn{display:none!important}
+
+@media(max-width:650px){
+  #tab1 .readiness-runtime-details{max-width:100%}
+  #tab1 .readiness-flow-track{max-width:100%}
+}
+</style><style id="v47-grouped-runtime-flow">
+/* Group runtime steps 5+6+7 and 8+9+10 without losing information. */
+#tab1 .rf-group{
+  border:1px solid #9fb3bf;
+  border-radius:7px;
+  overflow:hidden;
+  background:#fff;
+}
+#tab1 .rf-group-run{border-left:4px solid #2e7199}
+#tab1 .rf-group-code{border-left:4px solid #267a70}
+
+#tab1 .rf-group-head{
+  display:grid;
+  grid-template-columns:66px minmax(0,1fr) 22px;
+  gap:7px;
+  align-items:center;
+  min-height:31px;
+  padding:4px 6px;
+  background:#e4edf2;
+  border-bottom:1px solid #b7c7d0;
+}
+#tab1 .rf-group-code .rf-group-head{background:#e3efed}
+#tab1 .rf-group-head b{
+  color:#173f5f;
+  font-size:10.7px;
+  font-weight:900;
+}
+#tab1 .rf-group-badge{
+  display:grid;
+  place-items:center;
+  min-height:20px;
+  padding:2px 5px;
+  border-radius:6px;
+  background:#fff;
+  border:1px solid #aebfc9;
+  color:#405563;
+  font-size:8.8px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+#tab1 .rf-group-row{
+  display:grid;
+  grid-template-columns:28px minmax(0,1fr);
+  gap:7px;
+  align-items:center;
+  min-height:42px;
+  padding:4px 6px;
+  border-top:1px dashed #cbd6dc;
+}
+#tab1 .rf-group-row:first-of-type{border-top:0}
+#tab1 .rf-group-icon{
+  width:24px;
+  height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:6px;
+  background:#edf2f5;
+  font-size:12px;
+}
+#tab1 .rf-group-code .rf-group-icon{background:#eaf3f1}
+#tab1 .rf-group-copy{min-width:0}
+#tab1 .rf-group .rf-title-line b{
+  color:#193f57;
+  font-size:10.3px;
+  font-weight:850;
+}
+#tab1 .rf-group .rf-desc-line small{
+  color:#526874;
+  font-size:9.15px;
+}
+</style><style id="v48-terraform-tab">
+/* =========================================================
+   Terraform Quick Start — compact beginner/interview tab
+   ========================================================= */
+.tabs{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#tab4{--tf:#6f42c1;--tfsoft:#f3effb;--tfdark:#4f2e8a}
+#tab4 .tf-intro{border-left:5px solid var(--tf)!important;background:linear-gradient(135deg,#faf8ff,#fff)!important}
+#tab4 .tf-toc{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#tab4 .tf-major>summary{grid-template-columns:54px minmax(0,1fr) 26px 36px 58px!important}
+#tab4 .tf-summary-listen{
+  width:24px!important;min-width:24px!important;height:24px!important;padding:0!important;
+  border:1px solid rgba(255,255,255,.6)!important;background:rgba(255,255,255,.14)!important;
+  color:#fff!important;font-size:10px!important
+}
+#tab4 .tf-section-head h3{color:#173f5f}
+#tab4 .tf-sentence-row,#tab4 .tf-answer-row,#tab4 .tf-concept-sentence{
+  display:grid;grid-template-columns:20px minmax(0,1fr) 24px;gap:7px;align-items:center;
+  min-height:33px;padding:5px 7px;border:1px solid #dde4e9;border-radius:7px;background:#fff;margin:4px 0
+}
+#tab4 .tf-sentence-icon{display:grid;place-items:center;color:var(--tf);font-size:11px;font-weight:900}
+#tab4 .tf-sentence-text{color:#314958;font-size:11.3px;line-height:1.35}
+#tab4 .tf-listen,#tab4 .tf-cell-listen,#tab4 .tf-node-listen,#tab4 .tf-code-listen{
+  width:22px!important;min-width:22px!important;height:22px!important;padding:0!important;margin:0!important;
+  display:grid!important;place-items:center!important;border:1px solid #b8c8d4!important;border-radius:999px!important;
+  background:#f7fafc!important;color:#3977a7!important;font-size:9.5px!important;box-shadow:none!important
+}
+#tab4 .tf-listen.speaking,#tab4 .tf-cell-listen.speaking,#tab4 .tf-node-listen.speaking,#tab4 .tf-code-listen.speaking{
+  background:#3977a7!important;color:#fff!important;border-color:#3977a7!important
+}
+#tab4 .tf-workflow{
+  display:flex;align-items:center;gap:7px;overflow:auto;padding:10px 0 12px
+}
+#tab4 .tf-flow-node{
+  position:relative;min-width:135px;padding:10px 34px 10px 10px;text-align:center;
+  border:1px solid #dcdfe6;border-radius:9px;background:#fff
+}
+#tab4 .tf-flow-node span{font-size:18px}#tab4 .tf-flow-node b,#tab4 .tf-flow-node small{display:block}
+#tab4 .tf-flow-node b{color:#173f5f;font-size:11px;margin-top:3px}
+#tab4 .tf-flow-node small{color:#667085;font-size:9.5px;margin-top:2px}
+#tab4 .tf-flow-node.strong{border-top:4px solid var(--tf);background:#fbf9ff}
+#tab4 .tf-flow-node.state{border-top:4px solid #2971a8;background:#f7fbfd}
+#tab4 .tf-flow-arrow{color:#98a2b3;font-size:20px;font-weight:900}
+#tab4 .tf-flow-node .tf-node-listen{position:absolute;top:6px;right:6px}
+
+#tab4 .tf-concept-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+#tab4 .tf-concept{border:1px solid #dfe5ea;border-radius:9px;background:#fbfcfd;padding:9px}
+#tab4 .tf-concept-title{display:grid;grid-template-columns:24px minmax(0,1fr) 22px;gap:6px;align-items:center}
+#tab4 .tf-concept-title>b{color:#173f5f;font-size:11.2px}
+#tab4 .tf-concept-title>span{font-size:15px}
+
+#tab4 .tf-table{width:100%;border-collapse:collapse;font-size:11px}
+#tab4 .tf-table th,#tab4 .tf-table td{padding:6px 7px!important;border:1px solid #dfe5ea;vertical-align:top}
+#tab4 .tf-table th{background:#eef4f8!important;color:#214f6b!important}
+#tab4 .tf-cell{display:grid;grid-template-columns:minmax(0,1fr) 22px;gap:6px;align-items:start}
+#tab4 .tf-cell code{color:#5d378f;font-size:10px;white-space:normal;overflow-wrap:anywhere}
+#tab4 .command-table code{white-space:nowrap}
+
+#tab4 .tf-code-head{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:6px 8px;border:1px solid #dfe5ea;border-bottom:0;border-radius:8px 8px 0 0;
+  background:#eef3f6;color:#173f5f;font-size:10.5px;font-weight:800
+}
+#tab4 .tf-code{margin:0 0 10px!important;border-radius:0 0 8px 8px!important;padding:11px!important;font-size:10.2px!important;line-height:1.45!important}
+#tab4 .tf-code-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:9px 0 14px}
+#tab4 .tf-code-panel{min-width:0}
+#tab4 .cfn-code .tf-code-head{background:#e9f4fb}
+#tab4 .tf-code-panel-right .tf-code-head{background:#f1ebfa}
+
+#tab4 .tf-vs-map{display:grid;grid-template-columns:1fr 42px 1fr;gap:10px;align-items:center;max-width:760px;margin:10px auto 14px}
+#tab4 .tf-vs-side{padding:10px;border:1px solid #dfe5ea;border-radius:10px;background:#fff}
+#tab4 .tf-vs-side.cfn{border-top:4px solid #2971a8}
+#tab4 .tf-vs-side.terraform{border-top:4px solid var(--tf)}
+#tab4 .tf-vs-title,#tab4 .tf-vs-step{position:relative;padding-right:30px}
+#tab4 .tf-vs-title{display:flex;align-items:center;gap:6px;font-weight:900;color:#173f5f;margin-bottom:7px}
+#tab4 .tf-vs-step{padding:7px 30px 7px 8px;border:1px solid #e1e7eb;border-radius:7px;background:#f8fafb;text-align:center;font-size:10.5px;color:#405565}
+#tab4 .tf-vs-title .tf-node-listen,#tab4 .tf-vs-step .tf-node-listen{position:absolute;right:4px;top:50%;transform:translateY(-50%)}
+#tab4 .tf-vs-down{text-align:center;color:#98a2b3;font-weight:900}
+#tab4 .tf-vs-middle{text-align:center;font-size:26px;color:#98a2b3;font-weight:900}
+
+#tab4 .tf-demo-strip{display:flex;align-items:center;justify-content:center;gap:7px;overflow:auto;margin:10px 0}
+#tab4 .tf-demo-strip>div{position:relative;min-width:135px;padding:8px 32px 8px 8px;border:1px solid #dfe5ea;border-radius:8px;background:#fff;text-align:center}
+#tab4 .tf-demo-strip b,#tab4 .tf-demo-strip small{display:block}
+#tab4 .tf-demo-strip b{font-size:10.8px;color:#173f5f}#tab4 .tf-demo-strip small{font-size:9.4px;color:#667085}
+#tab4 .tf-demo-strip>span{color:#98a2b3;font-weight:900}
+#tab4 .tf-demo-strip .tf-node-listen{position:absolute;top:5px;right:5px}
+#tab4 .tf-iac-swap{
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px;
+  padding:8px;border:1px dashed #c9d3db;border-radius:8px;background:#f8fafb;font-size:10.5px
+}
+#tab4 .tf-iac-swap span,#tab4 .tf-iac-swap em{position:relative;padding:5px 31px 5px 8px;border-radius:7px}
+#tab4 .tf-iac-swap .old{background:#e8f3fb;color:#215f8d;font-weight:900}
+#tab4 .tf-iac-swap .new{background:#f0e9fa;color:#5f3a92;font-weight:900}
+#tab4 .tf-iac-swap em{background:#fff;color:#667085;font-style:normal}
+#tab4 .tf-iac-swap .tf-node-listen{position:absolute;right:4px;top:50%;transform:translateY(-50%)}
+
+#tab4 .tf-qa{padding:10px 11px!important;margin:7px 0!important;border-left-color:var(--tf)!important}
+#tab4 .tf-qa .qa-top>div{display:flex;align-items:center;gap:7px;min-width:0}
+#tab4 .tf-qa .qa-top b{color:#173f5f;font-size:11.5px}
+#tab4 .tf-answer-row{margin-top:5px}
+#tab4 .tf-memory-card{border-left:5px solid var(--tf)!important;background:#fbf9ff!important}
+
+@media(max-width:950px){
+  .tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #tab4 .tf-concept-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #tab4 .tf-code-compare{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+  .tabs{grid-template-columns:1fr!important}
+  #tab4 .tf-toc,#tab4 .tf-concept-grid{grid-template-columns:1fr!important}
+  #tab4 .tf-vs-map{grid-template-columns:1fr}
+  #tab4 .tf-vs-middle{transform:rotate(90deg)}
+}
+</style></head>
+<body>
+<header>
+<h1>AWS Reservation Analytics Platform — Presentation Preparation</h1>
+<p>Three-part story: Project Architecture, CloudFormation, and Interview Q&amp;A.</p>
+<div class="toolbar"><label>Voice <select id="voice"></select></label><label>Speed <input id="rate" max="1.25" min="0.65" step="0.05" type="range" value="0.9"/><span id="rateValue">0.90×</span></label><button class="stop" id="stop">Stop</button></div>
+</header>
+<nav aria-label="Main tabs" class="tabs">
+<button class="tab-btn active" data-tab="tab1"><span class="tab-no">1</span><span class="tab-label">Project &amp; Architecture</span></button>
+<button class="tab-btn" data-tab="tab2"><span class="tab-no">2</span><span class="tab-label">CloudFormation from Zero</span></button>
+<button class="tab-btn" data-tab="tab3"><span class="tab-no">3</span><span class="tab-label">Last-Minute Review</span></button>
+<button class="tab-btn" data-tab="tab4"><span class="tab-no">4</span><span class="tab-label">Terraform Quick Start</span></button></nav>
+<main class="tab-panel active" id="tab1">
+<h2 class="page-section-title">1. Project Background &amp; AWS Architecture</h2>
+<section class="card accent" id="t1-story">
+<div class="section-head"><h3>One-line story</h3><button class="listen" data-speak-text="This project is a downstream reservation analytics pipeline. Upstream teams own DWD and DIM, EventBridge receives the data-ready event, Step Functions orchestrates one DM Glue job followed by two parallel ADS Glue jobs, and the curated outputs are stored in S3 and registered in the Glue Data Catalog." title="Listen" type="button">🔊 Listen</button></div>
+<div class="tab1-sentence-list"><div class="tab1-sentence-row"><span class="tab1-sentence-icon">•</span><span class="tab1-sentence-text">This is a downstream reservation analytics pipeline.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="This is a downstream reservation analytics pipeline." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">→</span><span class="tab1-sentence-text">Upstream owns the DWD and DIM layers.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Upstream owns the DWD and DIM layers." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">✓</span><span class="tab1-sentence-text">The downstream flow starts only after a data-ready event.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="The downstream flow starts only after a data-ready event." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">◆</span><span class="tab1-sentence-text">It builds one reusable DM and then two ADS outputs.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="It builds one reusable DM and then two ADS outputs." title="Listen" type="button">🔊</button></div></div>
+<div class="memory-strip"><b>Remember:</b><span>Upstream ready → EventBridge → Step Functions → DM → Parallel ADS</span></div>
+</section><nav class="local-toc"><strong>Tab 1 Contents — interview-focused</strong><a href="#t1-aws-experience">AWS Experience</a><a href="#t1-flow">Architecture &amp; Flow</a><a href="#t1-dependency">DM &amp; Dependency</a><a href="#t1-keyqa">Key Interview Q&amp;A</a></nav><section class="card aws-exp-card" id="t1-aws-experience"><div class="section-head"><h3>If asked: “Have you used AWS? What project have you built?”</h3><button aria-label="Listen" class="listen" data-speak-text="Yes. I have hands-on AWS experience mainly in data engineering. I built a reservation analytics pipeline using S3, Glue, Glue Data Catalog, EventBridge and Step Functions. EventBridge starts the workflow after upstream data is ready; Step Functions runs the DM Glue job first and then two ADS jobs in parallel. I use IAM for service permissions and CloudFormation for Infrastructure as Code." title="Listen" type="button">🔊 Listen</button></div><div class="aws-exp-question">Question: Have you used AWS, and can you give me an example of an AWS project you worked on?</div><div class="aws-exp-answer"><div class="tab1-sentence-list aws-exp-sentences"><div class="tab1-sentence-row"><span class="tab1-sentence-icon">•</span><span class="tab1-sentence-text">Yes. I have hands-on AWS experience mainly in data engineering.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Yes. I have hands-on AWS experience mainly in data engineering." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">→</span><span class="tab1-sentence-text">I built a reservation analytics pipeline on AWS.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="I built a reservation analytics pipeline on AWS." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">✓</span><span class="tab1-sentence-text">I use S3, Glue and the Glue Data Catalog for data processing and metadata.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="I use S3, Glue and the Glue Data Catalog for data processing and metadata." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">◆</span><span class="tab1-sentence-text">EventBridge starts the workflow after upstream data is ready.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="EventBridge starts the workflow after upstream data is ready." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">▸</span><span class="tab1-sentence-text">Step Functions runs DM first and then two ADS jobs in parallel.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Step Functions runs DM first and then two ADS jobs in parallel." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">○</span><span class="tab1-sentence-text">IAM controls permissions, and CloudFormation provisions the infrastructure.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="IAM controls permissions, and CloudFormation provisions the infrastructure." title="Listen" type="button">🔊</button></div></div></div><div class="aws-exp-tech"><div class="aws-exp-chip"><b>S3</b><span>storage</span></div><div class="aws-exp-chip"><b>Glue / PySpark / SQL</b><span>ETL</span></div><div class="aws-exp-chip"><b>Glue Data Catalog</b><span>metadata</span></div><div class="aws-exp-chip"><b>EventBridge</b><span>event trigger</span></div><div class="aws-exp-chip"><b>Step Functions</b><span>orchestration</span></div><div class="aws-exp-chip"><b>IAM</b><span>security</span></div><div class="aws-exp-chip"><b>CloudFormation</b><span>IaC</span></div></div><div class="memory-strip"><b>Memory line:</b><span>S3 / Catalog → EventBridge → Step Functions → Glue DM → Parallel ADS · CloudFormation provisions it.</span></div></section><details class="major" id="t1-flow" open=""><summary><span class="major-icon">🗺️</span><span class="major-copy"><strong>Architecture &amp; Runtime Flow</strong><small>INTERVIEW FOCUS</small></span><span class="chev">›</span><span class="major-badge">01</span></summary><div class="major-body"><section class="card"><div class="section-head"><h3>End-to-End Flow — explain from left to right</h3><button aria-label="Listen" class="listen" data-speak-text="The upstream platform owns DWD and DIM. When the data-ready event arrives, EventBridge starts Step Functions. Step Functions runs the DM Glue job synchronously, then starts the two independent ADS Glue jobs in parallel." title="Listen" type="button">🔊 Listen</button></div>
+<div class="simple-runtime-map">
+<div class="runtime-stage upstream">
+<div class="runtime-icon">🗃️</div>
+<b>Upstream DWD / DIM</b>
+<small>dwd_reservation_event<br/>dwd_paid_order<br/>dim_campaign</small>
+</div>
+<div class="runtime-arrow">→</div>
+<div class="runtime-stage event">
+<div class="runtime-icon">⚡</div>
+<b>EventBridge</b>
+<small>matches data-ready event</small>
+</div>
+<div class="runtime-arrow">→</div>
+<div class="runtime-stage steps">
+<div class="runtime-icon">🔁</div>
+<b>Step Functions</b>
+<small>sequence · sync · retry · parallel</small>
+</div>
+<div class="runtime-arrow">→</div>
+<div class="runtime-stage dm">
+<div class="runtime-icon">🧠</div>
+<b>DM Glue Job</b>
+<small>dm_reservation_conversion</small>
+</div>
+<div class="runtime-arrow">→</div>
+<div class="runtime-stage ads">
+<div class="runtime-icon">📊</div>
+<b>Parallel ADS</b>
+<small>Campaign Conversion<br/>CRM Reserved-not-paid</small>
+</div>
+</div>
+<div class="infra-strip">
+<span><b>S3</b> actual data</span>
+<span><b>Glue Catalog</b> metadata</span>
+<span><b>IAM</b> permissions</span>
+<span><b>CloudFormation</b> provisioning</span>
+</div>
+<div class="callout blue"><b>Component roles</b> EventBridge = when to start · Step Functions = execution order · Glue = ETL runtime · SQL = business logic · S3 = data · Glue Catalog = metadata · IAM = access · CloudFormation = IaC.</div></section></div></details><details class="major" id="t1-dependency" open=""><summary><span class="major-icon">🧱</span><span class="major-copy"><strong>DM &amp; Upstream Dependency — the most important follow-up</strong><small>INTERVIEW FOCUS</small></span><span class="chev">›</span><span class="major-badge">02</span></summary><div class="major-body"><section class="card"><div class="section-head"><h3>Where DM fits</h3><button aria-label="Listen" class="listen" data-speak-text="DM is the reusable business layer. It combines reservation events, paid orders and campaign dimensions once, standardizes the conversion logic, and lets both ADS outputs reuse the same definition." title="Listen" type="button">🔊 Listen</button></div>
+<div class="compact-dm-map">
+<div class="dm-source">
+<div><b>DWD</b><small>reservation + paid order</small></div>
+<div class="plus">+</div>
+<div><b>DIM</b><small>campaign context</small></div>
+</div>
+<div class="runtime-arrow">→</div>
+<div class="dm-center"><b>DM</b><small>shared reservation-conversion logic</small></div>
+<div class="runtime-arrow">→</div>
+<div class="dm-ads">
+<div><b>ADS Campaign</b><small>aggregated metrics</small></div>
+<div><b>ADS CRM</b><small>user-level targets</small></div>
+</div>
+</div>
+<div class="qa-item"><div class="qa-top"><div><b>Why do you need a DM layer?</b><span class="qa-tag">MUST KNOW</span></div><button aria-label="Listen" class="listen" data-speak-text="Why do you need a DM layer? Because the reservation-to-payment logic is shared by multiple downstream use cases. I calculate it once in DM so both ADS outputs reuse the same joins, flags and business definition." title="Listen" type="button">🔊 Listen</button></div><div class="tab1-sentence-list qa-sentence-list"><div class="tab1-sentence-row"><span class="tab1-sentence-icon">•</span><span class="tab1-sentence-text">The reservation-to-payment logic is shared by multiple downstream use cases.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="The reservation-to-payment logic is shared by multiple downstream use cases." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">→</span><span class="tab1-sentence-text">I calculate the logic once in DM.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="I calculate the logic once in DM." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">✓</span><span class="tab1-sentence-text">Both ADS outputs reuse the same joins, flags and business definition.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Both ADS outputs reuse the same joins, flags and business definition." title="Listen" type="button">🔊</button></div></div></div><div class="qa-item"><div class="qa-top"><div><b>How do you know DWD and DIM are ready before starting DM?</b><span class="qa-tag">MUST KNOW</span></div><button aria-label="Listen" class="listen" data-speak-text="How do you know DWD and DIM are ready before starting DM? In this demo, the downstream pipeline does not poll S3 to guess whether upstream data is ready. The dependency is an event contract. The upstream platform owns DWD and DIM and publishes a readiness event only after it considers both datasets complete. EventBridge accepts the event only when status is SUCCEEDED, dwd_ready is true, and dim_ready is true. Only then does it start the Step Functions state machine. The event also carries business_date, which is passed to the Glue jobs. In production, I would make the upstream readiness check stricter by validating the required DWD and DIM partitions for the same business date and completing data-quality or reconciliation checks before publishing the event." title="Listen" type="button">🔊 Listen</button></div><div class="tab1-sentence-list readiness-answer-list"><div class="tab1-sentence-row"><span class="tab1-sentence-icon">•</span><span class="tab1-sentence-text">The downstream flow does not poll S3 for readiness.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="The downstream flow does not poll S3 for readiness." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">→</span><span class="tab1-sentence-text">The upstream platform owns DWD and DIM.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="The upstream platform owns DWD and DIM." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">✓</span><span class="tab1-sentence-text">It publishes a readiness event only after both datasets are complete.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="It publishes a readiness event only after both datasets are complete." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">◆</span><span class="tab1-sentence-text">EventBridge requires status = SUCCEEDED, dwd_ready = true, and dim_ready = true.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="EventBridge requires status = SUCCEEDED, dwd_ready = true, and dim_ready = true." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">▸</span><span class="tab1-sentence-text">The event carries the business_date into Step Functions and Glue.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="The event carries the business_date into Step Functions and Glue." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">○</span><span class="tab1-sentence-text">In production, I would publish the event only after same-date partitions and data-quality checks pass.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="In production, I would publish the event only after same-date partitions and data-quality checks pass." title="Listen" type="button">🔊</button></div></div></div>
+<div class="event-contract-box">
+<div class="event-title"><span>📨</span><b>Readiness event contract</b></div>
+<pre><code>{
+  "source": "data-platform.upstream",
+  "detail-type": "Reservation DWD Data Ready",
+  "detail": {
+    "status": "SUCCEEDED",
+    "dwd_ready": true,
+    "dim_ready": true,
+    "business_date": "2026-08-05"
+  }
+}</code></pre>
+<div class="event-logic">
+<span>status = SUCCEEDED</span><b>AND</b>
+<span>dwd_ready = true</span><b>AND</b>
+<span>dim_ready = true</span><b>→</b>
+<span class="go">Start Step Functions</span>
+</div>
+<details class="readiness-runtime-details"><summary class="readiness-runtime-summary"><span class="rrs-icon">🔗</span><span class="rrs-copy"><span class="rrs-line"><strong>Runtime Call Chain — Ready Event to DM</strong><button aria-label="Listen" class="listen rf-listen compact-rf-listen" data-speak-text="Runtime Call Chain — Ready Event to DM" title="Listen" type="button">🔊</button></span><span class="rrs-line rrs-small-line"><small>Expand to see how the DM job starts.</small><button aria-label="Listen" class="listen rf-listen compact-rf-listen" data-speak-text="Expand to see how the DM job starts." title="Listen" type="button">🔊</button></span></span><span class="rrs-chevron">›</span></summary><div class="readiness-runtime-body"><div class="readiness-runtime-toolbar"><div class="rr-toolbar-line"><span>Follow the call chain from the ready event to the DM output.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Follow the call chain from the ready event to the DM output." title="Listen" type="button">🔊</button></div></div><div class="readiness-flow-track"><div class="rf-node upstream"><span class="rf-step-badge">1</span><span class="rf-main-icon">🗃️</span><div class="rf-copy"><div class="rf-sentence rf-title-line"><b>DWD + DIM Ready</b><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="DWD + DIM Ready" title="Listen" type="button">🔊</button></div><div class="rf-sentence rf-desc-line"><small>Upstream confirms both datasets.</small><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Upstream confirms both datasets." title="Listen" type="button">🔊</button></div></div></div><div class="rf-arrow">↓</div><div class="rf-node publish"><span class="rf-step-badge">2</span><span class="rf-main-icon">📨</span><div class="rf-copy"><div class="rf-sentence rf-title-line"><b>Publish Ready Event</b><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Publish Ready Event" title="Listen" type="button">🔊</button></div><div class="rf-sentence rf-desc-line"><small>Upstream publishes one event.</small><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Upstream publishes one event." title="Listen" type="button">🔊</button></div></div></div><div class="rf-arrow">↓</div><div class="rf-node eventbridge"><span class="rf-step-badge">3</span><span class="rf-main-icon">⚡</span><div class="rf-copy"><div class="rf-sentence rf-title-line"><b>EventBridge</b><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="EventBridge" title="Listen" type="button">🔊</button></div><div class="rf-sentence rf-desc-line"><small>Matches the event pattern.</small><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Matches the event pattern." title="Listen" type="button">🔊</button></div></div></div><div class="rf-arrow">↓</div><div class="rf-node steps"><span class="rf-step-badge">4</span><span class="rf-main-icon">🔁</span><div class="rf-copy"><div class="rf-sentence rf-title-line"><b>Step Functions</b><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Step Functions" title="Listen" type="button">🔊</button></div><div class="rf-sentence rf-desc-line"><small>Starts the state machine.</small><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Starts the state machine." title="Listen" type="button">🔊</button></div></div></div><div class="rf-arrow">↓</div><div class="rf-group rf-group-run"><div class="rf-group-head"><span class="rf-group-badge">5 + 6 + 7</span><b>Run the DM Glue Job</b><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Run the DM Glue Job" title="Listen" type="button">🔊</button></div><div class="rf-group-row"><span class="rf-group-icon">▶️</span><div class="rf-group-copy"><div class="rf-sentence rf-title-line"><b>Run DM Conversion</b><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Run DM Conversion" title="Listen" type="button">🔊</button></div><div class="rf-sentence rf-desc-line"><small>The first state is the DM task.</small><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="The first state is the DM task." title="Listen" type="button">🔊</button></div></div></div><div class="rf-group-row"><span class="rf-group-icon">🧩</span><div class="rf-group-copy"><div class="rf-sentence rf-title-line"><b>startJobRun.sync</b><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="startJobRun.sync" title="Listen" type="button">🔊</button></div><div class="rf-sentence rf-desc-line"><small>Step Functions starts Glue and waits for completion.</small><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Step Functions starts Glue and waits for completion." title="Listen" type="button">🔊</button></div></div></div><div class="rf-group-row"><span class="rf-group-icon">🛠️</span><div class="rf-group-copy"><div class="rf-sentence rf-title-line"><b>DmConversionJob</b><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="DmConversionJob" title="Listen" type="button">🔊</button></div><div class="rf-sentence rf-desc-line"><small>The configured DM Glue Job is invoked.</small><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="The configured DM Glue Job is invoked." title="Listen" type="button">🔊</button></div></div></div></div><div class="rf-arrow">↓</div><div class="rf-group rf-group-code"><div class="rf-group-head"><span class="rf-group-badge">8 + 9 + 10</span><b>Execute the DM Transformation</b><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Execute the DM Transformation" title="Listen" type="button">🔊</button></div><div class="rf-group-row"><span class="rf-group-icon">🐍</span><div class="rf-group-copy"><div class="rf-sentence rf-title-line"><b>Python Runner</b><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Python Runner" title="Listen" type="button">🔊</button></div><div class="rf-sentence rf-desc-line"><small>Loads run_single_sql_job.py from S3.</small><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Loads run_single_sql_job.py from S3." title="Listen" type="button">🔊</button></div></div></div><div class="rf-group-row"><span class="rf-group-icon">🧾</span><div class="rf-group-copy"><div class="rf-sentence rf-title-line"><b>DM SQL</b><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="DM SQL" title="Listen" type="button">🔊</button></div><div class="rf-sentence rf-desc-line"><small>Runs 30_dm_reservation_conversion.sql.</small><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Runs 30_dm_reservation_conversion.sql." title="Listen" type="button">🔊</button></div></div></div><div class="rf-group-row"><span class="rf-group-icon">✅</span><div class="rf-group-copy"><div class="rf-sentence rf-title-line"><b>DM Output</b><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="DM Output" title="Listen" type="button">🔊</button></div><div class="rf-sentence rf-desc-line"><small>Writes dm_reservation_conversion.</small><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Writes dm_reservation_conversion." title="Listen" type="button">🔊</button></div></div></div></div></div></div></details>
+</div>
+<div class="callout orange"><b>Important accuracy point</b> The EventBridge rule only checks the event fields. The current downstream template does not itself prove that S3 partitions are complete; that responsibility belongs to the upstream publisher. For a production design, readiness should mean “same business_date + required partitions + DQ passed”.</div></section></div></details><details class="major" id="t1-keyqa"><summary><span class="major-icon">🎤</span><span class="major-copy"><strong>Key Interview Q&amp;A &amp; 60-second Talk</strong><small>INTERVIEW FOCUS</small></span><span class="chev">›</span><span class="major-badge">03</span></summary><div class="major-body"><section class="card"><div class="section-head"><h3>60-second project explanation</h3><button aria-label="Listen" class="listen" data-speak-text="This is a downstream reservation analytics pipeline on AWS. Upstream DWD and DIM publish a data-ready event. EventBridge starts Step Functions, which runs the DM Glue job synchronously and then runs two independent ADS jobs in parallel. S3 stores the data, the Glue Data Catalog stores metadata, IAM controls service permissions, and CloudFormation provisions the AWS resources." title="Listen" type="button">🔊 Listen</button></div><div class="tab1-sentence-list talk-sentence-list"><div class="tab1-sentence-row"><span class="tab1-sentence-icon">•</span><span class="tab1-sentence-text">This is a downstream reservation analytics pipeline on AWS.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="This is a downstream reservation analytics pipeline on AWS." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">→</span><span class="tab1-sentence-text">Upstream publishes a data-ready event after DWD and DIM are ready.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Upstream publishes a data-ready event after DWD and DIM are ready." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">✓</span><span class="tab1-sentence-text">EventBridge starts the Step Functions state machine.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="EventBridge starts the Step Functions state machine." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">◆</span><span class="tab1-sentence-text">Step Functions runs the DM Glue job first.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Step Functions runs the DM Glue job first." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">▸</span><span class="tab1-sentence-text">After DM succeeds, two ADS Glue jobs run in parallel.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="After DM succeeds, two ADS Glue jobs run in parallel." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">○</span><span class="tab1-sentence-text">S3 stores data, the Glue Data Catalog stores metadata, IAM controls permissions, and CloudFormation provisions the resources.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="S3 stores data, the Glue Data Catalog stores metadata, IAM controls permissions, and CloudFormation provisions the resources." title="Listen" type="button">🔊</button></div></div><div class="qa-item"><div class="qa-top"><div><b>What is CloudFormation?</b><span class="qa-tag">CORE</span></div><button aria-label="Listen" class="listen" data-speak-text="What is CloudFormation? CloudFormation is AWS Infrastructure as Code. I declare AWS resources in a template and deploy them together as a stack." title="Listen" type="button">🔊 Listen</button></div><div class="tab1-sentence-list qa-sentence-list"><div class="tab1-sentence-row"><span class="tab1-sentence-icon">•</span><span class="tab1-sentence-text">CloudFormation is AWS Infrastructure as Code.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="CloudFormation is AWS Infrastructure as Code." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">→</span><span class="tab1-sentence-text">I declare AWS resources in a template and deploy them together as a stack.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="I declare AWS resources in a template and deploy them together as a stack." title="Listen" type="button">🔊</button></div></div></div><div class="qa-item"><div class="qa-top"><div><b>Does CloudFormation run the ETL?</b><span class="qa-tag">TRAP</span></div><button aria-label="Listen" class="listen" data-speak-text="Does CloudFormation run the ETL? No. CloudFormation provisions the Glue Job and supporting resources. Glue executes the transformation, while SQL contains the business logic." title="Listen" type="button">🔊 Listen</button></div><div class="tab1-sentence-list qa-sentence-list"><div class="tab1-sentence-row"><span class="tab1-sentence-icon">•</span><span class="tab1-sentence-text">No.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="No." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">→</span><span class="tab1-sentence-text">CloudFormation provisions the Glue Job and supporting resources.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="CloudFormation provisions the Glue Job and supporting resources." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">✓</span><span class="tab1-sentence-text">Glue executes the transformation, while SQL contains the business logic.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Glue executes the transformation, while SQL contains the business logic." title="Listen" type="button">🔊</button></div></div></div><div class="qa-item"><div class="qa-top"><div><b>Why Step Functions instead of Lambda for orchestration?</b><span class="qa-tag">CORE</span></div><button aria-label="Listen" class="listen" data-speak-text="Why Step Functions instead of Lambda for orchestration? Step Functions makes sequence, synchronous waiting, parallel branches, retry and failure paths explicit. Lambda is better for custom code." title="Listen" type="button">🔊 Listen</button></div><div class="tab1-sentence-list qa-sentence-list"><div class="tab1-sentence-row"><span class="tab1-sentence-icon">•</span><span class="tab1-sentence-text">Step Functions makes sequence, synchronous waiting, parallel branches, retry and failure paths explicit.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Step Functions makes sequence, synchronous waiting, parallel branches, retry and failure paths explicit." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">→</span><span class="tab1-sentence-text">Lambda is better for custom code.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Lambda is better for custom code." title="Listen" type="button">🔊</button></div></div></div><div class="qa-item"><div class="qa-top"><div><b>Why are the two ADS jobs parallel?</b><span class="qa-tag">CORE</span></div><button aria-label="Listen" class="listen" data-speak-text="Why are the two ADS jobs parallel? Both depend on DM, but they do not depend on each other. Once DM succeeds, parallel execution reduces end-to-end latency." title="Listen" type="button">🔊 Listen</button></div><div class="tab1-sentence-list qa-sentence-list"><div class="tab1-sentence-row"><span class="tab1-sentence-icon">•</span><span class="tab1-sentence-text">Both depend on DM, but they do not depend on each other.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Both depend on DM, but they do not depend on each other." title="Listen" type="button">🔊</button></div><div class="tab1-sentence-row"><span class="tab1-sentence-icon">→</span><span class="tab1-sentence-text">Once DM succeeds, parallel execution reduces end-to-end latency.</span><button aria-label="Listen" class="listen tab1-sentence-listen" data-speak-text="Once DM succeeds, parallel execution reduces end-to-end latency." title="Listen" type="button">🔊</button></div></div></div><div class="qa-item"><div class="qa-top"><div><b>Why separate IAM roles?</b><span class="qa-tag">CORE</span></div><button aria-label="Listen" class="listen" data-speak-text="Why separate IAM roles? EventBridge, Step Functions and Glue have different responsibilities, so separate roles let me apply least privilege to each service." title="Listen" type="button">🔊 Listen</button></div><p>EventBridge, Step Functions and Glue have different responsibilities, so separate roles let me apply least privilege to each service.</p></div></section></div></details>
+</main>
+<main class="tab-panel" id="tab2">
+<h2 class="page-section-title">2. CloudFormation — From Zero to This DM Pipeline</h2>
+<nav class="local-toc"><strong>Tab 2 Contents</strong><a href="#cf-zero">What / Why</a><a href="#cf-structure">Template Structure</a><a href="#cf-functions">Ref / Sub / GetAtt</a><a href="#cf-iam">IAM</a><a href="#cf-dm">Map to DM</a><a href="#cf-runtime">Deploy vs Run</a><a href="#cf-extra">Extra Knowledge</a></nav>
+<section class="card orange-accent" id="cf-zero"><div class="section-head"><h3>CloudFormation in one sentence</h3><button class="listen" data-speak-text="AWS CloudFormation is an Infrastructure as Code service. I describe AWS resources declaratively in a template, and CloudFormation creates, updates and deletes those resources as a stack." title="Listen" type="button">🔊 Listen</button></div><p class="lead"><strong>AWS CloudFormation</strong> is an Infrastructure as Code service: you declare the desired AWS resources in YAML or JSON, and CloudFormation manages them as a <strong>stack</strong>.</p><div class="cn">中文：CloudFormation 是 AWS 的 IaC。你声明“我要什么资源”，CloudFormation 负责创建、更新和删除。</div><div class="memory-strip"><b>Remember:</b><span>Template = blueprint · Stack = deployed instance · Change Set = preview · Drift = reality differs from template</span></div>
+<div class="cf-mental-map">
+<div class="cf-stage"><div aria-hidden="true" class="svc-icon"><svg aria-label="YAML Template" role="img" viewbox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><path d="M8 9h32v30H8z"></path><path d="M14 17h20M14 24h14M14 31h17"></path></g></svg></div><b>YAML Template</b><small>Parameters + Resources + Outputs</small></div>
+<div class="cf-map-arrow">→</div>
+<div class="cf-stage emphasis"><div aria-hidden="true" class="svc-icon"><svg aria-label="CloudFormation" role="img" viewbox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><path d="M12 13l12-7 12 7v14l-12 7-12-7z"></path><path d="M12 13l12 7 12-7M24 20v14"></path><path d="M8 32h8M32 32h8"></path></g></svg></div><b>CloudFormation Stack</b><small>Resolves references and manages lifecycle</small></div>
+<div class="cf-map-arrow">→</div>
+<div class="cf-resource-cloud">
+<div class="cf-cloud-title">Managed AWS Resources</div>
+<div class="cf-resource-icons">
+<div><div aria-hidden="true" class="svc-icon"><svg aria-label="IAM" role="img" viewbox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><path d="M24 6l14 5v10c0 10-6 17-14 21-8-4-14-11-14-21V11z"></path><circle cx="24" cy="19" r="4"></circle><path d="M17 31c2-5 12-5 14 0"></path></g></svg></div><span>IAM</span></div>
+<div><div aria-hidden="true" class="svc-icon"><svg aria-label="Glue" role="img" viewbox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><path d="M11 15h26v18H11z"></path><path d="M17 10v5M31 10v5M17 33v5M31 33v5"></path><circle cx="17" cy="24" r="3"></circle><circle cx="31" cy="24" r="3"></circle><path d="M20 24h8"></path></g></svg></div><span>Glue</span></div>
+<div><div aria-hidden="true" class="svc-icon"><svg aria-label="Step Functions" role="img" viewbox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><rect height="10" rx="2" width="10" x="7" y="7"></rect><rect height="10" rx="2" width="10" x="31" y="7"></rect><rect height="10" rx="2" width="10" x="19" y="31"></rect><path d="M17 12h14M36 17L27 31M12 17l9 14"></path></g></svg></div><span>Step Functions</span></div>
+<div><div aria-hidden="true" class="svc-icon"><svg aria-label="EventBridge" role="img" viewbox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><circle cx="24" cy="24" r="5"></circle><circle cx="9" cy="12" r="3"></circle><circle cx="39" cy="11" r="3"></circle><circle cx="39" cy="37" r="3"></circle><path d="M13 14l7 7M35 14l-7 7M35 34l-7-7"></path></g></svg></div><span>EventBridge</span></div>
+</div>
+</div>
+</div>
+</section>
+<details class="major" id="cf-structure" open=""><summary><span class="major-icon">📄</span><span class="major-copy"><strong>1. Template Structure</strong><small>BEGINNER FOUNDATION</small></span><span class="chev">›</span><span class="major-badge">01</span></summary><div class="major-body"><section class="card">
+<div class="grid-2"><div class="concept"><div class="kicker">Parameters</div><h4>Inputs to the template</h4><p>Examples in this demo: project name, S3 buckets, upstream database names and table names.</p></div><div class="concept"><div class="kicker">Resources</div><h4>The AWS objects to create</h4><p>IAM roles, Glue databases/tables/jobs, Step Functions state machine and EventBridge rule.</p></div><div class="concept"><div class="kicker">Outputs</div><h4>Important values after deployment</h4><p>Examples: state-machine ARN, state-machine name, rule name and artifact bucket.</p></div><div class="concept"><div class="kicker">Pseudo Parameters</div><h4>AWS supplies them automatically</h4><p>`AWS::AccountId`, `AWS::Region`, `AWS::Partition` help avoid hard-coding environment-specific values.</p></div></div>
+<div class="code-title"><b>Minimal mental model</b><span>YAML</span></div><pre><code>Parameters:
+  ProjectName:
+    Type: String
+    Default: reservation-analytics
+
+Resources:
+  DmDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+
+Outputs:
+  StateMachineArn:
+    Value: !Ref ReservationAnalyticsStateMachine</code></pre>
+</section></div></details>
+<details class="major" id="cf-functions" open=""><summary><span class="major-icon">🔗</span><span class="major-copy"><strong>2. Intrinsic Functions</strong><small>!Ref · !Sub · !GetAtt</small></span><span class="chev">›</span><span class="major-badge">02</span></summary><div class="major-body"><section class="card">
+<div class="table-wrap"><table><thead><tr><th>Function</th><th>Simple meaning</th><th>Demo example</th><th>How to say it</th></tr></thead><tbody>
+<tr><td><b>!Ref</b></td><td>Reference a parameter or resource.</td><td><code>DatabaseName: !Ref DmDatabase</code></td><td>“Give me the value/identifier returned by this reference.”</td></tr>
+<tr><td><b>!Sub</b></td><td>Build a string with variables.</td><td><code>!Sub '${ProjectName}-dm-reservation-conversion'</code></td><td>“Interpolate the project name into the resource name.”</td></tr>
+<tr><td><b>!GetAtt</b></td><td>Get a named attribute from a resource.</td><td><code>!GetAtt GlueExecutionRole.Arn</code></td><td>“Get the ARN attribute of this IAM role.”</td></tr>
+</tbody></table></div>
+<div class="callout blue"><b>Common trap</b>`!Ref` does not always return a resource name. Its return value depends on the AWS resource type. For a parameter, it returns the parameter value.</div>
+</section></div></details>
+<details class="major" id="cf-iam"><summary><span class="major-icon">🔐</span><span class="major-copy"><strong>3. IAM inside CloudFormation</strong><small>WHO CAN DO WHAT</small></span><span class="chev">›</span><span class="major-badge">03</span></summary><div class="major-body"><section class="card">
+<div class="flow-line"><div class="flow-node"><b>EventBridge</b>assumes role</div><span class="arr">→</span><div class="flow-node"><b>Role 1</b>states:StartExecution</div><span class="arr">→</span><div class="flow-node"><b>Step Functions</b>assumes role</div><span class="arr">→</span><div class="flow-node"><b>Role 2</b>glue:StartJobRun / GetJobRun</div><span class="arr">→</span><div class="flow-node"><b>Glue</b>uses Glue role for S3 + Catalog</div></div>
+<div class="sentence"><div class="sentence-row"><p>A trust policy answers who may assume the role, while a permissions policy answers what the role may do after it is assumed.</p><button class="listen" data-speak-text="A trust policy answers who may assume the role, while a permissions policy answers what the role may do after it is assumed." title="Listen" type="button">🔊 Listen</button></div><div class="cn">中文：Trust Policy 回答谁能扮演角色；Permissions Policy 回答扮演之后能做什么。</div></div><div class="sentence"><div class="sentence-row"><p>The demo uses separate service roles so EventBridge, Step Functions and Glue each receive only the permissions needed for their responsibility.</p><button class="listen" data-speak-text="The demo uses separate service roles so EventBridge, Step Functions and Glue each receive only the permissions needed for their responsibility." title="Listen" type="button">🔊 Listen</button></div><div class="cn">中文：EventBridge、Step Functions、Glue 使用不同角色，职责和权限分开。</div></div>
+<div class="callout orange"><b>Production thought</b>The demo keeps some Glue Catalog read permissions broad for simplicity. In production, tighten permissions where practical and consider governance controls such as Lake Formation when required.</div>
+</section></div></details>
+<details class="major" id="cf-dm" open=""><summary><span class="major-icon">🧩</span><span class="major-copy"><strong>4. Map CloudFormation to the DM use case</strong><small>WHAT EACH RESOURCE DOES</small></span><span class="chev">›</span><span class="major-badge">04</span></summary><div class="major-body"><section class="card">
+<div class="table-wrap"><table><thead><tr><th>CloudFormation resource</th><th>Role in this demo</th><th>Runtime or provisioning?</th></tr></thead><tbody>
+<tr><td><code>AWS::IAM::Role</code></td><td>Creates execution identities for Glue, Step Functions and EventBridge.</td><td>Provisioning; roles are then used at runtime.</td></tr>
+<tr><td><code>AWS::Glue::Database</code></td><td>Creates `reservation_dm` and `reservation_ads` metadata containers.</td><td>Provisioning.</td></tr>
+<tr><td><code>AWS::Glue::Table</code></td><td>Defines external-table schemas and S3 locations for DM/ADS Parquet data.</td><td>Provisioning / metadata.</td></tr>
+<tr><td><code>AWS::Glue::Job</code></td><td>Defines DM and ADS job configuration: script, SQL path, workers, timeout and arguments.</td><td>Provisioning creates the job; Glue executes it later.</td></tr>
+<tr><td><code>AWS::StepFunctions::StateMachine</code></td><td>Defines DM → parallel ADS execution order, retry and failure handling.</td><td>Provisioning creates it; executions happen at runtime.</td></tr>
+<tr><td><code>AWS::Events::Rule</code></td><td>Matches the upstream data-ready event and targets the state machine.</td><td>Provisioning creates the rule; matching happens at runtime.</td></tr>
+</tbody></table></div>
+<div class="code-title"><b>DM Glue Job configuration</b><span>What CloudFormation defines</span></div><pre><code>DmConversionJob:
+  Type: AWS::Glue::Job
+  Properties:
+    Name: !Sub '${ProjectName}-dm-reservation-conversion'
+    Role: !GetAtt GlueExecutionRole.Arn
+    GlueVersion: '5.0'
+    WorkerType: G.1X
+    NumberOfWorkers: 2
+    Timeout: 20
+    Command:
+      Name: glueetl
+      ScriptLocation: !Sub 's3://${ArtifactBucket}/code/glue_jobs/run_single_sql_job.py'
+    DefaultArguments:
+      '--SQL_PATH': sql/dm/30_dm_reservation_conversion.sql
+      '--OUTPUT_VIEW': dm_reservation_conversion</code></pre>
+<div class="callout green"><b>Framework separation</b>The Python Glue runner is reusable. The business transformation is externalized into SQL and arguments. CloudFormation wires the infrastructure together.</div>
+</section></div></details>
+<details class="major" id="cf-runtime" open=""><summary><span class="major-icon">▶️</span><span class="major-copy"><strong>5. Deployment Flow vs Runtime Flow</strong><small>DO NOT MIX THESE UP</small></span><span class="chev">›</span><span class="major-badge">05</span></summary><div class="major-body"><section class="card">
+<div class="grid-2"><div class="concept"><div class="kicker">Deployment Time</div><h4>CloudFormation</h4><p>Reads the template → resolves parameters/functions → creates IAM, Glue, Step Functions and EventBridge resources → exposes Outputs.</p></div><div class="concept"><div class="kicker">Runtime</div><h4>Event + Orchestration</h4><p>Upstream event → EventBridge → Step Functions → DM Glue `.sync` → parallel ADS → S3 / Catalog.</p></div></div>
+<div class="callout red"><b>Interview trap</b>CloudFormation is not the scheduler. EventBridge and Step Functions are the runtime scheduling/orchestration pieces in this design.</div>
+<div class="plane-visual">
+<div class="plane-row control-plane">
+<div class="plane-title"><span>①</span><b>Deployment / Control Plane</b><small>Runs when you deploy or update the stack</small></div>
+<div class="plane-flow"><div class="plane-node"><div aria-hidden="true" class="svc-icon"><svg aria-label="Template" role="img" viewbox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><path d="M8 9h32v30H8z"></path><path d="M14 17h20M14 24h14M14 31h17"></path></g></svg></div><b>Template</b></div><span>→</span><div class="plane-node"><div aria-hidden="true" class="svc-icon"><svg aria-label="CloudFormation" role="img" viewbox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><path d="M12 13l12-7 12 7v14l-12 7-12-7z"></path><path d="M12 13l12 7 12-7M24 20v14"></path><path d="M8 32h8M32 32h8"></path></g></svg></div><b>CloudFormation</b></div><span>→</span><div class="plane-node multi"><b>Create / Update</b><small>IAM · Glue · Step Functions · EventBridge</small></div></div>
+</div>
+<div class="plane-separator">CloudFormation finishes provisioning — then the runtime can execute ↓</div>
+<div class="plane-row runtime-plane">
+<div class="plane-title"><span>②</span><b>Runtime / Data Plane</b><small>Runs every time an upstream-ready event arrives</small></div>
+<div class="plane-flow"><div class="plane-node"><div aria-hidden="true" class="svc-icon"><svg aria-label="EventBridge" role="img" viewbox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><circle cx="24" cy="24" r="5"></circle><circle cx="9" cy="12" r="3"></circle><circle cx="39" cy="11" r="3"></circle><circle cx="39" cy="37" r="3"></circle><path d="M13 14l7 7M35 14l-7 7M35 34l-7-7"></path></g></svg></div><b>EventBridge</b></div><span>→</span><div class="plane-node"><div aria-hidden="true" class="svc-icon"><svg aria-label="Step Functions" role="img" viewbox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><rect height="10" rx="2" width="10" x="7" y="7"></rect><rect height="10" rx="2" width="10" x="31" y="7"></rect><rect height="10" rx="2" width="10" x="19" y="31"></rect><path d="M17 12h14M36 17L27 31M12 17l9 14"></path></g></svg></div><b>Step Functions</b></div><span>→</span><div class="plane-node"><div aria-hidden="true" class="svc-icon"><svg aria-label="Glue" role="img" viewbox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><path d="M11 15h26v18H11z"></path><path d="M17 10v5M31 10v5M17 33v5M31 33v5"></path><circle cx="17" cy="24" r="3"></circle><circle cx="31" cy="24" r="3"></circle><path d="M20 24h8"></path></g></svg></div><b>DM Glue</b></div><span>→</span><div class="plane-node multi"><b>Parallel ADS</b><small>Campaign + CRM</small></div></div>
+</div>
+</div>
+</section></div></details>
+<details class="major" id="cf-extra"><summary><span class="major-icon">🛠️</span><span class="major-copy"><strong>6. Extra CloudFormation knowledge</strong><small>GOOD FOLLOW-UP TOPICS</small></span><span class="chev">›</span><span class="major-badge">06</span></summary><div class="major-body"><section class="card"><div class="grid-2">
+<div class="concept"><div class="kicker">Stack</div><h4>Deployed template instance</h4><p>Dev, test and prod can deploy the same template with different parameters.</p></div>
+<div class="concept"><div class="kicker">Change Set</div><h4>Preview before update</h4><p>Useful for reviewing which resources will be added, modified or replaced.</p></div>
+<div class="concept"><div class="kicker">Rollback</div><h4>Failure protection</h4><p>If a stack operation fails, CloudFormation can roll back changes instead of leaving a half-created environment.</p></div>
+<div class="concept"><div class="kicker">Drift Detection</div><h4>Detect console changes</h4><p>Checks whether actual resources differ from the template-controlled configuration.</p></div>
+<div class="concept"><div class="kicker">DependsOn</div><h4>Explicit dependency when required</h4><p>CloudFormation usually infers dependencies from references. Use `DependsOn` only when the relationship is not otherwise visible.</p></div>
+<div class="concept"><div class="kicker">DeletionPolicy</div><h4>Protect stateful resources</h4><p>For important data stores, consider retain/snapshot behavior rather than deleting everything with a stack.</p></div>
+<div class="concept"><div class="kicker">Nested / Reusable Modules</div><h4>Reduce giant templates</h4><p>Large organizations often split or wrap infrastructure into reusable modules instead of making every data engineer edit one monolithic YAML.</p></div>
+<div class="concept"><div class="kicker">Secrets</div><h4>Do not hard-code credentials</h4><p>Use Secrets Manager / Parameter Store references and IAM rather than embedding passwords in templates.</p></div>
+</div></section></div></details>
+</main>
+<main class="tab-panel" id="tab3">
+<h2 class="page-section-title">3. Last-Minute Review — 5 Things to Remember</h2>
+<section class="card accent last-minute-card"><div class="section-head"><h3>Five lines only</h3><button aria-label="Listen" class="listen" data-speak-text="First, upstream readiness is event-driven. Second, DM centralizes reusable business logic. Third, EventBridge decides when to start and Step Functions controls the order. Fourth, Glue runs ETL while S3 stores data and the Glue Data Catalog stores metadata. Fifth, IAM controls permissions and CloudFormation provisions the infrastructure." title="Listen" type="button">🔊 Listen</button></div>
+<div class="last-minute-grid">
+<div><span>1</span><b>Dependency</b><small>Upstream publishes ready event only after DWD + DIM are ready.</small></div>
+<div><span>2</span><b>DM</b><small>Shared reservation-conversion business logic.</small></div>
+<div><span>3</span><b>Runtime</b><small>EventBridge → Step Functions → Glue.</small></div>
+<div><span>4</span><b>Data</b><small>S3 = data · Glue Catalog = metadata.</small></div>
+<div><span>5</span><b>Control</b><small>IAM = permission · CloudFormation = IaC.</small></div>
+</div>
+</section></main>
+<main class="tab-panel" id="tab4"><h2 class="page-section-title">4. Terraform — Learn It Fast from CloudFormation</h2><section class="card accent tf-intro"><div class="section-head tf-section-head"><h3>One-line mental model</h3><button aria-label="Listen" class="listen tf-listen" data-speak-text="Terraform is Infrastructure as Code. You declare the desired infrastructure in HCL, Terraform compares it with state, shows a plan, and applies the required changes." title="Listen" type="button">🔊</button></div><div class="tf-sentence-row"><span class="tf-sentence-icon">🧱</span><span class="tf-sentence-text">Terraform is Infrastructure as Code written mainly in HCL.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="Terraform is Infrastructure as Code written mainly in HCL." title="Listen" type="button">🔊</button></div><div class="tf-sentence-row"><span class="tf-sentence-icon">🎯</span><span class="tf-sentence-text">You describe the desired infrastructure instead of writing deployment steps.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="You describe the desired infrastructure instead of writing deployment steps." title="Listen" type="button">🔊</button></div><div class="tf-sentence-row"><span class="tf-sentence-icon">▶</span><span class="tf-sentence-text">terraform plan previews changes; terraform apply executes them.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="terraform plan previews changes; terraform apply executes them." title="Listen" type="button">🔊</button></div><div class="tf-sentence-row"><span class="tf-sentence-icon">🗂️</span><span class="tf-sentence-text">Terraform state records the resources Terraform manages.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="Terraform state records the resources Terraform manages." title="Listen" type="button">🔊</button></div></section><nav class="local-toc tf-toc"><strong>Terraform Contents — 3 sections only</strong><a href="#tf-zero">1 · Terraform from Zero</a><a href="#tf-compare">2 · CloudFormation → Terraform</a><a href="#tf-qa">3 · Interview Q&amp;A</a></nav><details class="major tf-major" id="tf-zero" open=""><summary><span class="major-icon">🌱</span><span class="major-copy"><strong>Terraform from Zero — concepts, files and commands</strong><small>TERRAFORM QUICK START</small></span><button aria-label="Listen" class="listen tf-summary-listen" data-speak-text="Terraform from Zero — concepts, files and commands" title="Listen" type="button">🔊</button><span class="chev">›</span><span class="major-badge">01</span></summary><div class="major-body"><section class="card"><div class="section-head tf-section-head"><h3>The Terraform workflow</h3><button aria-label="Listen" class="listen tf-listen" data-speak-text="The normal Terraform workflow is init, format and validate, plan, apply, and then maintain state." title="Listen" type="button">🔊</button></div>
+<div class="tf-workflow">
+<div class="tf-flow-node"><span>📁</span><b>HCL Files</b><small>main.tf · variables.tf</small><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="📁 HCL Files main.tf · variables.tf" title="Listen" type="button">🔊</button></div>
+<div class="tf-flow-arrow">→</div>
+<div class="tf-flow-node"><span>🔌</span><b>terraform init</b><small>download providers</small><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="🔌 terraform init download providers" title="Listen" type="button">🔊</button></div>
+<div class="tf-flow-arrow">→</div>
+<div class="tf-flow-node"><span>🔎</span><b>terraform plan</b><small>preview changes</small><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="🔎 terraform plan preview changes" title="Listen" type="button">🔊</button></div>
+<div class="tf-flow-arrow">→</div>
+<div class="tf-flow-node strong"><span>▶️</span><b>terraform apply</b><small>create / update</small><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="▶️ terraform apply create / update" title="Listen" type="button">🔊</button></div>
+<div class="tf-flow-arrow">→</div>
+<div class="tf-flow-node state"><span>🗂️</span><b>State</b><small>track managed resources</small><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="🗂️ State track managed resources" title="Listen" type="button">🔊</button></div>
+</div>
+<div class="tf-concept-grid"><div class="tf-concept"><div class="tf-concept-title"><span>🧩</span><b>Provider</b><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="Provider" title="Listen" type="button">🔊</button></div><div class="tf-concept-sentence"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">Plugin that lets Terraform talk to AWS, Azure, GCP and other APIs.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="Plugin that lets Terraform talk to AWS, Azure, GCP and other APIs." title="Listen" type="button">🔊</button></div></div><div class="tf-concept"><div class="tf-concept-title"><span>🏗️</span><b>Resource</b><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="Resource" title="Listen" type="button">🔊</button></div><div class="tf-concept-sentence"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">Something Terraform creates or manages, such as an S3 bucket or Glue Job.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="Something Terraform creates or manages, such as an S3 bucket or Glue Job." title="Listen" type="button">🔊</button></div></div><div class="tf-concept"><div class="tf-concept-title"><span>🔎</span><b>Data Source</b><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="Data Source" title="Listen" type="button">🔊</button></div><div class="tf-concept-sentence"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">Reads information about an existing resource without creating it.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="Reads information about an existing resource without creating it." title="Listen" type="button">🔊</button></div></div><div class="tf-concept"><div class="tf-concept-title"><span>🎛️</span><b>Variable</b><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="Variable" title="Listen" type="button">🔊</button></div><div class="tf-concept-sentence"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">Input value such as region, bucket name or project name.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="Input value such as region, bucket name or project name." title="Listen" type="button">🔊</button></div></div><div class="tf-concept"><div class="tf-concept-title"><span>📤</span><b>Output</b><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="Output" title="Listen" type="button">🔊</button></div><div class="tf-concept-sentence"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">Value exposed after apply, such as an ARN or resource name.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="Value exposed after apply, such as an ARN or resource name." title="Listen" type="button">🔊</button></div></div><div class="tf-concept"><div class="tf-concept-title"><span>🗂️</span><b>State</b><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="State" title="Listen" type="button">🔊</button></div><div class="tf-concept-sentence"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">Terraform record of which real resources belong to this configuration.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="Terraform record of which real resources belong to this configuration." title="Listen" type="button">🔊</button></div></div></div></section><section class="card"><div class="section-head tf-section-head"><h3>Common project files</h3><button aria-label="Listen" class="listen tf-listen" data-speak-text="Common project files" title="Listen" type="button">🔊</button></div><div class="table-wrap"><table class="tf-table"><thead><tr><th><div class="tf-cell"><span>File</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="File" title="Listen" type="button">🔊</button></div></th><th><div class="tf-cell"><span>Purpose</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Purpose" title="Listen" type="button">🔊</button></div></th></tr></thead><tbody><tr><td><div class="tf-cell"><code>versions.tf</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="versions.tf" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Terraform and provider requirements.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Terraform and provider requirements." title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>main.tf</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="main.tf" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Main infrastructure resources.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Main infrastructure resources." title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>variables.tf</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="variables.tf" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Input variable declarations.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Input variable declarations." title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>terraform.tfvars</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="terraform.tfvars" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Environment-specific variable values.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Environment-specific variable values." title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>outputs.tf</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="outputs.tf" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Values exposed after deployment.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Values exposed after deployment." title="Listen" type="button">🔊</button></div></td></tr></tbody></table></div><div class="section-head tf-section-head"><h3>Core commands — enough for a beginner</h3><button aria-label="Listen" class="listen tf-listen" data-speak-text="Core commands — enough for a beginner" title="Listen" type="button">🔊</button></div><div class="table-wrap"><table class="tf-table command-table"><thead><tr><th><div class="tf-cell"><span>Command</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Command" title="Listen" type="button">🔊</button></div></th><th><div class="tf-cell"><span>What it does</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="What it does" title="Listen" type="button">🔊</button></div></th></tr></thead><tbody><tr><td><div class="tf-cell"><code>terraform init</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="terraform init" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Initialize the working directory and download providers.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Initialize the working directory and download providers." title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>terraform fmt -recursive</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="terraform fmt -recursive" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Format Terraform files consistently.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Format Terraform files consistently." title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>terraform validate</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="terraform validate" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Check whether the configuration is syntactically valid.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Check whether the configuration is syntactically valid." title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>terraform plan</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="terraform plan" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Preview what Terraform intends to create, change or destroy.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Preview what Terraform intends to create, change or destroy." title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>terraform apply</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="terraform apply" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Apply the reviewed plan.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Apply the reviewed plan." title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>terraform output</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="terraform output" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Show declared output values.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Show declared output values." title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>terraform state list</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="terraform state list" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>List resources tracked in state.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="List resources tracked in state." title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>terraform destroy</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="terraform destroy" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Destroy resources managed by this configuration.</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Destroy resources managed by this configuration." title="Listen" type="button">🔊</button></div></td></tr></tbody></table></div><div class="section-head tf-section-head"><h3>Minimal AWS example</h3><button aria-label="Listen" class="listen tf-listen" data-speak-text="Minimal AWS example" title="Listen" type="button">🔊</button></div><div class="tf-code-head"><span>HCL example</span><button aria-label="Listen" class="listen tf-code-listen" data-speak-text="This example configures the AWS provider, creates an S3 bucket resource, and outputs the bucket ARN." title="Listen" type="button">🔊</button></div><pre class="tf-code"><code>provider "aws" {
+  region = var.aws_region
+}
+
+resource "aws_s3_bucket" "artifact" {
+  bucket = var.artifact_bucket
+}
+
+output "artifact_bucket_arn" {
+  value = aws_s3_bucket.artifact.arn
+}</code></pre></section></div></details><details class="major tf-major" id="tf-compare"><summary><span class="major-icon">🔄</span><span class="major-copy"><strong>CloudFormation → Terraform — translate what you already know</strong><small>TERRAFORM QUICK START</small></span><button aria-label="Listen" class="listen tf-summary-listen" data-speak-text="CloudFormation → Terraform — translate what you already know" title="Listen" type="button">🔊</button><span class="chev">›</span><span class="major-badge">02</span></summary><div class="major-body"><section class="card"><div class="section-head tf-section-head"><h3>Same IaC idea, different implementation</h3><button aria-label="Listen" class="listen tf-listen" data-speak-text="CloudFormation and Terraform are both declarative Infrastructure as Code tools. CloudFormation is AWS native, while Terraform uses providers and a separate state model." title="Listen" type="button">🔊</button></div>
+<div class="tf-vs-map">
+<div class="tf-vs-side cfn">
+<div class="tf-vs-title"><span>☁️</span><b>CloudFormation</b><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="☁️ CloudFormation" title="Listen" type="button">🔊</button></div>
+<div class="tf-vs-step">YAML / JSON Template<button aria-label="Listen" class="listen tf-node-listen" data-speak-text="YAML / JSON Template" title="Listen" type="button">🔊</button></div>
+<div class="tf-vs-down">↓</div>
+<div class="tf-vs-step">Change Set / Stack Update<button aria-label="Listen" class="listen tf-node-listen" data-speak-text="Change Set / Stack Update" title="Listen" type="button">🔊</button></div>
+<div class="tf-vs-down">↓</div>
+<div class="tf-vs-step">CloudFormation Stack<button aria-label="Listen" class="listen tf-node-listen" data-speak-text="CloudFormation Stack" title="Listen" type="button">🔊</button></div>
+</div>
+<div class="tf-vs-middle">≈</div>
+<div class="tf-vs-side terraform">
+<div class="tf-vs-title"><span>🟣</span><b>Terraform</b><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="🟣 Terraform" title="Listen" type="button">🔊</button></div>
+<div class="tf-vs-step">HCL Configuration<button aria-label="Listen" class="listen tf-node-listen" data-speak-text="HCL Configuration" title="Listen" type="button">🔊</button></div>
+<div class="tf-vs-down">↓</div>
+<div class="tf-vs-step">terraform plan / apply<button aria-label="Listen" class="listen tf-node-listen" data-speak-text="terraform plan / apply" title="Listen" type="button">🔊</button></div>
+<div class="tf-vs-down">↓</div>
+<div class="tf-vs-step">Resources + Terraform State<button aria-label="Listen" class="listen tf-node-listen" data-speak-text="Resources + Terraform State" title="Listen" type="button">🔊</button></div>
+</div>
+</div>
+<div class="table-wrap"><table class="tf-table mapping-table"><thead><tr><th><div class="tf-cell"><span>CloudFormation</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="CloudFormation" title="Listen" type="button">🔊</button></div></th><th><div class="tf-cell"><span>Terraform</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Terraform" title="Listen" type="button">🔊</button></div></th><th><div class="tf-cell"><span>Meaning</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Meaning" title="Listen" type="button">🔊</button></div></th></tr></thead><tbody><tr><td><div class="tf-cell"><code>YAML / JSON</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="YAML / JSON" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>HCL</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="HCL" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Configuration language</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Configuration language" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>AWS::Glue::Job</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="AWS::Glue::Job" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>aws_glue_job</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="aws_glue_job" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Glue Job resource</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Glue Job resource" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>AWS::IAM::Role</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="AWS::IAM::Role" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>aws_iam_role</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="aws_iam_role" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>IAM Role resource</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="IAM Role resource" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>AWS::StepFunctions::StateMachine</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="AWS::StepFunctions::StateMachine" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>aws_sfn_state_machine</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="aws_sfn_state_machine" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Step Functions resource</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Step Functions resource" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>AWS::Events::Rule</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="AWS::Events::Rule" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>aws_cloudwatch_event_rule</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="aws_cloudwatch_event_rule" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>EventBridge rule</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="EventBridge rule" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>Parameters</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Parameters" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>variable</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="variable" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Deployment input</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Deployment input" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>Outputs</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Outputs" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>output</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="output" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Expose deployed values</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Expose deployed values" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>!Ref</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="!Ref" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>resource.name or variable</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="resource.name or variable" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Reference a value</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Reference a value" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>!GetAtt Role.Arn</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="!GetAtt Role.Arn" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>aws_iam_role.role.arn</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="aws_iam_role.role.arn" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Read a resource attribute</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Read a resource attribute" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>!Sub</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="!Sub" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>"${...}" interpolation</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text='"${...}" interpolation' title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Build dynamic strings</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Build dynamic strings" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>Change Set</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Change Set" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>terraform plan</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="terraform plan" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Preview changes</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Preview changes" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><code>Stack</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Stack" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>State + managed resources</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="State + managed resources" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><span>Track deployed infrastructure</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Track deployed infrastructure" title="Listen" type="button">🔊</button></div></td></tr></tbody></table></div></section><section class="card"><div class="section-head tf-section-head"><h3>Your reservation analytics demo — resource-by-resource translation</h3><button aria-label="Listen" class="listen tf-listen" data-speak-text="The architecture does not change. Terraform replaces CloudFormation as the provisioning tool; EventBridge, Step Functions, Glue, IAM and S3 keep the same runtime responsibilities." title="Listen" type="button">🔊</button></div>
+<div class="tf-demo-strip">
+<div><b>EventBridge</b><small>ready event</small><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="EventBridge ready event" title="Listen" type="button">🔊</button></div><span>→</span>
+<div><b>Step Functions</b><small>DM → parallel ADS</small><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="Step Functions DM → parallel ADS" title="Listen" type="button">🔊</button></div><span>→</span>
+<div><b>Glue Jobs</b><small>DM + ADS ETL</small><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="Glue Jobs DM + ADS ETL" title="Listen" type="button">🔊</button></div><span>→</span>
+<div><b>S3 / Catalog</b><small>data + metadata</small><button aria-label="Listen" class="listen tf-node-listen" data-speak-text="S3 / Catalog data + metadata" title="Listen" type="button">🔊</button></div>
+</div>
+<div class="tf-iac-swap">
+<span class="old">CloudFormation<button aria-label="Listen" class="listen tf-node-listen" data-speak-text="CloudFormation" title="Listen" type="button">🔊</button></span>
+<b>is replaced by</b>
+<span class="new">Terraform<button aria-label="Listen" class="listen tf-node-listen" data-speak-text="Terraform" title="Listen" type="button">🔊</button></span>
+<em>The runtime architecture stays the same.<button aria-label="Listen" class="listen tf-node-listen" data-speak-text="The runtime architecture stays the same." title="Listen" type="button">🔊</button></em>
+</div>
+<div class="table-wrap"><table class="tf-table"><thead><tr><th><div class="tf-cell"><span>Need</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Need" title="Listen" type="button">🔊</button></div></th><th><div class="tf-cell"><span>CloudFormation</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="CloudFormation" title="Listen" type="button">🔊</button></div></th><th><div class="tf-cell"><span>Terraform</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Terraform" title="Listen" type="button">🔊</button></div></th></tr></thead><tbody><tr><td><div class="tf-cell"><span>Glue role ARN</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Glue role ARN" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>!GetAtt GlueExecutionRole.Arn</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="!GetAtt GlueExecutionRole.Arn" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>aws_iam_role.glue_execution.arn</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="aws_iam_role.glue_execution.arn" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><span>DM job name</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="DM job name" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>!Ref DmConversionJob</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="!Ref DmConversionJob" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>aws_glue_job.dm_conversion.name</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="aws_glue_job.dm_conversion.name" title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><span>Artifact path</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="Artifact path" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>!Sub 's3://${ArtifactBucket}/code'</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="!Sub 's3://${ArtifactBucket}/code'" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>"s3://${var.artifact_bucket}/code"</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text='"s3://${var.artifact_bucket}/code"' title="Listen" type="button">🔊</button></div></td></tr><tr><td><div class="tf-cell"><span>State machine ARN</span><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="State machine ARN" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>!Ref ReservationAnalyticsStateMachine</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="!Ref ReservationAnalyticsStateMachine" title="Listen" type="button">🔊</button></div></td><td><div class="tf-cell"><code>aws_sfn_state_machine.reservation_analytics.arn</code><button aria-label="Listen" class="listen tf-cell-listen" data-speak-text="aws_sfn_state_machine.reservation_analytics.arn" title="Listen" type="button">🔊</button></div></td></tr></tbody></table></div><div class="section-head tf-section-head"><h3>Example 1 — DM Glue Job</h3><button aria-label="Listen" class="listen tf-listen" data-speak-text="Example 1 — DM Glue Job" title="Listen" type="button">🔊</button></div><div class="tf-code-compare"><div class="tf-code-panel cfn-code"><div class="tf-code-head"><span>CloudFormation</span><button aria-label="Listen" class="listen tf-code-listen" data-speak-text="CloudFormation defines the DM Glue Job with AWS colon colon Glue colon colon Job." title="Listen" type="button">🔊</button></div><pre class="tf-code"><code>DmConversionJob:
+  Type: AWS::Glue::Job
+  Properties:
+    Name: !Sub '${ProjectName}-dm-reservation-conversion'
+    Role: !GetAtt GlueExecutionRole.Arn
+    Command:
+      Name: glueetl
+      ScriptLocation: !Sub 's3://${ArtifactBucket}/code/glue_jobs/run_single_sql_job.py'</code></pre></div><div class="tf-code-panel tf-code-panel-right"><div class="tf-code-head"><span>Terraform</span><button aria-label="Listen" class="listen tf-code-listen" data-speak-text="Terraform defines the same DM Glue Job with the aws glue job resource." title="Listen" type="button">🔊</button></div><pre class="tf-code"><code>resource "aws_glue_job" "dm_conversion" {
+  name     = "${var.project_name}-dm-reservation-conversion"
+  role_arn = aws_iam_role.glue_execution.arn
+
+  command {
+    name            = "glueetl"
+    script_location = "s3://${var.artifact_bucket}/code/glue_jobs/run_single_sql_job.py"
+    python_version  = "3"
+  }
+}</code></pre></div></div><div class="section-head tf-section-head"><h3>Example 2 — Step Functions calls the DM Glue Job</h3><button aria-label="Listen" class="listen tf-listen" data-speak-text="Example 2 — Step Functions calls the DM Glue Job" title="Listen" type="button">🔊</button></div><div class="tf-code-compare"><div class="tf-code-panel cfn-code"><div class="tf-code-head"><span>CloudFormation idea</span><button aria-label="Listen" class="listen tf-code-listen" data-speak-text="CloudFormation embeds the state machine definition and references the DM Glue Job." title="Listen" type="button">🔊</button></div><pre class="tf-code"><code>Resource: arn:${AWS::Partition}:states:::glue:startJobRun.sync
+Parameters:
+  JobName: ${DmConversionJob}
+  Arguments:
+    --BUSINESS_DATE.$: $.detail.business_date</code></pre></div><div class="tf-code-panel tf-code-panel-right"><div class="tf-code-head"><span>Terraform idea</span><button aria-label="Listen" class="listen tf-code-listen" data-speak-text="Terraform uses the same Step Functions Glue service integration and references the Terraform Glue Job name." title="Listen" type="button">🔊</button></div><pre class="tf-code"><code>definition = jsonencode({
+  StartAt = "Run DM Conversion"
+  States = {
+    "Run DM Conversion" = {
+      Type     = "Task"
+      Resource = "arn:aws:states:::glue:startJobRun.sync"
+      Parameters = {
+        JobName = aws_glue_job.dm_conversion.name
+        Arguments = {
+          "--BUSINESS_DATE.$" = "$.detail.business_date"
+        }
+      }
+    }
+  }
+})</code></pre></div></div><div class="tf-sentence-row"><span class="tf-sentence-icon">⭐</span><span class="tf-sentence-text">Key idea: Terraform changes how infrastructure is declared and deployed; it does not change the data pipeline runtime.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="Key idea: Terraform changes how infrastructure is declared and deployed; it does not change the data pipeline runtime." title="Listen" type="button">🔊</button></div></section></div></details><details class="major tf-major" id="tf-qa"><summary><span class="major-icon">🎤</span><span class="major-copy"><strong>Terraform Interview Q&amp;A — only the essentials</strong><small>TERRAFORM QUICK START</small></span><button aria-label="Listen" class="listen tf-summary-listen" data-speak-text="Terraform Interview Q&amp;A — only the essentials" title="Listen" type="button">🔊</button><span class="chev">›</span><span class="major-badge">03</span></summary><div class="major-body"><section class="card"><div class="section-head tf-section-head"><h3>Eight questions to remember</h3><button aria-label="Listen" class="listen tf-listen" data-speak-text="These eight questions cover the most important Terraform concepts for a data engineer who already understands CloudFormation." title="Listen" type="button">🔊</button></div><div class="qa-item tf-qa"><div class="qa-top"><div><b>What is Terraform?</b><span class="qa-tag">CORE</span></div><button aria-label="Listen" class="listen tf-listen" data-speak-text="What is Terraform?" title="Listen" type="button">🔊</button></div><div class="tf-answer-row"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">Terraform is a declarative Infrastructure as Code tool. It uses providers to create and manage infrastructure from HCL configuration.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="Terraform is a declarative Infrastructure as Code tool. It uses providers to create and manage infrastructure from HCL configuration." title="Listen" type="button">🔊</button></div></div><div class="qa-item tf-qa"><div class="qa-top"><div><b>What does terraform init do?</b><span class="qa-tag">CORE</span></div><button aria-label="Listen" class="listen tf-listen" data-speak-text="What does terraform init do?" title="Listen" type="button">🔊</button></div><div class="tf-answer-row"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">It initializes the working directory and downloads the required providers and backend configuration.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="It initializes the working directory and downloads the required providers and backend configuration." title="Listen" type="button">🔊</button></div></div><div class="qa-item tf-qa"><div class="qa-top"><div><b>What is the difference between plan and apply?</b><span class="qa-tag">CORE</span></div><button aria-label="Listen" class="listen tf-listen" data-speak-text="What is the difference between plan and apply?" title="Listen" type="button">🔊</button></div><div class="tf-answer-row"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">plan previews the proposed infrastructure changes. apply executes the reviewed changes.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="plan previews the proposed infrastructure changes. apply executes the reviewed changes." title="Listen" type="button">🔊</button></div></div><div class="qa-item tf-qa"><div class="qa-top"><div><b>What is Terraform state?</b><span class="qa-tag">CORE</span></div><button aria-label="Listen" class="listen tf-listen" data-speak-text="What is Terraform state?" title="Listen" type="button">🔊</button></div><div class="tf-answer-row"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">State maps Terraform configuration to the real resources it manages. It is critical for planning future changes.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="State maps Terraform configuration to the real resources it manages. It is critical for planning future changes." title="Listen" type="button">🔊</button></div></div><div class="qa-item tf-qa"><div class="qa-top"><div><b>What is the Terraform equivalent of !GetAtt Role.Arn?</b><span class="qa-tag">CORE</span></div><button aria-label="Listen" class="listen tf-listen" data-speak-text="What is the Terraform equivalent of !GetAtt Role.Arn?" title="Listen" type="button">🔊</button></div><div class="tf-answer-row"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">You reference the resource attribute directly, for example aws_iam_role.glue_execution.arn.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="You reference the resource attribute directly, for example aws_iam_role.glue_execution.arn." title="Listen" type="button">🔊</button></div></div><div class="qa-item tf-qa"><div class="qa-top"><div><b>Does Terraform run the Glue ETL job?</b><span class="qa-tag">CORE</span></div><button aria-label="Listen" class="listen tf-listen" data-speak-text="Does Terraform run the Glue ETL job?" title="Listen" type="button">🔊</button></div><div class="tf-answer-row"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">No. Terraform provisions the Glue Job. Step Functions or another runtime trigger starts the job.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="No. Terraform provisions the Glue Job. Step Functions or another runtime trigger starts the job." title="Listen" type="button">🔊</button></div></div><div class="qa-item tf-qa"><div class="qa-top"><div><b>How would Terraform change this demo?</b><span class="qa-tag">CORE</span></div><button aria-label="Listen" class="listen tf-listen" data-speak-text="How would Terraform change this demo?" title="Listen" type="button">🔊</button></div><div class="tf-answer-row"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">It would replace CloudFormation as the IaC layer. EventBridge, Step Functions, Glue, IAM and S3 would keep the same runtime responsibilities.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="It would replace CloudFormation as the IaC layer. EventBridge, Step Functions, Glue, IAM and S3 would keep the same runtime responsibilities." title="Listen" type="button">🔊</button></div></div><div class="qa-item tf-qa"><div class="qa-top"><div><b>CloudFormation or Terraform — which would you choose?</b><span class="qa-tag">CORE</span></div><button aria-label="Listen" class="listen tf-listen" data-speak-text="CloudFormation or Terraform — which would you choose?" title="Listen" type="button">🔊</button></div><div class="tf-answer-row"><span class="tf-sentence-icon">→</span><span class="tf-sentence-text">For an AWS-only team, CloudFormation is a strong native choice. Terraform is attractive when the organization wants one IaC workflow across multiple services, clouds or platforms.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="For an AWS-only team, CloudFormation is a strong native choice. Terraform is attractive when the organization wants one IaC workflow across multiple services, clouds or platforms." title="Listen" type="button">🔊</button></div></div></section><section class="card tf-memory-card"><div class="section-head tf-section-head"><h3>Five-line memory</h3><button aria-label="Listen" class="listen tf-listen" data-speak-text="Five-line memory" title="Listen" type="button">🔊</button></div><div class="tf-sentence-row"><span class="tf-sentence-icon">1</span><span class="tf-sentence-text">HCL describes the desired infrastructure.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="HCL describes the desired infrastructure." title="Listen" type="button">🔊</button></div><div class="tf-sentence-row"><span class="tf-sentence-icon">2</span><span class="tf-sentence-text">init prepares providers and backend.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="init prepares providers and backend." title="Listen" type="button">🔊</button></div><div class="tf-sentence-row"><span class="tf-sentence-icon">3</span><span class="tf-sentence-text">plan previews changes.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="plan previews changes." title="Listen" type="button">🔊</button></div><div class="tf-sentence-row"><span class="tf-sentence-icon">4</span><span class="tf-sentence-text">apply deploys changes.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="apply deploys changes." title="Listen" type="button">🔊</button></div><div class="tf-sentence-row"><span class="tf-sentence-icon">5</span><span class="tf-sentence-text">state tracks managed resources.</span><button aria-label="Listen" class="listen tf-listen" data-speak-text="state tracks managed resources." title="Listen" type="button">🔊</button></div></section></div></details></main><script id="v2-audio-coverage">
+(() => {
+  function cleanText(el){
+    const c=el.cloneNode(true);
+    c.querySelectorAll('button,.cn').forEach(x=>x.remove());
+    return (c.innerText||c.textContent||'').replace(/\s+/g,' ').trim();
+  }
+  function addAudio(el, cls){
+    if(!el || el.querySelector(':scope > button.'+cls)) return;
+    const text=cleanText(el);
+    if(!text) return;
+    const b=document.createElement('button');
+    b.type='button'; b.className='listen '+cls; b.title='Listen'; b.setAttribute('aria-label','Listen');
+    b.dataset.speakText=text; b.textContent='🔊';
+    el.appendChild(b);
+  }
+  document.querySelectorAll('th,td').forEach(el=>addAudio(el,'cell-audio'));
+  document.querySelectorAll('.concept,.arch-box,.mini,.layer-line,.flow-node,.callout,.memory-strip,.service-card,.cf-stage,.cf-resource-icons>div,.layer-node,.plane-node').forEach(el=>addAudio(el,'auto-audio'));
+  document.querySelectorAll('.tab-panel>h2').forEach(el=>addAudio(el,'title-audio'));
+  // One QA button reads both the question and answer.
+  document.querySelectorAll('.qa-item').forEach(item=>{
+    const q=item.querySelector('.qa-top b');
+    const a=item.querySelector(':scope > p');
+    const btn=item.querySelector('.qa-top .listen');
+    if(q && a && btn) btn.dataset.speakText=(q.innerText+' '+a.innerText).replace(/\s+/g,' ').trim();
+  });
+})();
+</script><script id="single-voice-runtime-v42">
+(() => {
+  const voiceSelect = document.getElementById('voice');
+  const rate = document.getElementById('rate');
+  const rateValue = document.getElementById('rateValue');
+  const stop = document.getElementById('stop');
+  let currentButton = null;
+  let userVoiceURI = null;
+
+  function getVoices(){ return window.speechSynthesis ? window.speechSynthesis.getVoices() : []; }
+
+  function chooseDefault(voices){
+    let v = voices.find(x => /Google UK English Female/i.test(x.name));
+    if(!v) v = voices.find(x => x.lang === 'en-GB' && /female|susan|serena|kate|samantha/i.test(x.name));
+    if(!v) v = voices.find(x => x.lang === 'en-GB');
+    if(!v) v = voices.find(x => /^en[-_]/i.test(x.lang));
+    return v || voices[0] || null;
+  }
+
+  function loadVoices(){
+    if(!voiceSelect) return;
+    const voices = getVoices();
+    const keepURI = userVoiceURI || voiceSelect.value;
+    voiceSelect.innerHTML = '';
+    voices.forEach(v => {
+      const o = document.createElement('option');
+      o.value = v.voiceURI;
+      o.textContent = `${v.name} — ${v.lang}`;
+      voiceSelect.appendChild(o);
+    });
+    const kept = voices.find(v => v.voiceURI === keepURI);
+    const selected = kept || chooseDefault(voices);
+    if(selected) voiceSelect.value = selected.voiceURI;
+  }
+
+  function stopSpeech(){
+    if(window.speechSynthesis) window.speechSynthesis.cancel();
+    document.querySelectorAll('.listen.speaking').forEach(b => b.classList.remove('speaking'));
+    currentButton = null;
+  }
+
+  function cleanText(root){
+    if(!root) return '';
+    const c = root.cloneNode(true);
+    c.querySelectorAll('button,.cn,pre,code,svg').forEach(x => x.remove());
+    return (c.innerText || c.textContent || '').replace(/\s+/g,' ').trim();
+  }
+
+  function speak(btn){
+    if(!window.speechSynthesis) return;
+    if(btn.classList.contains('speaking')){ stopSpeech(); return; }
+    stopSpeech();
+
+    const text = (btn.dataset.speakText || btn.dataset.text || '').trim()
+      || cleanText(btn.closest('td,th,.sentence,.qa-item,.speakable') || btn.parentElement);
+    if(!text) return;
+
+    const voices = getVoices();
+    const chosen = voices.find(v => v.voiceURI === voiceSelect?.value) || chooseDefault(voices);
+
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = chosen?.lang || 'en-GB';
+    u.rate = rate ? Number(rate.value) || 0.9 : 0.9;
+    if(chosen) u.voice = chosen;
+
+    btn.classList.add('speaking');
+    currentButton = btn;
+    u.onend = u.onerror = () => {
+      btn.classList.remove('speaking');
+      if(currentButton === btn) currentButton = null;
+    };
+    window.speechSynthesis.speak(u);
+  }
+
+  if(rate && rateValue){
+    rate.value='0.9';
+    rateValue.textContent='0.90×';
+    rate.addEventListener('input', () => rateValue.textContent = Number(rate.value).toFixed(2)+'×');
+  }
+
+  voiceSelect?.addEventListener('change', () => {
+    userVoiceURI = voiceSelect.value;
+    stopSpeech();
+  });
+
+  stop?.addEventListener('click', stopSpeech);
+
+  loadVoices();
+  if(window.speechSynthesis){
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    setTimeout(loadVoices, 250);
+    setTimeout(loadVoices, 1000);
+  }
+
+  document.addEventListener('click', e => {
+    const tab = e.target.closest('.tab-btn');
+    if(tab){
+      e.preventDefault();
+      document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(x => x.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab)?.classList.add('active');
+      window.scrollTo({top:document.querySelector('.tabs')?.offsetTop || 0, behavior:'smooth'});
+      return;
+    }
+
+    const btn = e.target.closest('button.listen');
+    if(btn){
+      e.preventDefault();
+      e.stopPropagation();
+      speak(btn);
+      return;
+    }
+
+    const anchor = e.target.closest('.local-toc a');
+    if(anchor){
+      const id = anchor.getAttribute('href')?.replace('#','');
+      const target = id && document.getElementById(id);
+      if(target?.tagName === 'DETAILS') target.open = true;
+    }
+  }, true);
+})();
+</script></body></html>

@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Data Warehouse Projects — STAR Format</title>
+<style>
+  :root {
+    --bg:#FAFAF9; --surface:#FFFFFF; --border:#E5E5E3; --border-strong:#D4D4D0;
+    --text-primary:#1A1A18; --text-secondary:#57564F; --text-muted:#8A8985;
+    --accent:#2971A8; --accent-bg:#E8F2FA;
+    --success:#1E7A4C; --success-bg:#E4F5EC;
+    --warning:#9A6B1E; --warning-bg:#FBF0DD;
+    --danger:#B14A3F; --danger-bg:#FBECEA;
+    --purple:#7B4FA0; --purple-bg:#F1E9F7;
+    --radius:10px;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text-primary); line-height:1.55; }
+  .app { max-width:980px; margin:0 auto; padding:24px 20px 80px; }
+  header h1 { font-size:21px; font-weight:600; margin:0 0 4px; }
+  header p { font-size:13.5px; color:var(--text-secondary); margin:0 0 16px; }
+
+  .voice-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:10px 14px; margin-bottom:18px; font-size:13px; color:var(--text-secondary); }
+  .voice-bar select { font-size:13px; padding:4px 8px; border-radius:6px; border:1px solid var(--border-strong); }
+  .voice-bar input[type=range] { width:100px; }
+
+  .tabs { display:flex; gap:4px; margin-bottom:18px; border-bottom:1px solid var(--border); overflow-x:auto; }
+  .tab-btn { padding:10px 14px; font-size:13px; font-weight:600; color:var(--text-secondary); background:none; border:none; border-bottom:3px solid transparent; cursor:pointer; white-space:nowrap; }
+  .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  .project-header {
+    font-size:13px; color:var(--text-secondary); background:var(--accent-bg);
+    border-radius:var(--radius); padding:12px 16px; margin-bottom:16px;
+  }
+  .project-header b { color:var(--text-primary); }
+
+  .star-banner {
+    display:flex; align-items:center; gap:10px; font-size:13px; font-weight:700;
+    padding:10px 14px; border-radius:var(--radius); margin:20px 0 12px;
+  }
+  .star-banner:first-of-type { margin-top:0; }
+  .star-banner.S { background:var(--purple-bg); color:var(--purple); }
+  .star-banner.T { background:var(--accent-bg); color:var(--accent); }
+  .star-banner.A { background:var(--warning-bg); color:var(--warning); }
+  .star-banner.R { background:var(--success-bg); color:var(--success); }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-bottom:12px; }
+  .q-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:6px; }
+  .q-title { font-size:14px; font-weight:600; margin:0; }
+  .q-desc { font-size:13.5px; color:var(--text-secondary); margin:4px 0 0; }
+
+  table.datatbl { border-collapse:collapse; font-size:12px; margin:8px 0 4px; width:100%; overflow-x:auto; display:block; }
+  table.datatbl th, table.datatbl td { border:1px solid var(--border); padding:5px 9px; text-align:left; vertical-align:top; }
+  table.datatbl th { background:var(--accent-bg); color:var(--accent); font-weight:600; }
+
+  .flow { font-family:"SF Mono",Menlo,monospace; font-size:12px; background:var(--accent-bg); color:var(--accent); border-radius:8px; padding:8px 12px; margin:8px 0; }
+  .anchor { font-family:"SF Mono",Menlo,monospace; font-size:11.5px; background:#F4F4F2; border-radius:8px; padding:10px 14px; margin:8px 0; white-space:pre; color:var(--text-primary); }
+  .tip { font-size:12px; color:var(--success); background:var(--success-bg); border-radius:6px; padding:6px 10px; margin-top:8px; }
+
+  .listen-btn { flex-shrink:0; display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; padding:5px 10px; border-radius:999px; border:1px solid var(--accent); background:var(--accent-bg); color:var(--accent); cursor:pointer; }
+  .listen-btn.speaking { background:var(--accent); color:white; }
+  .listen-btn svg { width:12px; height:12px; }
+
+
+  /* Data Warehouse Fundamentals */
+  .dw-intro { background:linear-gradient(135deg,var(--accent-bg),#F6FAFD); border:1px solid #CFE3F3; border-radius:var(--radius); padding:14px 16px; margin-bottom:14px; }
+  .dw-intro h2 { font-size:17px; margin:0 0 5px; color:var(--accent); }
+  .dw-intro p { margin:0; font-size:13px; color:var(--text-secondary); }
+  .dw-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .dw-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-bottom:12px; }
+  .dw-card.full { grid-column:1/-1; }
+  .dw-card h3 { font-size:14px; margin:0; }
+  .dw-card p { font-size:13px; color:var(--text-secondary); margin:6px 0 8px; }
+  .dw-cn { color:var(--text-muted) !important; font-size:12px !important; }
+  .case-section-title { font-size:16px; font-weight:700; color:var(--purple); margin:22px 0 10px; }
+  .case-intro { background:var(--accent-bg); border:1px solid #cfe3f3; border-radius:var(--radius); padding:12px 14px; margin-bottom:14px; font-size:13px; color:var(--text-secondary); }
+  .domain-code { font-family:"SF Mono",Menlo,monospace; font-weight:700; color:var(--accent); }
+
+  .dw-key { font-weight:700; color:#173F5F; }
+  .dw-code { white-space:pre-wrap; overflow:auto; background:#111827; color:#E5E7EB; border-radius:8px; padding:11px 14px; font-family:"SF Mono",Menlo,monospace; font-size:11.5px; line-height:1.55; }
+  .dw-qa { border-left:3px solid var(--accent); padding-left:12px; margin:8px 0; }
+  .schema-visual { display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; margin:10px 0; }
+  .schema-box { border:1px solid var(--border); border-radius:9px; padding:12px; background:#fff; text-align:center; font-size:12px; }
+  .schema-box.fact { background:var(--warning-bg); color:var(--warning); border-color:#E8D1A8; font-weight:700; }
+  .schema-box.dim { background:var(--accent-bg); color:var(--accent); border-color:#CFE3F3; }
+  .schema-arrow { color:var(--text-muted); font-weight:700; }
+  @media(max-width:720px){ .dw-grid{grid-template-columns:1fr}.schema-visual{grid-template-columns:1fr}.schema-arrow{transform:rotate(90deg)} }
+
+
+  /* DW & DG tab imported from behavioral prep */
+  .a-text { font-size:13.5px; color:var(--text-secondary); margin:6px 0 0; }
+  .a-text b { color:var(--text-primary); }
+  .star-label { font-weight:700; color:var(--accent); }
+  .dwdg-intro { background:linear-gradient(135deg,var(--purple-bg),#FBF9FD); border:1px solid #DED2E8; border-radius:var(--radius); padding:14px 16px; margin-bottom:14px; }
+  .dwdg-intro h2 { font-size:17px; margin:0 0 5px; color:var(--purple); }
+  .dwdg-intro p { margin:0; color:var(--text-secondary); font-size:13px; }
+  .hourglass-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:14px; overflow:auto; }
+  .hourglass-wrap svg { width:100%; min-width:720px; height:auto; display:block; }
+  .diagram-caption { font-size:12px; color:var(--text-muted); margin-top:8px; text-align:center; }
+
+
+  .cell-listen-wrap { display:flex; align-items:flex-start; justify-content:space-between; gap:6px; }
+  .cell-listen-text { min-width:0; flex:1; }
+  .cell-listen-btn { flex:0 0 auto; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; border:1px solid var(--accent); background:var(--accent-bg); color:var(--accent); cursor:pointer; padding:0; }
+  .cell-listen-btn.speaking { background:var(--accent); color:#fff; }
+  .cell-listen-btn svg { width:11px; height:11px; }
+  .shift-card { border-left:5px solid var(--purple); background:linear-gradient(135deg,#fff,var(--purple-bg)); }
+  .shift-flow { display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; margin:10px 0 12px; }
+  .shift-box { border:1px solid var(--border); border-radius:10px; padding:12px 14px; background:#fff; }
+  .shift-box h4 { margin:0 0 5px; font-size:13px; }
+  .shift-box p { margin:0; font-size:12.5px; color:var(--text-secondary); }
+  .shift-arrow { font-size:22px; color:var(--purple); font-weight:700; }
+  @media(max-width:720px){ .shift-flow{grid-template-columns:1fr}.shift-arrow{transform:rotate(90deg);text-align:center} }
+
+
+  .listen-row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    margin:7px 0;
+  }
+  .listen-row .q-desc,
+  .listen-row .dw-qa-text{
+    margin:0;
+    flex:1;
+    min-width:0;
+  }
+  .dm-design-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    margin:10px 0 12px;
+  }
+  .dm-design-box{
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:11px 12px;
+    background:#fff;
+  }
+  .dm-design-box h4{
+    margin:0 0 5px;
+    font-size:13px;
+    color:var(--accent);
+  }
+  .dm-design-box p{
+    margin:0;
+    font-size:12.5px;
+    color:var(--text-secondary);
+  }
+  .metric-type{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    padding:9px 10px;
+    margin:7px 0;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#fff;
+  }
+  .metric-type-text{flex:1;min-width:0;font-size:12.8px;color:var(--text-secondary)}
+  .table-intro{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:8px 0 6px;padding:8px 10px;border-radius:8px;background:#F7F9FB;border:1px solid var(--border)}
+  .table-intro p{margin:0!important;flex:1;color:var(--text-secondary);font-size:12.8px}
+  .qa-listen-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .qa-listen-row .qa-copy{flex:1;min-width:0}
+  @media(max-width:720px){
+    .dm-design-grid{grid-template-columns:1fr}
+  }
+
+
+
+  /* Fast interview storytelling */
+  .quick-story{background:linear-gradient(135deg,#F6FAFD,#FFFFFF);border:1px solid #BFD9EC;border-left:5px solid var(--accent);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+  .quick-story-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:7px}
+  .quick-story h3{font-size:15px;margin:0;color:#173F5F}
+  .quick-story p{font-size:13.5px;color:var(--text-secondary);margin:0;line-height:1.65}
+  .quick-points{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:10px 0 2px}
+  .quick-point{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 9px;font-size:11.8px;color:var(--text-secondary)}
+  .quick-point b{display:block;color:var(--accent);font-size:11.5px;margin-bottom:3px}
+  details.project-details{margin-top:10px}
+  details.project-details>summary{cursor:pointer;list-style:none;background:#fff;border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:12.5px;font-weight:700;color:var(--text-secondary)}
+  details.project-details>summary::-webkit-details-marker{display:none}
+  details.project-details>summary:before{content:'＋ ';color:var(--accent)}
+  details.project-details[open]>summary:before{content:'－ '}
+  .details-content{margin-top:12px}
+  @media(max-width:800px){.quick-points{grid-template-columns:1fr 1fr}.quick-points .quick-point:last-child{grid-column:1/-1}}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Data Warehouse Projects — STAR Format</h1>
+    <p>4 projects, each structured as Situation → Task → Action → Result, with English read-aloud practice</p>
+  </header>
+
+  <div class="voice-bar">
+    <label>🔊 Voice: <select id="voiceSelect"></select></label>
+    <label>Speed: <input type="range" id="rateSlider" min="0.7" max="1.2" step="0.05" value="0.92"></label>
+    <span id="rateLabel">0.92x</span>
+    <button class="listen-btn" id="stopAllBtn" style="margin-left:auto">⏹ Stop</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="dwfund">🏛️ DW Fundamentals</button>
+    <button class="tab-btn" data-tab="dwdg">🏗️ DW &amp; DG</button>
+    <button class="tab-btn" data-tab="amazon">📦 Amazon Collection</button>
+    <button class="tab-btn" data-tab="gov">🛡️ Data Governance</button>
+    <button class="tab-btn" data-tab="reserve">🎯 Reservation Mart</button>
+    <button class="tab-btn" data-tab="toc">🌍 ToC Remittance</button>
+  </div>
+
+  <div id="dwfund" class="tab-panel active"></div>
+  <div id="dwdg" class="tab-panel"></div>
+  <div id="amazon" class="tab-panel"></div>
+  <div id="gov" class="tab-panel"></div>
+  <div id="reserve" class="tab-panel"></div>
+  <div id="toc" class="tab-panel"></div>
+</div>
+
+<script>
+const speakIcon = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1-3.29-2.5-4.03v8.05c1.5-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
+function listenBtn(text, big) { return `<button class="listen-btn${big?' big':''}" data-action="speak" data-text="${encodeURIComponent(text)}">${speakIcon}Listen</button>`; }
+function table(headers, rows) {
+  let html = '<table class="datatbl"><thead><tr>' + headers.map(h=>`<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+  rows.forEach(r => { html += '<tr>' + r.map(c=>`<td>${c}</td>`).join('') + '</tr>'; });
+  html += '</tbody></table>';
+  return html;
+}
+
+function plainEnglishText(html) {
+  const temp = document.createElement('div');
+  temp.innerHTML = String(html || '');
+  temp.querySelectorAll('.dw-cn').forEach(el => el.remove());
+  return temp.textContent.replace(/\s+/g, ' ').trim();
+}
+
+function enhanceDwFundamentalTables() {
+  const root = document.getElementById('dwfund');
+  if (!root) return;
+  root.querySelectorAll('table.datatbl th, table.datatbl td').forEach(cell => {
+    if (cell.querySelector('.cell-listen-wrap')) return;
+    const original = cell.innerHTML;
+    const speakText = plainEnglishText(original);
+    if (!speakText) return;
+    cell.innerHTML = `
+      <div class="cell-listen-wrap">
+        <div class="cell-listen-text">${original}</div>
+        <button class="cell-listen-btn" data-action="speak" data-text="${encodeURIComponent(speakText)}" aria-label="Listen to this table cell" title="Listen">
+          ${speakIcon}
+        </button>
+      </div>`;
+  });
+}
+
+function enhanceKnowledgeTables() {
+  document.querySelectorAll('table.datatbl').forEach(tbl => {
+    if (tbl.closest('.no-cell-listen')) return;
+    tbl.querySelectorAll('th, td').forEach(cell => {
+      if (cell.querySelector('.cell-listen-wrap')) return;
+      const original = cell.innerHTML;
+      const speakText = plainEnglishText(original);
+      if (!speakText) return;
+      cell.innerHTML = `
+        <div class="cell-listen-wrap">
+          <div class="cell-listen-text">${original}</div>
+          <button class="cell-listen-btn" data-action="speak" data-text="${encodeURIComponent(speakText)}" aria-label="Listen to this table cell" title="Listen">
+            ${speakIcon}
+          </button>
+        </div>`;
+    });
+  });
+}
+
+
+function flowDiagram(steps) {
+  const boxW = 600, boxH = 46, gap = 34, padTop = 30, padBottom = 20;
+  const totalH = steps.length * (boxH + gap) - gap + padTop + padBottom;
+  const x = 40;
+  let svg = `<svg width="100%" viewBox="0 0 680 ${totalH}" style="max-width:640px; display:block; margin:8px auto;">
+    <defs>
+      <marker id="fmarker" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="#888"/>
+      </marker>
+    </defs>`;
+  steps.forEach((step, i) => {
+    const y = padTop + i * (boxH + gap);
+    const isFirst = i === 0;
+    const isLast = i === steps.length - 1;
+    const fc = isFirst ? 'var(--purple-bg)' : isLast ? 'var(--success-bg)' : 'var(--accent-bg)';
+    const stroke = isFirst ? 'var(--purple)' : isLast ? 'var(--success)' : 'var(--accent)';
+    svg += `<rect x="${x}" y="${y}" width="${boxW}" height="${boxH}" rx="8" fill="${fc}" stroke="${stroke}" stroke-width="1"/>
+      <text x="${x + boxW/2}" y="${y + boxH/2}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="${stroke}">${i+1}. ${step}</text>`;
+    if (!isLast) {
+      const ay1 = y + boxH, ay2 = y + boxH + gap;
+      svg += `<line x1="${x + boxW/2}" y1="${ay1}" x2="${x + boxW/2}" y2="${ay2}" stroke="#888" stroke-width="1.5" marker-end="url(#fmarker)"/>`;
+    }
+  });
+  svg += `</svg>`;
+  return svg;
+}
+
+// ============================================================
+// PROJECT DATA — each project is an array of STAR cards
+// ============================================================
+
+const projects = {
+
+  amazon: {
+    header: `<b>Amazon Standard Collection</b> — cross-border e-commerce fund collection using a Virtual Account (VA) model`,
+    introHtml: `
+      <div class="case-section-title">1. Development Process</div>
+      <div class="case-intro"><b>Standard warehouse development flow:</b> define the business goal first, preserve source truth in ODS, build reusable facts and dimensions, aggregate by subject, and finally serve applications.</div>
+      ${flowDiagram([
+        "Define business goals & requirements",
+        "Load raw data → ODS",
+        "Transform into fact / dimension → DIL / DIM",
+        "Aggregate by subject themes → DM",
+        "Serve reporting & BI → ADS"
+      ])}
+
+      <div class="case-section-title">2. Enterprise Data Domains</div>
+      <div class="card">
+        <div class="q-head">
+          <p class="q-title">Subject-oriented domain classification</p>
+          ${listenBtn("The enterprise warehouse is organized into ten primary data domains: Customer, Product, Transaction, Event, Agreement, Finance, Capital, Asset, Relationship, and Address.")}
+        </div>
+        ${table(["No.","Topic","Code","Description"], [
+          ["1","Customer","<span class='domain-code'>USR</span>","Covers individuals, merchants, and users, including profile, credit, education, and occupation information.<br>"],
+          ["2","Product","<span class='domain-code'>PRD</span>","Covers products and services such as credit card repayment and red packets.<br>"],
+          ["3","Transaction","<span class='domain-code'>TRD</span>","Covers the full order lifecycle from creation to payment, success, cancellation, and closure.<br>"],
+          ["4","Event","<span class='domain-code'>EVT</span>","Covers risk events, campaigns, clickstream logs, and other operational events.<br>"],
+          ["5","Agreement","<span class='domain-code'>AGT</span>","Covers contracts, agreements, and related terms.<br>"],
+          ["6","Finance","<span class='domain-code'>FIN</span>","Covers finance-related analysis, such as reserve balances and available advance amounts.<br>"],
+          ["7","Capital","<span class='domain-code'>CAP</span>","Covers balances, payments, transfers, purchases, and fund-flow analysis.<br>"],
+          ["8","Asset","<span class='domain-code'>AST</span>","Covers fixed, long-term, and virtual assets such as houses and vehicles.<br>"],
+          ["9","Relationship","<span class='domain-code'>REL</span>","Covers fund networks, social relationships, and relationship graph analysis.<br>"],
+          ["10","Address","<span class='domain-code'>ADR</span>","Covers customer addresses, locations, latitude, and longitude.<br>"]
+        ])}
+      </div>
+
+      <div class="card">
+        <div class="q-head">
+          <p class="q-title">Q: How do you classify a DM table when it combines user, order, and product data?</p>
+          ${listenBtn("I classify the table by its main business subject, not by every source domain used in the join. I first check the table grain, then the core metrics, the main business question, and the team that owns the metric definition. Cross-domain joins are allowed, but the table should still have one clear primary domain.")}
+        </div>
+        <p class="q-desc"><b>A:</b> I classify the table by its <b>main business subject</b>, not by every source domain used in the join.</p>
+        ${table(["Decision step","How to determine the primary domain"], [
+          ["1. Check the grain","One row per user → <b>User</b>; one row per order → <b>Transaction / Order</b>; one row per product → <b>Product</b>."],
+          ["2. Check core metrics","Identify what the table primarily measures."],
+          ["3. Check the business question","Determine the main analytical question answered by the table."],
+          ["4. Check ownership","Confirm which business process or team owns the metric definition."],
+          ["5. Allow cross-domain joins","Joined sources may come from several domains, but the output should still have one clear primary domain."]
+        ])}
+        <div class="tip"><b>Example:</b> Grain = <b>user_id + date</b>; metrics = user GMV, purchase frequency, active status; purpose = analyse user behaviour → <b>Primary domain: User</b>, even when order and product data are joined.</div>
+      </div>
+
+      <div class="case-section-title">3. Business Case 2 — Cross-border E-commerce Collection</div>
+    `,
+    cards: [
+      {letter:"S", title:"Situation", desc:"Chinese and Hong Kong cross-border sellers operate multiple Amazon stores across different countries. They cannot easily open overseas bank accounts, so they struggle to receive funds, withdraw money, and pay suppliers."},
+      {letter:"T", title:"Task", desc:"Design a data warehouse solution that supports a Virtual Account architecture — giving each merchant a consolidated view while still tracking funds down to the individual store and currency level for compliance."},
+      {letter:"A", title:"Action — the VA hierarchy", desc:"I designed a 3-level virtual account structure so real funds stay pooled, while internal ledgers track every merchant, store, and currency separately.",
+        table: table(["Level","Example","Real bank account?","Purpose"], [
+          ["Real Pool Account","Acct No: 328-999999-USD (JPM HK)","Yes","Provider's safeguarded settlement pool"],
+          ["Merchant Main VA","MVA_12345 (Merchant A)","No — virtual","Merchant A's overall balance"],
+          ["Sub-VA","MVA_12345_US_USD","No — virtual","Linked to Amazon US store"],
+          ["Sub-VA","MVA_12345_EU_EUR","No — virtual","Linked to Amazon EU store"],
+        ]),
+      },
+      {letter:"A", title:"Action — business process modeled", desc:"I modeled the full lifecycle so the warehouse could track a merchant from onboarding through to final payout.",
+        flow:"Merchant Registration & KYC → Store Authorization & Binding → Sub-VA Activation → Amazon Payout → Main VA Settlement → Withdrawal / Supplier Payment"},
+      {letter:"A", title:"Action — subject-oriented tables", desc:"I built three subject tables — Merchant, Store, and Order — each tracking horizontal attributes (like registration channel), a key time funnel (apply, authorize, bind, first settlement), and longitudinal metrics (cumulative and 28-day settlement volume).",
+        table: table(["Subject","Tracks"], [
+          ["Merchant","Registration → KYC → store binding → first settlement → cash-out, plus lifecycle tags (new/retained/lost/recovered)"],
+          ["Store","Store-level funnel and settlement volume, same lifecycle tagging at store granularity"],
+          ["Order","Order-grain view combining inflow (settlement) and outflow (withdrawal/payment) with consistent dimensions"],
+        ]),
+      },
+      {letter:"R", title:"Result", desc:"The design gave full transaction-level traceability per merchant, store, and currency, while actual funds remained inside a single pooled bank account — satisfying regulatory compliance without requiring real overseas accounts per store."},
+    ],
+    schemas: [
+      {name: "Merchant Subject Table", desc: "Grain: one row per merchant per day.",
+       table: table(["Field","Description"], [
+         ["fdate / fetl_time","Partition date / ETL timestamp"],
+         ["fgid / fspid","Merchant ID / Service provider ID"],
+         ["fregister_channel_source","Registration channel"],
+         ["fcreate_time_register → fcreate_time_kyc_apply → fcreate_time_kyc_info → fcreate_time_store_bind","Key time funnel: registration through store binding"],
+         ["ffirst_settlement_time","Timestamp of first successful settlement"],
+         ["ftotal_settlement_amount_usd / _rmb / _cnt","Cumulative settlement amount (USD/RMB) and count"],
+         ["flast_settlement_amount_usd_28d / _cnt","Rolling 28-day settlement amount and count"],
+         ["fmerchant_lifecycle_tag","New / Retained / Lost / Recovered"],
+       ])},
+      {name: "Store Subject Table", desc: "Grain: one row per store per day.",
+       table: table(["Field","Description"], [
+         ["fdate / fetl_time","Partition date / ETL timestamp"],
+         ["fshop_id / fspid / fgid","Store ID / Provider ID / Merchant ID"],
+         ["fplat_shop_id / fplat_shop_name","Amazon store ID and name"],
+         ["fplatform_id / fsite_id / fcountry_id / fcur_type","Platform, marketplace site, country, currency"],
+         ["fcreate_time_shop_apply → fcreate_time_shop_auth → fcreate_time_shop_bind","Store-level onboarding funnel"],
+         ["ffirst_settlement_time","First successful settlement at store level"],
+         ["ftotal_settlement_amount_usd / _cnh / _cnt","Cumulative store-level settlement metrics"],
+         ["flast_settlement_amount_usd_28d / _cnh_28d / _cnt_28d","Rolling 28-day store-level metrics"],
+       ])},
+      {name: "Order Subject Table", desc: "Grain: one row per transaction (inflow + outflow combined).",
+       table: table(["Field","Description"], [
+         ["fdate / fetl_time","Partition date / ETL timestamp"],
+         ["Ftransaction_scene / Flistid / Ftransaction_time","Transaction type, order ID, timestamp"],
+         ["fgid / fspid / fshop_id","Merchant / Provider / Store dimension keys"],
+         ["Ftransaction_cur_type / Ftransaction_amount","Currency and transaction amount"],
+         ["Ftransaction_amount_usd / _cnh","Amount converted to USD / CNH"],
+         ["fbuy_type / fpayee_id / fpayee_type / fsell_type","Outflow-only: withdrawal or supplier payment details"],
+         ["fcompany_subject_type / transaction_category / payee_account_category","Payee classification for outflow transactions"],
+       ])},
+    ],
+    anchor: "PROBLEM  -> sellers can't open overseas bank accounts\nMODEL    -> Real Pool Account -> Main VA -> Sub-VA (per store/currency)\nFLOW     -> KYC -> Store Auth -> Sub-VA Activation -> Payout -> Settlement -> Withdrawal\nTABLES   -> Merchant / Store / Order subject tables\nRESULT   -> full traceability, funds stay pooled, compliant"
+  },
+
+  gov: {
+    header: `<b>Data Governance — Data Asset Score</b> — expanding a single-dimension quality check into a 4-dimension scoring framework`,
+    cards: [
+      {letter:"S", title:"Situation", desc:"Rapid growth of the payments business exposed chaos in our Hive and Spark data layer: inconsistent table names, missing comments, unmanaged dependencies, and no visibility into security compliance or cost efficiency. Previously, only Data Quality Checks were used to evaluate data assets."},
+      {letter:"T", title:"Task", desc:"Expand the Data Asset Scoring mechanism from DQC-only into a comprehensive 100-point system that evaluates usability, reliability, compliance, and cost-efficiency together."},
+      {letter:"A", title:"Action — the 4-dimension framework", desc:"I designed a weighted scoring system combining four dimensions into a single 0-100 score per table.",
+        table: table(["Dimension","Weight","What it checks"], [
+          ["Standards","35%","Naming conventions, comments, dependency hygiene"],
+          ["Data Quality Checks","35%","SLA timeliness, DQC rule coverage, alert management"],
+          ["Security","15%","Sensitive-field encryption, owner compliance"],
+          ["Cost","15%","Compute and storage cost efficiency"],
+        ]),
+      },
+      {letter:"A", title:"Action — automation & implementation", desc:"I automated scoring rules via daily SparkSQL jobs, extracting table metadata from the Hive Meta Table and lineage relationships. Security checks used scan results from the data security platform team, and cost checks used daily scans for stale tables. I also built a whitelist mechanism so table owners could apply for temporary exemptions.",
+        table: table(["Enforcement mechanism","Detail"], [
+          ["Naming conventions","Enforced via platform-level constraints in the visual table-creation process"],
+          ["Auto-configured checks","Zero-record checks and primary key uniqueness constraints"],
+          ["Whitelist governance","Prevents exempt tables from impacting the score"],
+          ["Scope exclusion","Temporary tables prefixed temp_, tmp_, or check_ excluded from evaluation"],
+        ]),
+      },
+      {letter:"R", title:"Result", desc:"The average asset score improved from 77 to 86 — moving the table portfolio from the C-plus range up into the B-plus range, meaning assets on average now meet governance criteria across naming standards, DQC coverage, security, and cost controls."},
+    ],
+    schemas: [
+      {name: "Data Asset Score Table", desc: "Grain: one row per table per day — the consolidated output of all 4 scoring dimensions.",
+       table: table(["Field","Description"], [
+         ["fdate / fetl_time","Partition date / ETL timestamp"],
+         ["ftable_name / fowner / fbusiness","Table name, owner, and business domain"],
+         ["fstd_score","Standards score (35% weight)"],
+         ["fdqc_score","Data quality score (35% weight)"],
+         ["fsecu_score","Security score (15% weight)"],
+         ["fcost_score","Cost score (15% weight)"],
+         ["ftotal_score","Weighted total (0-100)"],
+         ["fscore_time","Scoring run timestamp"],
+         ["fexempt_flag","Whitelist exemption flag (Y/N)"],
+       ])},
+    ],
+    anchor: "PROBLEM  -> only DQC used, chaos in naming/dependencies/security/cost\nFRAMEWORK -> Standards 35% + DQC 35% + Security 15% + Cost 15%\nAUTOMATION -> daily SparkSQL jobs, Hive Meta + lineage extraction\nGOVERNANCE -> whitelist exemptions, naming enforced at platform level\nRESULT    -> 77 -> 86 (C+ to B+ range)"
+  },
+
+  reserve: {
+    header: `<b>Reservation Attribution Data Mart</b> — built from scratch at Xiaomi to track pre-launch product reservations`,
+    introHtml: `
+      <div class="case-section-title">Business Case 1 — Reservation DM Table Design</div>
+      <div class="case-intro"><b>Interview summary:</b> “I designed a full-snapshot reservation attribution mart from scratch, at <b>User × Campaign × Product × Site</b> grain, to track pre-launch conversion and power CRM remarketing.”</div>
+
+      <div class="card">
+        <div class="q-head">
+          <p class="q-title">E-commerce Data Domain Map</p>
+          ${listenBtn("The e-commerce warehouse uses Traffic, Trade, Operation, User, Product, Device, Page, Configuration, and Common domains. Each domain has a clear business loop and ownership boundary.")}
+        </div>
+        ${table(["Code","Data Domain","Type","Description","Core Loop"], [
+          ["<span class='domain-code'>TRF</span>","Traffic","Behavioral Fact Domain","Access, exposure, clicks, and other user behavior trails.<br>","Exposure → Click → Visit"],
+          ["<span class='domain-code'>TRD</span>","Trade / Order","Transaction Fact Domain","Order placement, payment, cancellation, refund, and other transaction behaviors.<br>","Order → Payment → Repurchase"],
+          ["<span class='domain-code'>OPS</span>","Operation","Operational Fact Domain","Push notifications, EDM, campaigns, marketing outreach and conversion.<br>","Outreach → Conversion → Review"],
+          ["<span class='domain-code'>USR</span>","User","Entity Domain","Registration, login, user status, attributes, and tags.<br>","Active → Lifecycle → Tagging"],
+          ["<span class='domain-code'>PRD</span>","Product","Entity Domain","SKU, SPU, category system, and other product information.<br>","Category → SKU → Structure"],
+          ["<span class='domain-code'>DVC</span>","Device","Entity Domain","Device entities, system environment, and device attributes.<br>","Device → Usage → Change"],
+          ["<span class='domain-code'>PGE</span>","Page","Entity Domain","Pages, URLs, content carriers, and business semantics.<br>","Page → Behavior"],
+          ["<span class='domain-code'>CFG</span>","Configuration","Control / Configuration Domain","Site configuration, effective rules, and other control data.<br>","Config → Effective → Governance"],
+          ["<span class='domain-code'>COM</span>","Common","Public Domain","Public information that cannot be classified, such as country-code tables.<br>","General → Reuse"]
+        ])}
+      </div>
+
+      <div class="case-section-title">User Funnel — Tell the Story in Order</div>
+      ${flowDiagram([
+        "Exposure / Campaign Outreach",
+        "Product Reservation",
+        "Product Launch",
+        "Order Matching",
+        "Purchase Conversion",
+        "CRM Remarketing for Unconverted Users"
+      ])}
+    `,
+    cards: [
+      {letter:"S", title:"Step 1 — Business Problem", desc:"Users reserve a product before launch. We had no way to track whether they purchased afterwards, or target unconverted users."},
+      {letter:"T", title:"Task", desc:"Design a full-snapshot reservation attribution data mart from scratch, at the grain of User by Campaign by Product by Site, to track pre-launch conversion and power CRM remarketing."},
+      {letter:"A", title:"Action — design decisions", desc:"I made five key design choices to shape this table from the ground up.",
+        table: table(["Decision","What I chose","Why"], [
+          ["Business process","Pre-launch reservation event","Core business action to track"],
+          ["Grain","User x Campaign x Product x Site","Most granular level needed for analysis"],
+          ["Fact","reserve_flag = 1","User reserved the product"],
+          ["Dimensions","Campaign, Product, Site, UTM/channel","Needed for multi-dimensional analysis"],
+          ["Table type","Full snapshot (df)","Need daily state of all reservations"],
+        ]),
+      },
+      {letter:"A", title:"Action — the technical challenge", desc:"No direct foreign key existed between the reservation and order tables. I used Spark non-equi time-window joins, matching each reservation to orders placed within the campaign launch window."},
+      {letter:"A", title:"Action — downstream value", desc:"I pre-computed tag_reserved_not_paid directly in the data mart, so it feeds straight into CRM with no extra join. Analysts use COUNT DISTINCT mid for conversion metrics."},
+      {letter:"R", title:"Result", desc:"Data latency improved from T-plus-1-day to T-plus-1-hour, enabling same-day campaign analysis. Direct targeting of users with tag_reserved_not_paid contributed to a plus 0.2 percentage-point conversion improvement."},
+    ],
+    schemas: [
+      {name: "Reservation Attribution Table", desc: "Grain: one row per (user, campaign, product, site) combination — full daily snapshot.",
+       table: table(["Field","Meaning"], [
+         ["fdate","Partition date for the full snapshot"],
+         ["mid","User ID"],
+         ["campaign_id","Campaign"],
+         ["product_id","Reserved product SKU"],
+         ["site","MiWeb / MiWorldwide"],
+         ["reserve_flag","1 = reserved"],
+         ["order_flag","1 = purchased"],
+         ["tag_reserved_not_paid","1 = reserved but not purchased"],
+         ["utm_source / channel","Traffic source"],
+         ["reserve_time","Timestamp of reservation"],
+         ["order_id / order_time","Matched order through the non-equi time-window join"],
+       ])},
+    ],
+    anchor: "PROBLEM  -> no way to track reservation -> purchase\nGRAIN    -> User x Campaign x Product x Site\nCHALLENGE -> no FK -> non-equi time-window join\nOUTPUT   -> tag_reserved_not_paid -> CRM push\nRESULT   -> T+1 day -> T+1 hour, +0.2pp conversion"
+  },
+
+  toc: {
+    header: `<b>ToC Global Remittances to China</b> — partnering with overseas remittance providers to bring foreign currency into China`,
+    cards: [
+      {letter:"S", title:"Situation", desc:"We partnered with overseas remittance providers, such as Panda Remit and Wise, to bring foreign currency into China. In cross-border inbound remittance, user orders are recorded individually one at a time, but actual fund settlements arrive in batches — creating a reconciliation gap."},
+      {letter:"T", title:"Task", desc:"Build a subject-oriented analysis model covering sending institutions, orders, and users, while ensuring every batched fund settlement could be accurately matched to valid user orders for regulatory reconciliation under Hong Kong MSO, MAS MPI, and SAFE-PBoC oversight."},
+      {letter:"A", title:"Action — business process modeled", desc:"I modeled the full flow from partner onboarding through to final payment collection by the recipient.",
+        flow:"Partner Onboarding → Institution Funding → Currency Exchange → Remittance Service → Payment Collection"},
+      {letter:"A", title:"Action — three subject analyses", desc:"I built three parallel subject-area analyses to serve different stakeholders.",
+        table: table(["Subject","What it covers"], [
+          ["Sending Institution","Countries, currencies, transaction and user volumes, fees, FX income — feeding profit and transaction reports"],
+          ["Orders","A 3-stage lifecycle funnel: provider order, account opening process, complete fund receipt — measuring conversion and bottlenecks"],
+          ["Users","Basic info, behavior, lifecycle stage, and preferences — powering targeted campaigns"],
+        ]),
+      },
+      {letter:"A", title:"Action — regulatory reconciliation", desc:"I designed the fundin_order_regulation table to match each batched fund settlement, called gather_result_list, against the individual user orders in remit_list — using encrypted recipient identity fields to deduplicate recipients and confirm domestic residency."},
+      {letter:"R", title:"Result", desc:"This ensured full auditability of every fund batch against valid user orders, mitigated AML risk, and enabled accurate compliance reporting across Hong Kong, Singapore, and mainland Chinese regulatory regimes."},
+    ],
+    schemas: [
+      {name: "fundin_order_regulation", desc: "Grain: one row per remittance order — matches batched fund settlements to individual user orders for regulatory reconciliation.",
+       table: table(["Field","Description"], [
+         ["Flistid","Remittance order ID (primary key)"],
+         ["Forg_id / Forg_name","Sending institution ID / name"],
+         ["Ftran_amt / Ftran_ccy","Remitted amount and currency (fixed as CNY)"],
+         ["Ffund_inflow_time","Fund arrival time in China — core reconciliation field"],
+         ["Fname_cn_fid","Encrypted recipient name"],
+         ["Fcre_type / Fcre_id_fid","Recipient ID type / encrypted ID — used for residency check and dedup"],
+         ["Fpurpose_code","Purpose of remittance (education, salary, family support, etc.)"],
+         ["Fpay_final_time","Final timestamp of remittance success or failure"],
+       ])},
+    ],
+    anchor: "PROBLEM  -> orders are 1-to-1, fund settlements arrive batched\nMODEL    -> Sending Institution + Orders (3-stage funnel) + Users\nRECONCILE -> gather_result_list (batches) <-> remit_list (orders)\nCOMPLIANCE -> HK MSO / MAS MPI / SAFE-PBoC\nRESULT   -> auditability, AML risk mitigated, accurate reporting"
+  },
+
+};
+
+
+// ============================================================
+// DATA WAREHOUSE FUNDAMENTALS
+// ============================================================
+function dwCard(title, speakText, body, full=false) {
+  return `<div class="dw-card${full ? ' full' : ''}">
+    <div class="q-head">
+      <h3>${title}</h3>
+      ${listenBtn(speakText)}
+    </div>
+    ${body}
+  </div>`;
+}
+
+function renderDwFundamentals() {
+  const el = document.getElementById('dwfund');
+  let html = `<div class="dw-intro">
+    <h2>Data Warehouse Fundamentals</h2>
+    <p><span class="dw-key">Business-process-driven design</span>, <span class="dw-key">OLTP vs OLAP</span>, <span class="dw-key">Normalization</span>, <span class="dw-key">Fact & Dimension</span>, <span class="dw-key">Star Schema</span>, <span class="dw-key">Snowflake Schema</span>, <span class="dw-key">Grain</span>, <span class="dw-key">SCD</span>, and common interview questions.</p>
+  </div><div class="dw-grid">`;
+
+  html += dwCard(
+    'Shifting from Report-driven to Business-process-driven Development',
+    'Report-driven development starts from one report and often creates duplicated tables and inconsistent metrics. Business-process-driven development starts from a stable business process, cleans detailed records in DWD, and builds reusable DM tables that serve many reports and applications.',
+    `<div class="shift-flow">
+       <div class="shift-box">
+         <h4>Report-driven development (siloed development)</h4>
+         <p>Report request → Dedicated table → Duplicated logic</p>
+       </div>
+       <div class="shift-arrow">→</div>
+       <div class="shift-box">
+         <h4>Business-process-driven</h4>
+         <p>Business process → DWD detail → reusable DM → reports</p>
+       </div>
+     </div>
+
+     <div class="dw-code">ODS  → raw source data
+DWD  → cleaned and deduplicated detail, usually at the same business-event grain
+DM   → reusable subject model built from DWD facts and dimensions
+ADS  → report- or application-specific output</div>
+
+     <div class="table-intro"><p>The main difference is whether development starts from a single report or from a reusable business process.</p>${listenBtn('The main difference is whether development starts from a single report or from a reusable business process.')}</div>
+     ${table(
+       ['Topic','Report-driven','Business-process-driven'],
+       [
+         ['Starting point','One report','A stable business process'],
+         ['Core model','Dedicated output table','Reusable DWD and DM models'],
+         ['Result','Duplicated logic','Shared grain and metrics']
+       ]
+     )}
+
+     <div class="card shift-card" style="margin-top:12px;">
+       <div class="q-head">
+         <p class="q-title">How do you define a DM table?</p>
+         ${listenBtn('I define a DM table by identifying the business process, declaring its grain, selecting the required DWD facts and conformed dimensions, defining reusable metrics, and validating that the model can support multiple downstream reports without duplicating business logic.')}
+       </div>
+       <div class="card" style="margin-top:10px;">
+         <div class="q-head">
+           <p class="q-title">How do you define a DM table?</p>
+           ${listenBtn('A DM table is defined around a stable business process. I first declare the grain and primary key, then select cleaned DWD inputs, confirm the business purpose and data domain, and finally define reusable milestone and time series metrics for multiple downstream use cases.')}
+         </div>
+
+         <div class="listen-row">
+           <p class="q-desc"><b>1. Define the business process and subject area.</b></p>
+           ${listenBtn('Define the business process and subject area.')}
+         </div>
+         <div class="listen-row">
+           <p class="q-desc"><b>2. Declare the grain and business key.</b></p>
+           ${listenBtn('Declare the grain and business key.')}
+         </div>
+         <div class="listen-row">
+           <p class="q-desc"><b>3. Define the source model and join logic.</b></p>
+           ${listenBtn('Define the source model and join logic.')}
+         </div>
+         <div class="listen-row">
+           <p class="q-desc"><b>4. Design the dimensions, milestones, and measures.</b></p>
+           ${listenBtn('Design the dimensions, milestones, and measures.')}
+         </div>
+         <div class="listen-row">
+           <p class="q-desc"><b>5. Specify the loading strategy and governance controls.</b></p>
+           ${listenBtn('Specify the loading strategy and governance controls.')}
+         </div>
+
+         <div class="case-section-title" style="font-size:14px;margin:15px 0 8px;">DM Metric Design</div>
+         <div class="metric-type">
+           <div class="metric-type-text"><b>Milestone metrics:</b> key business timestamps or states, such as registration time, KYC approval time, store-binding time, and first-settlement time.</div>
+           ${listenBtn('Milestone metrics are key business timestamps or states, such as registration time, KYC approval time, store binding time, and first settlement time.')}
+         </div>
+         <div class="metric-type">
+           <div class="metric-type-text"><b>Time-series metrics:</b> rolling or cumulative values, such as 30-day transaction count, 30-day transaction amount, and lifetime settlement amount.</div>
+           ${listenBtn('Time series metrics are rolling or cumulative values, such as thirty day transaction count, thirty day transaction amount, and lifetime settlement amount.')}
+         </div>
+
+         
+       </div>
+
+       <div class="dw-qa">
+         <div class="listen-row">
+           <div class="dw-qa-text"><b>Q: What is the difference between DWD and DM?</b><br><b>A:</b> DWD keeps cleaned business detail close to the original event grain. DM organizes that detail into reusable subject-oriented models and metrics.</div>
+           ${listenBtn('DWD keeps cleaned business detail close to the original event grain. DM organizes that detail into reusable subject oriented models and metrics.')}
+         </div>
+       </div>
+
+       <div class="dw-qa">
+         <div class="listen-row">
+           <div class="dw-qa-text"><b>Q: Why is DM central to business-process-driven modeling?</b><br><b>A:</b> DM is the reusable business layer that prevents every report from rebuilding the same logic.</div>
+           ${listenBtn('DM is the reusable business layer that prevents every report from rebuilding the same logic.')}
+         </div>
+       </div>
+
+       <div class="dw-qa">
+         <div class="listen-row">
+           <div class="dw-qa-text"><b>Q: What problem does this approach solve?</b><br><b>A:</b> It reduces duplicated tables, inconsistent metrics, and maintenance cost.</div>
+           ${listenBtn('It reduces duplicated tables, inconsistent metrics, and maintenance cost.')}
+         </div>
+       </div>`,
+    true
+  );
+
+  html += dwCard(
+    '1. OLTP vs OLAP',
+    'OLTP systems support frequent transactional operations, while OLAP systems support large-scale analytical queries across historical data.',
+    `<p><span class="dw-key">OLTP</span> is optimized for frequent inserts, updates, and point lookups. <span class="dw-key">OLAP</span> is optimized for scans, aggregations, trends, and multi-dimensional analysis.</p>
+     
+     <div class="table-intro"><p>OLTP is optimized for operational transactions, while OLAP is optimized for historical analysis and aggregation.</p>${listenBtn('OLTP is optimized for operational transactions, while OLAP is optimized for historical analysis and aggregation.')}</div>
+     ${table(['Aspect','OLTP','OLAP'],[
+       ['Purpose','Run daily transactions','Analyze business performance'],
+       ['Workload','Short reads and writes','Large scans and aggregations'],
+       ['Model','Usually normalized','Usually dimensional']
+     ])}`
+  );
+
+  html += dwCard(
+    '2. Normalization',
+    'Normalization organizes relational data into separate tables to reduce redundancy and update anomalies.',
+    `<p><span class="dw-key">Normalization</span> separates repeated attributes into related tables. It improves consistency in transactional systems but can create more joins for analytics.</p>
+     
+     <div class="table-intro"><p>The key idea is to reduce redundancy in OLTP, while analytical models may denormalize selectively to reduce joins.</p>${listenBtn('The key idea is to reduce redundancy in OLTP, while analytical models may denormalize selectively to reduce joins.')}</div>
+     ${table(['Form','Core Rule','Meaning'],[
+       ['1NF','Atomic values','One cell contains one value'],
+       ['2NF','No partial dependency','Depend on the full composite key'],
+       ['3NF','No transitive dependency','Depend only on the key'],
+       ['Denormalization','Combine related data','Reduce analytical joins']
+     ])}`
+  );
+
+  html += dwCard(
+    '3. Fact Tables and Dimension Tables',
+    'A fact table stores measurable business events at a defined grain, while dimension tables store descriptive attributes used to filter and group those facts.',
+    `<p><span class="dw-key">Fact Table</span> = measurable event. <span class="dw-key">Dimension Table</span> = descriptive business context.</p>
+     
+     <div class="table-intro"><p>Fact tables record business events at a declared grain, while dimension tables provide descriptive context for analysis.</p>${listenBtn('Fact tables record business events at a declared grain, while dimension tables provide descriptive context for analysis.')}</div>
+     ${table(['Table Type','Main Content','Example'],[
+       ['Fact','Keys, measures, event time','order_amount, quantity'],
+       ['Dimension','Descriptive attributes','customer, product, country'],
+       ['Factless Fact','Event or relationship only','attendance, eligibility']
+     ])}`
+  );
+
+  html += dwCard(
+    '4. Grain — the Most Important Design Decision',
+    'Grain defines exactly what one row in a fact table represents. It must be declared before selecting facts and dimensions.',
+    `<p>The <span class="dw-key">grain</span> is the precise meaning of one row.</p>
+     <div class="dw-code">Examples:
+Order fact       → one row per order line
+Payment fact     → one row per payment transaction
+Daily snapshot   → one row per account per day
+Reservation mart → one row per user × campaign × product × site</div>
+     `
+  );
+
+  html += dwCard(
+    '5. Star Schema',
+    'A Star Schema has one central fact table connected directly to denormalized dimension tables.',
+    `<div class="schema-visual">
+       <div><div class="schema-box dim">Customer Dimension</div><div class="schema-box dim">Product Dimension</div></div>
+       <div class="schema-arrow">→</div>
+       <div class="schema-box fact">Sales Fact<br>customer_key<br>product_key<br>date_key<br>amount</div>
+     </div>
+     <p><span class="dw-key">Advantages:</span> simple joins, easy for BI users, fast analytical queries, intuitive business model.</p>
+     `
+  );
+
+  html += dwCard(
+    '6. Snowflake Schema',
+    'A Snowflake Schema normalizes dimension tables into multiple related sub-dimensions.',
+    `<div class="dw-code">Sales Fact
+  → Product Dimension
+      → Product Category
+          → Department
+  → Geography Dimension
+      → Country
+          → Region</div>
+     <p><span class="dw-key">Advantages:</span> less dimension redundancy and stronger hierarchy consistency. <span class="dw-key">Trade-off:</span> more joins and greater query complexity.</p>
+     `
+  );
+
+  html += dwCard(
+    '7. Star Schema vs Snowflake Schema',
+    'Star Schema favors simplicity and query performance, while Snowflake Schema favors normalization and reduced dimension redundancy.',
+    `<div class="table-intro"><p>Star Schema is usually preferred for BI simplicity, while Snowflake Schema is useful when dimension hierarchies need stronger normalization.</p>${listenBtn('Star Schema is usually preferred for BI simplicity, while Snowflake Schema is useful when dimension hierarchies need stronger normalization.')}</div>
+     ${table(['Aspect','Star Schema','Snowflake Schema'],[
+       ['Dimension design','Denormalized','Normalized'],
+       ['Joins','Fewer','More'],
+       ['Best fit','BI and analytical marts','Complex reusable hierarchies']
+     ])}
+     <div class="tip">💡 Interview answer: I usually prefer a <b>Star Schema</b> for BI and analytical marts because it is easier to understand and query. I use Snowflake-style normalization selectively when dimensions contain large reusable hierarchies.</div>`,
+    true
+  );
+
+  html += dwCard(
+    '8. Types of Fact Tables',
+    'The common fact table types are transaction facts, periodic snapshots, accumulating snapshots, and factless facts.',
+    `<div class="table-intro"><p>Choose the fact table type according to whether you need event detail, periodic state, or lifecycle progress.</p>${listenBtn('Choose the fact table type according to whether you need event detail, periodic state, or lifecycle progress.')}</div>
+     ${table(['Fact Type','Grain','Example'],[
+       ['Transaction Fact','One row per event','Payment or order line'],
+       ['Periodic Snapshot','One row per entity per period','Daily account balance'],
+       ['Accumulating Snapshot','One row per process lifecycle','Order lifecycle'],
+       ['Factless Fact','One row per event or relationship','Attendance or eligibility']
+     ])}`
+  );
+
+  html += dwCard(
+    '9. Slowly Changing Dimensions',
+    'Slowly Changing Dimensions define how historical changes to dimension attributes are stored.',
+    `<div class="table-intro"><p>SCD Type 1 overwrites old values, while SCD Type 2 creates new rows to preserve full history.</p>${listenBtn('SCD Type 1 overwrites old values, while SCD Type 2 creates new rows to preserve full history.')}</div>
+     ${table(['Type','Behavior','Typical Use'],[
+       ['SCD Type 1','Overwrite old value','Correct an attribute'],
+       ['SCD Type 2','Create a new version row','Preserve full history'],
+       ['SCD Type 3','Keep limited previous value','Track one prior state']
+     ])}
+     <div class="dw-code">SCD Type 2 common columns:
+surrogate_key
+business_key
+effective_start_date
+effective_end_date
+is_current</div>
+     `
+  );
+
+  html += dwCard(
+    '10. Surrogate Key vs Business Key',
+    'A business key comes from the source system, while a surrogate key is generated inside the warehouse to uniquely identify a dimension version.',
+    `<div class="table-intro"><p>A business key identifies the entity in the source, while a surrogate key identifies a specific warehouse version.</p>${listenBtn('A business key identifies the entity in the source, while a surrogate key identifies a specific warehouse version.')}</div>
+     ${table(['Key','Meaning','Example'],[
+       ['Business Key','Source-system identifier','customer_id = C1001'],
+       ['Surrogate Key','Warehouse-generated identifier','customer_sk = 98231'],
+       ['Main Value','Supports SCD Type 2 versions','One customer, multiple history rows']
+     ])}`
+  );
+
+  html += dwCard(
+    '11. Conformed Dimensions and Degenerate Dimensions',
+    'A conformed dimension is consistently shared across multiple fact tables. A degenerate dimension is a business identifier stored directly in the fact table without a separate dimension table.',
+    `<p><span class="dw-key">Conformed Dimension:</span> the same Customer or Date dimension is reused by Sales Fact and Payment Fact.</p>
+     <p><span class="dw-key">Degenerate Dimension:</span> order_number is stored directly in the Order Fact because it has no useful descriptive attributes.</p>
+     `
+  );
+
+  html += dwCard(
+    '12. Common Data Warehouse Interview Q&A',
+    'These are common interview questions about dimensional modeling, grain, facts, dimensions, and schema design.',
+    `<div class="dw-qa"><div class="qa-listen-row"><div class="qa-copy"><b>Q: What is the first step when designing a fact table?</b><br>Define the business process and declare the grain.</div>${listenBtn('What is the first step when designing a fact table? Define the business process and declare the grain.')}</div></div>
+     <div class="dw-qa"><div class="qa-listen-row"><div class="qa-copy"><b>Q: What is the difference between a fact and a dimension?</b><br>A fact records a measurable event; a dimension provides descriptive context.</div>${listenBtn('What is the difference between a fact and a dimension? A fact records a measurable event; a dimension provides descriptive context.')}</div></div>
+     <div class="dw-qa"><div class="qa-listen-row"><div class="qa-copy"><b>Q: Why is grain important?</b><br>It determines row uniqueness, valid measures, joins, and prevents double counting.</div>${listenBtn('Why is grain important? It determines row uniqueness, valid measures, joins, and prevents double counting.')}</div></div>
+     <div class="dw-qa"><div class="qa-listen-row"><div class="qa-copy"><b>Q: Why is a Star Schema common in OLAP?</b><br>It requires fewer joins and is easier for analysts and BI tools to understand.</div>${listenBtn('Why is a Star Schema common in OLAP? It requires fewer joins and is easier for analysts and BI tools to understand.')}</div></div>
+     <div class="dw-qa"><div class="qa-listen-row"><div class="qa-copy"><b>Q: When would you use SCD Type 2?</b><br>When historical attribute changes must be preserved for point-in-time reporting.</div>${listenBtn('When would you use SCD Type 2? When historical attribute changes must be preserved for point in time reporting.')}</div></div>
+     <div class="dw-qa"><div class="qa-listen-row"><div class="qa-copy"><b>Q: Can a fact table contain no numeric measure?</b><br>Yes. A factless fact table records an event or relationship.</div>${listenBtn('Can a fact table contain no numeric measure? Yes. A factless fact table records an event or relationship.')}</div></div>
+     <div class="dw-qa"><div class="qa-listen-row"><div class="qa-copy"><b>Q: What is a conformed dimension?</b><br>A dimension with consistent meaning and values across multiple data marts.</div>${listenBtn('What is a conformed dimension? A dimension with consistent meaning and values across multiple data marts.')}</div></div>
+     <div class="dw-qa"><div class="qa-listen-row"><div class="qa-copy"><b>Q: Normalization or denormalization for a warehouse?</b><br>Operational systems usually use normalization; analytical marts usually use dimensional and partially denormalized models.</div>${listenBtn('Normalization or denormalization for a warehouse? Operational systems usually use normalization, while analytical marts usually use dimensional and partially denormalized models.')}</div></div>`,
+    true
+  );
+
+  html += `</div>`;
+  el.innerHTML = html;
+  enhanceDwFundamentalTables();
+}
+
+const techData = [
+  {q:"Data Warehouse Architecture (Hourglass Shape)", a:null, steps:[
+    {label:"Ingestion", text:"MySQL first writes insert, update, and delete events to its binlog. Apache InLong, acting as the CDC ingestion layer, reads the binlog and publishes those change events to Kafka in real time with minimal impact on the source system."},
+    {label:"ODS layer", text:"Raw data lands here in Hive on HDFS. Minimal transformation — Standardize data types across warehouse tables. - to preserve a full daily snapshot as the source of truth."},
+    {label:"DWD layer", text:"Source data is cleaned and standardized into detailed business records through deduplication, null handling, data type and format standardization, sensitive-field encryption, and consistent terminology across business lines."},
+    {label:"DM layer (the narrow waist)", text:"Subject-oriented wide tables — Merchant, Store, Order. Built once to serve many downstream consumers, following Kimball's business-process-driven approach instead of report-driven."},
+    {label:"ADS layer", text:"Application-specific output tables for BI dashboards, regulatory reports, and AML compliance, with a T+1 SLA completing by 10 AM daily."},
+    {label:"Orchestration", text:"A DAG-based workflow engine with trigger-based scheduling — each task fires automatically once its upstream dependency succeeds, replacing fixed-time scheduling. This improved our SLA from 95% to over 99%."},
+  ]},
+  {q:"Data Governance Framework (S-D-S-C)", a:"I extended our scoring framework from DQC-only to four dimensions, automated it with daily SparkSQL jobs, and improved the score from 76 to 86 across 600+ tables.", steps:[
+    {label:"Standards (35%)", text:"Naming conventions, column comments, and dependency hygiene — checking whether tables follow the standard naming pattern and whether every column is documented."},
+    {label:"DQC (35%)", text:"Data quality checks — zero-record checks, primary key uniqueness, and SLA timeliness for each layer."},
+    {label:"Security (15%)", text:"Sensitive field encryption and confirming every table has a registered owner."},
+    {label:"Cost (15%)", text:"Compute and storage cost controls — flagging stale tables and unusual compute usage."},
+  ]},
+  {q:"SLA Optimization", steps:[
+    {label:"Framework-level improvements", text:"I improved our daily report SLA from 95% to over 99% through DAG dependency cleanup, trigger-based scheduling, and better alerting."},
+    {label:"A specific incident", text:"On one critical-path job, I resolved executor out-of-memory errors and severe task skew, cutting runtime from 75 minutes to 13 minutes using two-stage aggregation, targeted salting on hot keys, and adaptive query execution for dynamic partitioning."},
+  ]},
+  {q:"GDPR & Data Privacy — Controller vs Processor", a:"I'm not the legal or business Data Controller, but I act as a Data Processor in data modeling, ETL development, and how data gets exposed and used. I follow core GDPR principles to protect user data at the architecture and implementation level.", steps:[
+    {label:"Sensitive field encryption", text:"Encrypting personally identifiable fields as a baseline architectural principle."},
+    {label:"Subject-isolated storage", text:"Storing data separately by business entity or subject, so access stays properly scoped."},
+    {label:"Cross-entity data sync governance", text:"When business analysis needs data from different company entities stored on different clusters, that sync requires a legal review and formal registration before it happens."},
+  ]},
+];
+
+
+function dwDgHourglassDiagram() {
+  return `
+  <div class="hourglass-wrap">
+    <svg viewBox="0 0 900 560" role="img" aria-label="Data warehouse hourglass architecture">
+      <defs>
+        <marker id="dwdgArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#7A7A76"></path>
+        </marker>
+        <linearGradient id="dwdgTop" x1="0" x2="1">
+          <stop offset="0" stop-color="#F1E9F7"></stop><stop offset="1" stop-color="#E8F2FA"></stop>
+        </linearGradient>
+        <linearGradient id="dwdgBottom" x1="0" x2="1">
+          <stop offset="0" stop-color="#E8F2FA"></stop><stop offset="1" stop-color="#E4F5EC"></stop>
+        </linearGradient>
+      </defs>
+
+      <text x="450" y="28" text-anchor="middle" font-size="19" font-weight="700" fill="#1A1A18">Data Warehouse Hourglass Architecture</text>
+      <text x="450" y="50" text-anchor="middle" font-size="12" fill="#8A8985">Many source systems converge into reusable subject models, then expand into multiple consumption products.</text>
+
+      <!-- CDC ingestion path: MySQL → Binlog → InLong / CDC → Kafka → ODS -->
+      <rect x="245" y="68" width="210" height="28" rx="8" fill="#F1E9F7" stroke="#7B4FA0"></rect>
+      <text x="350" y="87" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7B4FA0">MySQL → Binlog</text>
+
+      <line x1="350" y1="96" x2="350" y2="108" stroke="#7A7A76" stroke-width="1.5" marker-end="url(#dwdgArrow)"></line>
+      <rect x="245" y="110" width="210" height="28" rx="8" fill="#E8F2FA" stroke="#2971A8"></rect>
+      <text x="350" y="129" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2971A8">Apache InLong / CDC</text>
+
+      <line x1="350" y1="138" x2="350" y2="150" stroke="#7A7A76" stroke-width="1.5" marker-end="url(#dwdgArrow)"></line>
+      <rect x="245" y="152" width="210" height="28" rx="8" fill="#E4F5EC" stroke="#1E7A4C"></rect>
+      <text x="350" y="171" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1E7A4C">Kafka Change Events</text>
+
+      <rect x="610" y="105" width="190" height="48" rx="10" fill="#F1E9F7" stroke="#7B4FA0"></rect>
+      <text x="705" y="125" text-anchor="middle" font-size="13" font-weight="700" fill="#7B4FA0">Other Sources</text>
+      <text x="705" y="143" text-anchor="middle" font-size="11" fill="#57564F">Files / APIs / Databases</text>
+
+      <line x1="350" y1="180" x2="405" y2="197" stroke="#7A7A76" stroke-width="1.5" marker-end="url(#dwdgArrow)"></line>
+      <line x1="705" y1="153" x2="535" y2="197" stroke="#7A7A76" stroke-width="1.5" marker-end="url(#dwdgArrow)"></line>
+
+      <path d="M280 180 L620 180 L560 252 L340 252 Z" fill="url(#dwdgTop)" stroke="#2971A8"></path>
+      <text x="450" y="207" text-anchor="middle" font-size="14" font-weight="700" fill="#2971A8">ODS — Raw Source of Truth</text>
+      <text x="450" y="228" text-anchor="middle" font-size="11.5" fill="#57564F">Hive on HDFS · Full snapshots · Minimal transformation · Standardized data types</text>
+
+      <line x1="450" y1="252" x2="450" y2="281" stroke="#7A7A76" stroke-width="1.5" marker-end="url(#dwdgArrow)"></line>
+      <path d="M340 282 L560 282 L520 346 L380 346 Z" fill="#FBF0DD" stroke="#9A6B1E"></path>
+      <text x="450" y="307" text-anchor="middle" font-size="14" font-weight="700" fill="#9A6B1E">DWD — Detailed Business Records</text>
+      <text x="450" y="327" text-anchor="middle" font-size="11.5" fill="#57564F">Deduplication · Null handling · Format standards · Encryption · Common terminology</text>
+
+      <line x1="450" y1="346" x2="450" y2="375" stroke="#7A7A76" stroke-width="1.5" marker-end="url(#dwdgArrow)"></line>
+      <rect x="378" y="377" width="144" height="62" rx="12" fill="#FBECEA" stroke="#B14A3F" stroke-width="1.5"></rect>
+      <text x="450" y="402" text-anchor="middle" font-size="14" font-weight="700" fill="#B14A3F">DM — Narrow Waist</text>
+      <text x="450" y="421" text-anchor="middle" font-size="11.5" fill="#57564F">Merchant · Store · Order</text>
+
+      <line x1="450" y1="439" x2="450" y2="468" stroke="#7A7A76" stroke-width="1.5" marker-end="url(#dwdgArrow)"></line>
+      <path d="M380 470 L520 470 L620 535 L280 535 Z" fill="url(#dwdgBottom)" stroke="#1E7A4C"></path>
+      <text x="450" y="495" text-anchor="middle" font-size="14" font-weight="700" fill="#1E7A4C">ADS — Consumption Layer</text>
+      <text x="450" y="515" text-anchor="middle" font-size="11.5" fill="#57564F">BI Dashboards · Regulatory Reports · AML Compliance · T+1 before 10 AM</text>
+
+      <text x="74" y="302" font-size="12" font-weight="700" fill="#2971A8">Governance across every layer</text>
+      <text x="74" y="322" font-size="11" fill="#57564F">Standards 35% · DQC 35%</text>
+      <text x="74" y="340" font-size="11" fill="#57564F">Security 15% · Cost 15%</text>
+      <text x="676" y="302" font-size="12" font-weight="700" fill="#2971A8">DAG orchestration</text>
+      <text x="676" y="322" font-size="11" fill="#57564F">Trigger-based scheduling</text>
+      <text x="676" y="340" font-size="11" fill="#57564F">SLA: 95% → 99%+</text>
+    </svg>
+    <div class="diagram-caption">The <b>DM layer</b> forms the narrow waist: reusable subject models connect many upstream sources to many downstream products.</div>
+  </div>`;
+}
+
+function renderDwDgTab() {
+  const el = document.getElementById('dwdg');
+  const intro = `<div class="dwdg-intro">
+    <h2>Data Warehouse & Data Governance</h2>
+    <p>The content below is imported from the original <b>DW & DG</b> tab, with the same wording and individual English Listen buttons.</p>
+  </div>`;
+  const cards = techData.map(item => {
+    const fullText = item.q + ". " + (item.a || '') + " " + (item.steps ? item.steps.map(s => s.label + ": " + s.text).join(' ') : '');
+    return `<div class="card">
+      <div class="q-head">
+        <p class="q-title">${item.q}</p>
+        ${listenBtn(fullText)}
+      </div>
+      ${item.a ? `<div class="q-head" style="margin-top:8px; margin-bottom:0;"><p class="a-text" style="margin:0;">${item.a}</p>${listenBtn(item.a)}</div>` : ''}
+      ${item.steps ? item.steps.map(s => `<div class="q-head" style="margin-top:8px; margin-bottom:0;"><p class="a-text" style="margin:0;"><span class="star-label">${s.label}:</span> ${s.text}</p>${listenBtn(s.text)}</div>`).join('') : ''}
+    </div>`;
+  }).join('');
+  const quickAnswer = 'I built a layered data warehouse from source ingestion through ODS, DWD, reusable DM models, and ADS outputs. The DM layer formed the narrow waist, allowing Merchant, Store, and Order models to serve many reports. I also strengthened governance across standards, data quality, security, and cost, and improved the daily SLA from ninety-five percent to above ninety-nine percent through dependency cleanup, trigger-based scheduling, and better alerting.';
+  const quick = `<div class="quick-story">
+    <div class="quick-story-head"><h3>60-second Interview Answer</h3>${listenBtn(quickAnswer)}</div>
+    <p>${quickAnswer}</p>
+    <div class="quick-points">
+      <div class="quick-point"><b>Architecture</b>ODS → DWD → DM → ADS</div>
+      <div class="quick-point"><b>Core model</b>Reusable Merchant, Store, and Order DM</div>
+      <div class="quick-point"><b>Governance</b>Standards, DQC, Security, Cost</div>
+      <div class="quick-point"><b>Operations</b>DAG dependencies and trigger scheduling</div>
+      <div class="quick-point"><b>Result</b>SLA improved from 95% to 99%+</div>
+    </div>
+  </div>`;
+  el.innerHTML = intro + quick + dwDgHourglassDiagram() + `<details class="project-details"><summary>Open detailed architecture and governance talking points</summary><div class="details-content">${cards}</div></details>`;
+}
+
+// ============================================================
+// RENDERING
+// ============================================================
+function renderCard(item) {
+  const speakText = `${item.title}. ${item.desc}`;
+  let html = `<div class="star-banner ${item.letter}">${item.letter} — ${item.title}</div>
+    <div class="card">
+      <div class="q-head">
+        <p class="q-title">${item.title}</p>
+        ${listenBtn(speakText)}
+      </div>
+      <p class="q-desc">${item.desc}</p>`;
+  if (item.flow) html += flowDiagram(item.flow.split('→').map(s => s.trim()));
+  if (item.table) html += item.table;
+  if (item.tip) html += `<div class="tip">💡 ${item.tip}</div>`;
+  html += `</div>`;
+  return html;
+}
+
+const quickStories = {
+  amazon: {
+    answer: "I designed a cross-border collection data model for merchants that could not open overseas bank accounts. I used a three-level virtual-account structure: one real pooled account, one merchant virtual account, and sub-accounts by store and currency. I then modeled the full process from merchant onboarding and KYC to Amazon settlement and withdrawal, and built reusable Merchant, Store, and Order DM tables. The result was transaction-level traceability while funds remained safely pooled for regulatory compliance.",
+    points: [
+      ["Problem","Merchants could not open overseas accounts"],
+      ["Model","Pool account → Merchant VA → Store/Currency Sub-VA"],
+      ["Process","KYC → Store binding → Settlement → Withdrawal"],
+      ["Data","Merchant, Store, and Order DM tables"],
+      ["Result","Traceable, pooled, and compliant"]
+    ]
+  },
+  gov: {
+    answer: "I improved data governance by expanding a DQC-only score into a four-dimensional data-asset framework. The score covered standards, data quality, security, and cost, with daily Spark SQL jobs using Hive metadata, lineage, security scans, and stale-table checks. I also introduced whitelist governance for approved exceptions. This raised the average score across more than six hundred tables from seventy-six to eighty-six.",
+    points: [
+      ["Problem","Governance measured only DQC"],
+      ["Framework","Standards, DQC, Security, Cost"],
+      ["Automation","Daily Spark SQL and metadata scans"],
+      ["Control","Owners, alerts, and approved whitelist"],
+      ["Result","Asset score improved from 76 to 86"]
+    ]
+  },
+  reserve: {
+    answer: "I built a reservation-attribution DM table from scratch for pre-launch e-commerce campaigns. I declared the grain as user by campaign by product by site, then connected reservation and order data with a non-equi time-window join because there was no direct foreign key. I produced reservation, purchase, and reserved-but-not-paid flags for analysis and CRM targeting. The latency improved from T plus one day to T plus one hour, and targeted remarketing contributed a zero-point-two percentage-point conversion improvement.",
+    points: [
+      ["Problem","Reservation-to-purchase conversion was unknown"],
+      ["Grain","User × Campaign × Product × Site"],
+      ["Challenge","No direct reservation-to-order key"],
+      ["Solution","Time-window join and reusable CRM flags"],
+      ["Result","T+1 hour and +0.2 percentage points"]
+    ]
+  },
+  toc: {
+    answer: "I designed a regulatory data model for cross-border remittance into China, where user orders were recorded individually but fund settlements arrived in batches. I modeled Sending Institution, Order, and User subject areas and built a reconciliation table that matched each settlement batch to valid remittance orders. Encrypted recipient identity fields supported deduplication and residency checks. The solution provided full auditability, reduced AML risk, and supported regulatory reporting across multiple jurisdictions.",
+    points: [
+      ["Problem","Individual orders versus batched settlements"],
+      ["Model","Institution, Order, and User subject areas"],
+      ["Core","Batch-to-order regulatory reconciliation"],
+      ["Control","Encrypted identity, deduplication, residency"],
+      ["Result","Auditability and lower AML risk"]
+    ]
+  }
+};
+
+function quickStoryHtml(key) {
+  const story = quickStories[key];
+  if (!story) return '';
+  return `<div class="quick-story">
+    <div class="quick-story-head"><h3>60-second Interview Answer</h3>${listenBtn(story.answer)}</div>
+    <p>${story.answer}</p>
+    <div class="quick-points">${story.points.map(p=>`<div class="quick-point"><b>${p[0]}</b>${p[1]}</div>`).join('')}</div>
+  </div>`;
+}
+
+function renderProject(containerId, project) {
+  const el = document.getElementById(containerId);
+  let detailed = '';
+  if (project.introHtml) detailed += project.introHtml;
+  detailed += project.cards.map(renderCard).join('');
+
+  if (project.schemas) {
+    detailed += `<div class="star-banner" style="background:var(--surface); border:1px solid var(--border-strong); color:var(--text-secondary);">📐 Table Structure Reference</div>`;
+    project.schemas.forEach(schema => {
+      const skipCellListen = /Subject Table|Data Asset Score Table/i.test(schema.name);
+      detailed += `<div class="card${skipCellListen ? ' no-cell-listen' : ''}">
+        <div class="q-head"><p class="q-title" style="margin-bottom:8px;">${schema.name}</p>${listenBtn((schema.name + '. ' + (schema.desc || '')).trim())}</div>
+        ${schema.desc ? `<p class="q-desc" style="margin-bottom:8px;">${schema.desc}</p>` : ''}
+        ${schema.table}
+      </div>`;
+    });
+  }
+
+  detailed += `<div class="star-banner" style="background:var(--surface); border:1px solid var(--border-strong); color:var(--text-secondary);">🧠 Memory Anchor
+    ${listenBtn(project.anchor.replace(/\n/g, '. ').replace(/->/g, 'leads to'))}
+  </div>`;
+  detailed += `<div class="anchor">${project.anchor}</div>`;
+
+  el.innerHTML = `<div class="project-header">${project.header}</div>
+    ${quickStoryHtml(containerId)}
+    <details class="project-details">
+      <summary>Open detailed STAR story, tables, and field references</summary>
+      <div class="details-content">${detailed}</div>
+    </details>`;
+}
+
+renderProject('amazon', projects.amazon);
+renderProject('gov', projects.gov);
+renderProject('reserve', projects.reserve);
+renderProject('toc', projects.toc);
+renderDwFundamentals();
+renderDwDgTab();
+enhanceKnowledgeTables();
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+
+// ============================================================
+// EVENT DELEGATION
+// ============================================================
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-action="speak"]');
+  if (btn) toggleSpeak(btn);
+});
+
+// ============================================================
+// TEXT-TO-SPEECH
+// ============================================================
+let voices = [];
+let currentBtn = null;
+const speechSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+
+function loadVoices() {
+  if (!speechSupported) return;
+  try {
+    voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+    const select = document.getElementById('voiceSelect');
+    if (!select) return;
+    select.innerHTML = '';
+    if (voices.length === 0) { select.innerHTML = '<option>Default English voice</option>'; return; }
+    voices.forEach((v, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `${v.name} (${v.lang})`;
+      if (v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Google US English')) opt.selected = true;
+      select.appendChild(opt);
+    });
+  } catch (e) { console.warn('Voice loading failed:', e); }
+}
+try { if (speechSupported) { window.speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); } } catch (e) { console.warn(e); }
+
+const rateSlider = document.getElementById('rateSlider');
+const rateLabel = document.getElementById('rateLabel');
+if (rateSlider) rateSlider.addEventListener('input', () => { rateLabel.textContent = rateSlider.value + 'x'; });
+
+function toggleSpeak(btn) {
+  if (!speechSupported) { alert('Text-to-speech is not supported in this browser.'); return; }
+  try {
+    const text = decodeURIComponent(btn.dataset.text);
+    if (btn.classList.contains('speaking')) { window.speechSynthesis.cancel(); btn.classList.remove('speaking'); currentBtn = null; return; }
+    window.speechSynthesis.cancel();
+    if (currentBtn) currentBtn.classList.remove('speaking');
+    const utter = new SpeechSynthesisUtterance(text);
+    const voiceIdx = document.getElementById('voiceSelect').value;
+    if (voices[voiceIdx]) utter.voice = voices[voiceIdx];
+    utter.lang = 'en-US';
+    utter.rate = parseFloat(rateSlider.value);
+    utter.onstart = () => { btn.classList.add('speaking'); currentBtn = btn; };
+    utter.onend = () => { btn.classList.remove('speaking'); currentBtn = null; };
+    utter.onerror = () => { btn.classList.remove('speaking'); currentBtn = null; };
+    window.speechSynthesis.speak(utter);
+  } catch (e) { console.warn('toggleSpeak failed:', e); }
+}
+const stopAllBtn = document.getElementById('stopAllBtn');
+if (stopAllBtn) stopAllBtn.addEventListener('click', () => {
+  if (speechSupported) window.speechSynthesis.cancel();
+  document.querySelectorAll('.listen-btn.speaking').forEach(b => b.classList.remove('speaking'));
+  currentBtn = null;
+});
+</script>
+</body>
+</html>
