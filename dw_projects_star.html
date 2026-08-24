@@ -172,7 +172,7 @@
 
 
 
-  /* Fast interview storytelling */
+  /* Fast  storytelling */
   .quick-story{background:linear-gradient(135deg,#F6FAFD,#FFFFFF);border:1px solid #BFD9EC;border-left:5px solid var(--accent);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
   .quick-story-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:7px}
   .quick-story h3{font-size:15px;margin:0;color:#173F5F}
@@ -463,7 +463,7 @@ const projects = {
     header: `<b>Reservation Attribution Data Mart</b> — built from scratch at Xiaomi to track pre-launch product reservations`,
     introHtml: `
       <div class="case-section-title">Business Case 1 — Reservation DM Table Design</div>
-      <div class="case-intro"><b>Interview summary:</b> “I designed a full-snapshot reservation attribution mart from scratch, at <b>User × Campaign × Product × Site</b> grain, to track pre-launch conversion and power CRM remarketing.”</div>
+      <div class="case-intro"><b>Summary:</b> “I designed a full-snapshot reservation attribution mart from scratch, at <b>User × Campaign × Product × Site</b> grain, to track pre-launch conversion and power CRM remarketing.”</div>
 
       <div class="card">
         <div class="q-head">
@@ -581,7 +581,7 @@ function renderDwFundamentals() {
   const el = document.getElementById('dwfund');
   let html = `<div class="dw-intro">
     <h2>Data Warehouse Fundamentals</h2>
-    <p><span class="dw-key">Business-process-driven design</span>, <span class="dw-key">OLTP vs OLAP</span>, <span class="dw-key">Normalization</span>, <span class="dw-key">Fact & Dimension</span>, <span class="dw-key">Star Schema</span>, <span class="dw-key">Snowflake Schema</span>, <span class="dw-key">Grain</span>, <span class="dw-key">SCD</span>, and common interview questions.</p>
+    <p><span class="dw-key">Business-process-driven design</span>, <span class="dw-key">OLTP vs OLAP</span>, <span class="dw-key">Normalization</span>, <span class="dw-key">Fact & Dimension</span>, <span class="dw-key">Star Schema</span>, <span class="dw-key">Snowflake Schema</span>, <span class="dw-key">Grain</span>, <span class="dw-key">SCD</span>, and common  questions.</p>
   </div><div class="dw-grid">`;
 
   html += dwCard(
@@ -769,7 +769,7 @@ Reservation mart → one row per user × campaign × product × site</div>
        ['Joins','Fewer','More'],
        ['Best fit','BI and analytical marts','Complex reusable hierarchies']
      ])}
-     <div class="tip">💡 Interview answer: I usually prefer a <b>Star Schema</b> for BI and analytical marts because it is easier to understand and query. I use Snowflake-style normalization selectively when dimensions contain large reusable hierarchies.</div>`,
+     <div class="tip">💡 Answer: I usually prefer a <b>Star Schema</b> for BI and analytical marts because it is easier to understand and query. I use Snowflake-style normalization selectively when dimensions contain large reusable hierarchies.</div>`,
     true
   );
 
@@ -823,8 +823,8 @@ is_current</div>
   );
 
   html += dwCard(
-    '12. Common Data Warehouse Interview Q&A',
-    'These are common interview questions about dimensional modeling, grain, facts, dimensions, and schema design.',
+    '12. Common Data Warehouse  Q&A',
+    'These are common questions about dimensional modeling, grain, facts, dimensions, and schema design.',
     `<div class="dw-qa"><div class="qa-listen-row"><div class="qa-copy"><b>Q: What is the first step when designing a fact table?</b><br>Define the business process and declare the grain.</div>${listenBtn('What is the first step when designing a fact table? Define the business process and declare the grain.')}</div></div>
      <div class="dw-qa"><div class="qa-listen-row"><div class="qa-copy"><b>Q: What is the difference between a fact and a dimension?</b><br>A fact records a measurable event; a dimension provides descriptive context.</div>${listenBtn('What is the difference between a fact and a dimension? A fact records a measurable event; a dimension provides descriptive context.')}</div></div>
      <div class="dw-qa"><div class="qa-listen-row"><div class="qa-copy"><b>Q: Why is grain important?</b><br>It determines row uniqueness, valid measures, joins, and prevents double counting.</div>${listenBtn('Why is grain important? It determines row uniqueness, valid measures, joins, and prevents double counting.')}</div></div>
@@ -955,7 +955,7 @@ function renderDwDgTab() {
   }).join('');
   const quickAnswer = 'I built a layered data warehouse from source ingestion through ODS, DWD, reusable DM models, and ADS outputs. The DM layer formed the narrow waist, allowing Merchant, Store, and Order models to serve many reports. I also strengthened governance across standards, data quality, security, and cost, and improved the daily SLA from ninety-five percent to above ninety-nine percent through dependency cleanup, trigger-based scheduling, and better alerting.';
   const quick = `<div class="quick-story">
-    <div class="quick-story-head"><h3>60-second Interview Answer</h3>${listenBtn(quickAnswer)}</div>
+    <div class="quick-story-head"><h3>S</h3>${listenBtn(quickAnswer)}</div>
     <p>${quickAnswer}</p>
     <div class="quick-points">
       <div class="quick-point"><b>Architecture</b>ODS → DWD → DM → ADS</div>
@@ -1034,7 +1034,7 @@ function quickStoryHtml(key) {
   const story = quickStories[key];
   if (!story) return '';
   return `<div class="quick-story">
-    <div class="quick-story-head"><h3>60-second Interview Answer</h3>${listenBtn(story.answer)}</div>
+    <div class="quick-story-head"><h3>60-second S</h3>${listenBtn(story.answer)}</div>
     <p>${story.answer}</p>
     <div class="quick-points">${story.points.map(p=>`<div class="quick-point"><b>${p[0]}</b>${p[1]}</div>`).join('')}</div>
   </div>`;

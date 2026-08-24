@@ -15,7 +15,7 @@
 
 ## 💼 Interview Preparation
 
-- [H-DE Interview Prep](https://htmlpreview.github.io/?https://github.com/blaire101/data-ai-engineering-handbook/blob/main/H_SDE_Preparation.html)
+- [H-DE Interview Prep](https://htmlpreview.github.io/?https://github.com/blaire101/data-ai-engineering-handbook/blob/main/HDB/HDB_SDE_Preparation.html)
 - [LeetCode Preparation](https://htmlpreview.github.io/?https://github.com/blaire101/data-ai-engineering-handbook/blob/main/gs_leetcode_prep.html)
 
 ## 🤖 AI & LangChain
