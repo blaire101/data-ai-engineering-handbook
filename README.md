@@ -13,7 +13,7 @@
 - [Data Warehouse STAR Projects](https://htmlpreview.github.io/?https://github.com/blaire101/data-ai-engineering-handbook/blob/main/dw_projects_star.html)
 
 
-## 💼 Interview Preparation
+## 💼 Preparation
 
 - [H-DE Interview Prep](https://htmlpreview.github.io/?https://github.com/blaire101/data-ai-engineering-handbook/blob/main/HDB/HDB_SDE_Preparation.html)
 - [LeetCode Preparation](https://htmlpreview.github.io/?https://github.com/blaire101/data-ai-engineering-handbook/blob/main/gs_leetcode_prep.html)
