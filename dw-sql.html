@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>DW SQL Practice</title>
+<style>
+  :root {
+    --bg:#FAFAF9; --surface:#FFFFFF; --border:#E5E5E3; --border-strong:#D4D4D0;
+    --text-primary:#1A1A18; --text-secondary:#57564F; --text-muted:#8A8985;
+    --accent:#2971A8; --accent-bg:#E8F2FA;
+    --success:#1E7A4C; --success-bg:#E4F5EC;
+    --warning:#9A6B1E; --warning-bg:#FBF0DD;
+    --danger:#B14A3F; --danger-bg:#FBECEA;
+    --purple:#7B4FA0; --purple-bg:#F1E9F7;
+    --radius:10px;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text-primary); line-height:1.55; }
+  .app { max-width:980px; margin:0 auto; padding:24px 20px 80px; }
+  header h1 { font-size:21px; font-weight:600; margin:0 0 4px; }
+  header p { font-size:13.5px; color:var(--text-secondary); margin:0 0 16px; }
+
+  .voice-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:10px 14px; margin-bottom:18px; font-size:13px; color:var(--text-secondary); }
+  .voice-bar select { font-size:13px; padding:4px 8px; border-radius:6px; border:1px solid var(--border-strong); }
+  .voice-bar input[type=range] { width:100px; }
+
+  .tabs { display:flex; gap:4px; margin-bottom:18px; border-bottom:1px solid var(--border); overflow-x:auto; }
+  .tab-btn { padding:9px 13px; font-size:12.5px; font-weight:600; color:var(--text-secondary); background:none; border:none; border-bottom:3px solid transparent; cursor:pointer; white-space:nowrap; }
+  .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  .level-header { display:flex; align-items:flex-start; gap:12px; margin:24px 0 12px; padding-bottom:8px; border-bottom:2px solid var(--border-strong); }
+  .level-header:first-of-type { margin-top:4px; }
+  .level-emoji { font-size:20px; line-height:1.3; }
+  .level-label { font-size:14.5px; font-weight:700; color:var(--text-primary); }
+  .level-desc { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-bottom:14px; }
+
+  .star-banner { display:flex; align-items:center; gap:10px; font-size:13px; font-weight:700; padding:9px 14px; border-radius:var(--radius); margin:18px 0 10px; }
+  .star-banner.S { background:var(--danger-bg); color:var(--danger); }
+  .star-banner.T { background:var(--warning-bg); color:var(--warning); }
+  .star-banner.A { background:var(--purple-bg); color:var(--purple); }
+
+  .kw-badge { display:inline-block; font-size:11.5px; font-weight:600; padding:1px 8px; border-radius:999px; background:var(--accent-bg); color:var(--accent); font-family:"SF Mono",Menlo,monospace; }
+
+  .steps-list { margin:14px 0; }
+  .step-item { display:flex; gap:12px; margin-bottom:14px; align-items:flex-start; }
+  .step-item:last-child { margin-bottom:0; }
+  .step-num { flex-shrink:0; width:26px; height:26px; border-radius:50%; background:var(--accent); color:white; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .step-item div:last-child { font-size:13px; line-height:1.6; color:var(--text-primary); }
+  .step-item code { background:#F4F4F2; padding:1px 5px; border-radius:4px; font-family:"SF Mono",Menlo,monospace; font-size:11.5px; }
+  .where-label { font-weight:700; color:var(--accent); }
+  .toc-btn { font-size:12px; font-weight:600; padding:7px 14px; border-radius:999px; border:1.3px solid; cursor:pointer; background:var(--surface); transition:transform 0.1s; }
+  .toc-btn:hover { transform:translateY(-1px); }
+  .toc-btn-s { border-color:var(--danger); color:var(--danger); }
+  .toc-btn-t { border-color:var(--warning); color:var(--warning); }
+  .toc-btn-a { border-color:var(--purple); color:var(--purple); }
+  .zh-desc { color:var(--text-secondary); font-size:12.5px; background:#F7F7F5; border-radius:6px; padding:6px 10px; margin-top:4px !important; }
+  .cell-zh { color:var(--text-muted); font-size:10.5px; }
+
+  /* --- Imported from sla_prep_star.html --- */
+  .flow { font-family:"SF Mono",Menlo,monospace; font-size:12px; background:var(--accent-bg); color:var(--accent); border-radius:8px; padding:8px 12px; margin:8px 0; }
+  .metric-row { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; }
+  .metric { flex:1; min-width:110px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px; text-align:center; }
+  .metric .label { font-size:11px; color:var(--text-muted); }
+  .metric .before { font-size:13.5px; color:var(--danger); font-weight:600; }
+  .metric .after { font-size:13.5px; color:var(--success); font-weight:600; }
+  .quote-card { background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--radius); padding:16px 18px; margin-bottom:14px; }
+  .quote-text { font-size:13.5px; color:var(--text-primary); font-style:italic; line-height:1.7; }
+
+  /* --- Imported from sql_prep.html --- */
+  .diagram-details { margin:10px 0 0; }
+  .diagram-details summary {
+    cursor:pointer; font-size:12.5px; font-weight:600; color:var(--accent);
+    padding:6px 10px; background:var(--accent-bg); border-radius:8px; list-style:none;
+    display:inline-block; user-select:none;
+  }
+  .diagram-details summary::-webkit-details-marker { display:none; }
+  .diagram-details[open] summary { margin-bottom:6px; }
+  table.datatbl td.hl { background:var(--success-bg); color:var(--success); font-weight:600; }
+
+  .q-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:6px; }
+  .q-title { font-size:14.5px; font-weight:600; margin:0; }
+  .q-desc { font-size:13px; color:var(--text-secondary); margin:4px 0 8px; }
+
+  table.datatbl { border-collapse:collapse; font-size:12px; margin:8px 0; width:100%; overflow-x:auto; display:block; }
+  table.datatbl th, table.datatbl td { border:1px solid var(--border); padding:5px 9px; text-align:left; vertical-align:top; }
+  table.datatbl th { background:var(--accent-bg); color:var(--accent); font-weight:600; }
+
+  .codeblock { background:#F4F4F2; border-radius:8px; padding:10px 14px; font-family:"SF Mono",Menlo,monospace; font-size:11.5px; color:var(--text-primary); white-space:pre; overflow-x:auto; margin:8px 0; line-height:1.55; }
+  .kw { color:#AF3A83; font-weight:600; }
+  .fn { color:#2971A8; font-weight:600; }
+  .str { color:#1E7A4C; }
+  .num { color:#B5651D; }
+  .cmt { color:#8A8985; font-style:italic; }
+
+  .tip { font-size:12px; color:var(--success); background:var(--success-bg); border-radius:6px; padding:6px 10px; margin-top:8px; }
+  .warn { font-size:12px; color:var(--warning); background:var(--warning-bg); border-radius:6px; padding:6px 10px; margin-top:8px; }
+  .step-label { font-size:12px; font-weight:700; color:var(--accent); margin:10px 0 2px; display:block; }
+  .intro-note { font-size:13px; color:var(--text-secondary); background:var(--accent-bg); border-radius:var(--radius); padding:10px 14px; margin-bottom:16px; }
+
+  .listen-btn { flex-shrink:0; display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; padding:5px 10px; border-radius:999px; border:1px solid var(--accent); background:var(--accent-bg); color:var(--accent); cursor:pointer; }
+  .listen-btn.speaking { background:var(--accent); color:white; }
+  .listen-btn svg { width:12px; height:12px; }
+
+
+  /* --- Flink detailed learning cards --- */
+  .flink-inline-svg { width:100%; height:auto; display:block; }
+  .flink-map { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; margin:10px 0; }
+  .flink-map-item { border:1px solid var(--border); border-radius:9px; padding:10px 12px; background:#FBFBFA; }
+  .flink-map-item strong { display:block; font-size:12.5px; margin-bottom:3px; }
+  .flink-map-item span { display:block; color:var(--text-secondary); font-size:11.5px; line-height:1.5; }
+  .case-label { display:inline-block; padding:3px 9px; border-radius:999px; font-size:11px; font-weight:700; margin:4px 0 8px; }
+  .case-label.blue { color:var(--accent); background:var(--accent-bg); }
+  .case-label.green { color:var(--success); background:var(--success-bg); }
+  .example-box { background:#F7F7F5; border-left:3px solid var(--accent); border-radius:0 8px 8px 0; padding:10px 12px; margin:9px 0; font-size:12.5px; }
+  .answer-box { background:var(--purple-bg); color:#4E2D68; border-radius:8px; padding:10px 12px; margin-top:10px; font-size:12.5px; line-height:1.65; }
+  .answer-box strong { display:block; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:3px; }
+  .flow-steps { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:9px 0; }
+  .flow-node { padding:5px 9px; border:1px solid var(--border-strong); border-radius:7px; background:var(--surface); font-size:11.5px; font-weight:600; }
+  .flow-arrow { color:var(--text-muted); font-weight:700; }
+  .tiny-note { color:var(--text-muted); font-size:11px; margin-top:5px; }
+  @media (max-width:620px) { .flink-map { grid-template-columns:1fr; } }
+
+
+.retention-collapse{margin-top:24px;border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden;box-shadow:var(--shadow)}
+.retention-collapse>summary{cursor:pointer;list-style:none;padding:14px 16px;font-size:15px;font-weight:800;color:var(--purple);background:var(--purple-bg);user-select:none}
+.retention-collapse>summary::-webkit-details-marker{display:none}
+.retention-collapse>summary::after{content:"▸";float:right;color:var(--purple);transition:transform .15s ease}
+.retention-collapse[open]>summary::after{transform:rotate(90deg)}
+.retention-collapse .skip-note{font-size:12px;font-weight:700;color:var(--text-muted);margin-left:6px}
+.retention-content{padding-top:14px}
+
+
+/* ===== SQL study layout + sentence audio ===== */
+.app{max-width:1040px;padding-top:20px}
+header{margin-bottom:14px}
+.voice-bar{
+  display:grid;
+  grid-template-columns:minmax(260px,1.25fr) minmax(260px,1fr) auto;
+  align-items:end;
+  gap:12px 16px;
+  padding:12px 14px;
+  border-radius:12px;
+  position:sticky;
+  top:8px;
+  z-index:20;
+  box-shadow:0 4px 16px rgba(0,0,0,.04);
+}
+.voice-control{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px;min-width:0}
+.voice-control label{font-weight:700;color:var(--text-secondary);white-space:nowrap}
+.voice-bar select{
+  width:100%;min-width:0;height:38px;padding:0 34px 0 10px;font-size:13px;
+  color:var(--text-primary);background:var(--surface);border:1px solid var(--border-strong);border-radius:8px;
+}
+.speed-control{grid-template-columns:auto minmax(120px,1fr) auto}
+.voice-bar input[type=range]{width:100%;min-width:120px}
+#rateLabel{min-width:44px;font-variant-numeric:tabular-nums;font-weight:700;color:var(--text-primary)}
+.voice-help{grid-column:1 / 3;font-size:11.5px;color:var(--text-muted);align-self:center}
+.stop-btn{height:38px;padding:0 14px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--text-secondary);font-weight:700;cursor:pointer}
+.stop-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.section-nav{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 20px;padding:0}
+.section-nav a{font-size:12px;font-weight:700;text-decoration:none;color:var(--accent);background:var(--accent-bg);border:1px solid #cfe3f3;border-radius:999px;padding:6px 10px}
+.section-nav a:hover{filter:brightness(.98);border-color:var(--accent)}
+.sql-section-title{
+  scroll-margin-top:105px;
+  font-size:19px;line-height:1.25;font-weight:800;letter-spacing:-.01em;
+  margin:30px 0 12px;padding:0 0 9px;border-bottom:2px solid var(--border-strong);color:var(--text-primary);
+}
+.sql-section-title:first-child{margin-top:4px}
+.q-head{display:block;margin-bottom:6px}
+.q-title{font-size:15px;font-weight:750}
+.speakable{cursor:pointer;transition:background-color .12s ease,box-shadow .12s ease;outline:none}
+.speakable:hover{background:rgba(41,113,168,.055)}
+.speakable:focus-visible{box-shadow:0 0 0 2px var(--accent);border-radius:5px}
+.speakable.speaking{background:var(--accent-bg);box-shadow:inset 3px 0 0 var(--accent);border-radius:5px}
+.q-title.speakable,.q-desc.speakable{padding:2px 5px;margin-left:-5px;margin-right:-5px}
+.tip.speakable,.warn.speakable,.intro-note.speakable,.answer-box.speakable,.example-box.speakable{position:relative}
+.retention-collapse{scroll-margin-top:105px;box-shadow:none}
+.retention-collapse>summary{display:flex;align-items:center;gap:8px;font-size:18px;padding:14px 16px}
+.retention-collapse>summary::after{margin-left:auto;float:none}
+.retention-title{font-weight:800}
+.retention-collapse .skip-note{font-size:12px;font-weight:700;color:var(--text-muted);margin-left:0}
+.listen-btn[data-action="speak"]{display:none!important}
+@media(max-width:760px){
+  .app{padding:16px 14px 60px}
+  .voice-bar{position:relative;top:auto;grid-template-columns:1fr;align-items:stretch}
+  .voice-control,.speed-control{grid-template-columns:76px minmax(0,1fr) auto}
+  .voice-control-main{grid-template-columns:76px minmax(0,1fr)}
+  .voice-help{grid-column:1;font-size:11px}
+  .stop-btn{width:100%}
+  .sql-section-title{scroll-margin-top:12px;font-size:18px}
+}
+
+
+/* ===== v3 toolbar + collapsible H2 sections + dark mode ===== */
+:root{color-scheme:light}
+html[data-theme="dark"]{color-scheme:dark;
+  --bg:#101214;--surface:#181B1F;--border:#30343A;--border-strong:#454A51;
+  --text-primary:#F2F3F4;--text-secondary:#C1C6CC;--text-muted:#9299A2;
+  --accent:#79B9E9;--accent-bg:#17324A;--success:#79D0A1;--success-bg:#16372A;
+  --warning:#E7BE6D;--warning-bg:#3A2D16;--danger:#E6938C;--danger-bg:#402421;
+  --purple:#B8A4E3;--purple-bg:#29233A;
+}
+html[data-theme="dark"] .codeblock,html[data-theme="dark"] .step-item code,html[data-theme="dark"] .zh-desc,html[data-theme="dark"] .example-box{background:#20242A;color:var(--text-primary)}
+html[data-theme="dark"] .flink-map-item{background:#1D2126}
+
+.voice-bar{
+  display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:14px!important;
+  padding:12px 14px!important;overflow-x:auto;
+}
+.voice-control{display:flex!important;align-items:center!important;gap:8px!important;flex:0 1 auto;min-width:0}
+.voice-control-main{flex:1 1 440px;min-width:300px}
+.voice-control-main select{min-width:220px;max-width:none;flex:1 1 auto}
+.speed-control{flex:1 1 360px;min-width:260px}
+.speed-control input[type=range]{flex:1 1 180px;min-width:120px}
+.voice-help{display:none!important}
+.stop-btn,.theme-toggle{height:38px;flex:0 0 auto;align-self:center}
+.stop-btn{padding:0 14px}
+.theme-toggle{width:40px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--text-primary);font-size:17px;cursor:pointer}
+.theme-toggle:hover{border-color:var(--accent);background:var(--accent-bg)}
+
+.sql-topic{margin:24px 0 0;border:0;padding:0;background:transparent}
+.sql-topic>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:0 0 9px;border-bottom:2px solid var(--border-strong);user-select:none;scroll-margin-top:105px}
+.sql-topic>summary::-webkit-details-marker{display:none}
+.sql-topic>summary::after{content:"▾";margin-left:auto;color:var(--text-muted);font-size:16px;transition:transform .15s ease}
+.sql-topic:not([open])>summary::after{transform:rotate(-90deg)}
+.sql-topic>summary .sql-section-title{border:0!important;margin:0!important;padding:0!important;flex:1;scroll-margin-top:0}
+.sql-topic-content{padding-top:12px}
+.sql-topic:not([open]) .sql-topic-content{display:none}
+
+.retention-collapse{margin-top:24px}
+.retention-collapse>summary{border-bottom:0}
+
+@media(max-width:760px){
+  .voice-bar{position:relative;top:auto;gap:10px!important;padding:10px!important;overflow-x:auto}
+  .voice-control-main{min-width:260px}.speed-control{min-width:230px}
+  .voice-control label{font-size:12px}.voice-bar select{height:36px}.stop-btn,.theme-toggle{height:36px}
+}
+
+/* Scoped campaign walkthrough; sentences remain plain lines. */
+.campaign-guide h3{font-size:17px;color:var(--success);margin:0 0 12px}
+.campaign-guide p{margin:9px 0;font-size:14px;line-height:1.7}
+.campaign-guide .tip p{margin:0}
+.campaign-table{overflow-x:auto}
+.campaign-guide table.datatbl{display:table;font-size:12.5px}
+.campaign-guide .codeblock{font-size:12px}
+.campaign-figure{margin:18px 0;padding:14px;background:var(--bg);border-left:4px solid var(--success)}
+.campaign-figure figcaption{font-weight:700;color:var(--success)}
+.campaign-timeline-scroll{overflow-x:auto}
+.campaign-timeline{display:grid;grid-template-columns:60px repeat(var(--days),minmax(21px,1fr));gap:5px 2px;align-items:center;min-width:510px;font-size:11px}
+.campaign-tick{text-align:center;color:var(--text-secondary)}
+.campaign-bar{text-align:center;border-radius:4px;padding:5px 0;font-weight:700}
+.campaign-bar.raw{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent)}
+.campaign-bar.merged{background:var(--success);color:white}
+#campaign-copy-status{margin-left:10px;font-size:12px}
+
+
+/* ===== Merge Date Ranges: syntax highlighting + dual interview versions ===== */
+.campaign-guide pre.codeblock.syntax{padding:12px 14px;white-space:pre;overflow-x:auto}
+.campaign-guide pre.codeblock.syntax code{font-family:"SF Mono",Menlo,monospace;font-size:11.5px;line-height:1.6}
+.syntax .k,.syntax .kc,.syntax .kd,.syntax .kn,.syntax .kp,.syntax .kr,.syntax .kt{color:var(--purple);font-weight:700}
+.syntax .nb,.syntax .bp,.syntax .nf,.syntax .nc,.syntax .fm{color:var(--accent);font-weight:650}
+.syntax .s,.syntax .sa,.syntax .sb,.syntax .sc,.syntax .dl,.syntax .sd,.syntax .s1,.syntax .s2,.syntax .se,.syntax .sh,.syntax .si,.syntax .sx,.syntax .sr,.syntax .ss{color:var(--success)}
+.syntax .m,.syntax .mb,.syntax .mf,.syntax .mh,.syntax .mi,.syntax .mo,.syntax .il{color:var(--warning);font-weight:600}
+.syntax .c,.syntax .ch,.syntax .cm,.syntax .cp,.syntax .cpf,.syntax .c1,.syntax .cs{color:var(--text-muted);font-style:italic}
+.syntax .o,.syntax .ow{color:var(--text-secondary);font-weight:600}
+.syntax .na,.syntax .nv,.syntax .vc,.syntax .vg,.syntax .vi,.syntax .vm{color:var(--text-primary)}
+.merge-version-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin:12px 0 4px}
+.merge-version-card{border:1px solid var(--border);border-radius:10px;background:var(--bg);padding:12px;min-width:0}
+.merge-version-card h4{margin:0 0 6px;font-size:14px;color:var(--text-primary)}
+.merge-version-card p{font-size:12.5px;line-height:1.6;margin:6px 0}
+.merge-version-label{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--accent-bg);color:var(--accent);margin-bottom:7px}
+.merge-rule{font-family:"SF Mono",Menlo,monospace;font-size:11.5px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 9px;margin:7px 0;overflow-x:auto}
+.merge-compare{margin-top:10px}
+.merge-compare strong{color:var(--accent)}
+
+
+.codeblock{tab-size:4;-moz-tab-size:4;white-space:pre!important;}
+
+/* Merge chapter: preserve SQL/Python indentation exactly. */
+.campaign-guide pre.codeblock.syntax {
+    white-space: pre !important;
+    overflow-x: auto;
+    tab-size: 4;
+    -moz-tab-size: 4;
+}
+.campaign-guide pre.codeblock.syntax code {
+    white-space: pre !important;
+}
+
+
+.merge-version-card pre.codeblock.syntax,
+.merge-version-card pre.codeblock.syntax code {
+    white-space: pre !important;
+    tab-size: 4;
+    -moz-tab-size: 4;
+}
+
+.campaign-guide pre.codeblock.syntax,
+.campaign-guide pre.codeblock.syntax code {
+    white-space: pre !important;
+    tab-size: 4;
+    -moz-tab-size: 4;
+}
+
+/* Exact indentation for SQL / Python comparison code. */
+#merge-two-versions pre.codeblock.syntax,
+#merge-two-versions pre.codeblock.syntax code {
+    white-space: pre !important;
+    tab-size: 4;
+    -moz-tab-size: 4;
+}
+#merge-two-versions pre.codeblock.syntax {
+    overflow-x: auto;
+}
+
+
+/* Interactive sentence-level listening in the SQL vs Python analysis. */
+#merge-thinking-summary .speakable {
+    cursor: pointer;
+}
+#merge-thinking-summary .merge-version-card > p.speakable,
+#merge-thinking-summary .merge-version-card > h4.speakable {
+    padding: 6px 8px;
+    margin: 4px -8px;
+    border-radius: 6px;
+}
+#merge-thinking-summary .flow.speakable {
+    cursor: pointer;
+}
+
+
+/* ===== Study-first visual hierarchy: tables + emphasis ===== */
+.study-table-wrap {
+    overflow-x: auto;
+    margin: 12px 0 14px;
+}
+.study-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface);
+    font-size: 12.5px;
+}
+.study-table th,
+.study-table td {
+    padding: 11px 12px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.55;
+}
+.study-table th:last-child,
+.study-table td:last-child { border-right: 0; }
+.study-table tr:last-child td { border-bottom: 0; }
+.study-table thead th {
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-weight: 800;
+    text-align: left;
+}
+.study-table tbody td:first-child {
+    width: 18%;
+    background: #F7F7F5;
+    color: var(--text-primary);
+}
+html[data-theme="dark"] .study-table tbody td:first-child {
+    background: #20242A;
+}
+.study-table td:nth-child(2) { border-left: 3px solid rgba(41,113,168,.22); }
+.study-table td:nth-child(3) { border-left: 3px solid rgba(30,122,76,.18); }
+
+/* Stronger emphasis across the whole study page. */
+.card p strong,
+.tip strong,
+.warn strong,
+.answer-box strong,
+.example-box strong,
+.study-table strong {
+    color: var(--text-primary);
+    font-weight: 800;
+}
+.card p code,
+.tip code,
+.warn code,
+.answer-box code,
+.example-box code,
+.study-table code,
+.memory-callout code,
+.memory-strip code {
+    background: var(--accent-bg);
+    color: var(--accent);
+    border-radius: 5px;
+    padding: 1px 5px;
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: .94em;
+    font-weight: 700;
+}
+.card .step-label,
+.campaign-guide .step-label {
+    color: var(--accent);
+    font-weight: 800;
+}
+.q-title,
+.sql-section-title,
+.campaign-guide h3 {
+    letter-spacing: -.01em;
+}
+.analysis-lead {
+    padding: 9px 11px;
+    background: #F7F7F5;
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+}
+html[data-theme="dark"] .analysis-lead { background: #20242A; }
+
+.memory-callouts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+.memory-callout {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 11px 12px;
+    background: var(--surface);
+}
+.memory-callout.difference { border-left: 4px solid var(--warning); }
+.memory-callout.bridge { border-left: 4px solid var(--success); }
+.memory-title {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .05em;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+.memory-callout p { margin: 0; }
+.memory-strip {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--success-bg);
+    color: var(--success);
+    border-radius: 8px;
+    font-size: 12.5px;
+}
+
+/* Improve all existing data tables for faster scanning. */
+table.datatbl th {
+    font-weight: 800;
+}
+table.datatbl td strong {
+    font-weight: 800;
+}
+table.datatbl tbody tr:nth-child(even) td {
+    background: rgba(41,113,168,.025);
+}
+html[data-theme="dark"] table.datatbl tbody tr:nth-child(even) td {
+    background: rgba(121,185,233,.035);
+}
+
+@media(max-width:760px){
+    .memory-callouts { grid-template-columns: 1fr; }
+    .study-table { min-width: 720px; }
+}
+
+
+/* ===== SQL vs Python flowcharts ===== */
+.analysis-flowcharts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 12px;
+    margin: 14px 0;
+}
+.flowchart-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 12px;
+    min-width: 0;
+}
+.flowchart-title {
+    font-size: 13.5px;
+    font-weight: 850;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+.merge-flow-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    color: var(--text-muted);
+}
+.flow-node-svg rect,
+.flow-node-svg polygon {
+    fill: var(--bg);
+    stroke: var(--border-strong);
+    stroke-width: 1.5;
+}
+.flow-node-svg text {
+    fill: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    font-weight: 750;
+}
+.flow-node-svg .flow-subtext {
+    fill: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 550;
+}
+.flow-arrow-svg {
+    stroke: var(--text-muted);
+    stroke-width: 2;
+}
+.emphasis-node rect {
+    fill: var(--accent-bg);
+    stroke: var(--accent);
+}
+.decision-node rect,
+.decision-node polygon {
+    fill: var(--warning-bg);
+    stroke: var(--warning);
+}
+.output-node rect {
+    fill: var(--success-bg);
+    stroke: var(--success);
+}
+.branch-label {
+    fill: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 800;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.flowchart-memory {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 11.5px;
+    cursor: pointer;
+}
+@media(max-width:900px) {
+    .analysis-flowcharts { grid-template-columns: 1fr; }
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header><h1>DW SQL Practice</h1><p>Practice by topic. Click any English sentence to hear it; click the same sentence again to stop.</p></header>
+<div class="voice-bar">
+<div class="voice-control voice-control-main">
+<label for="voiceSelect">🔊 Voice</label>
+<select aria-label="English voice" id="voiceSelect"><option value="">System English voice</option></select>
+</div>
+<div class="voice-control speed-control">
+<label for="rateSlider">Speed</label>
+<input id="rateSlider" max="1.2" min="0.7" step="0.05" type="range" value="0.92"/>
+<span id="rateLabel">0.92x</span>
+</div>
+<button aria-label="Switch to dark mode" class="theme-toggle" id="themeToggle" title="Switch to dark mode" type="button">🌙</button><button class="stop-btn" id="stopAllBtn" type="button">■ Stop</button>
+</div>
+<nav aria-label="SQL topic navigation" class="section-nav">
+<a href="#basics">Basics &amp; Joins</a>
+<a href="#window-functions">Window Functions</a>
+<a href="#aggregation">Aggregation</a>
+<a href="#consecutive-days">Consecutive Days</a>
+<a href="#campaign-intervals">Merge Date Ranges</a>
+<a href="#sales-ranking">Sales Ranking</a>
+<a href="#retention">Retention</a>
+</nav>
+<main class="tab-panel active" id="sqltab"><details class="sql-topic" open=""><summary><h2 class="sql-section-title" id="basics">📘 SQL Basics &amp; Joins</h2></summary><div class="sql-topic-content"><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="The standard SQL query order is FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY. WHERE filters rows before grouping, HAVING filters groups after aggregation." role="button" tabindex="0" title="Click to listen; click again to stop">Query structure &amp; clauses</p>
+</div>
+<p class="q-desc speakable" data-speech="The core clause order every query follows, plus common NULL-handling functions." role="button" tabindex="0" title="Click to listen; click again to stop">The core clause order every query follows, plus common NULL-handling functions.</p>
+<svg aria-label="SQL query execution order diagram" role="img" style="width:100%; height:auto; margin:8px 0 10px;" viewbox="0 0 720 100">
+<defs>
+<marker id="arrowhead" markerheight="8" markerwidth="8" orient="auto" refx="6" refy="4">
+<path d="M0,0 L8,4 L0,8 Z" fill="#2971A8"></path>
+</marker>
+</defs>
+<g font-family="-apple-system, sans-serif" font-size="13" font-weight="600">
+<!-- FROM -->
+<rect fill="#E8F2FA" height="40" rx="8" stroke="#2971A8" stroke-width="1" width="90" x="4" y="30"></rect>
+<text fill="#2971A8" text-anchor="middle" x="49" y="55">FROM</text>
+<line marker-end="url(#arrowhead)" stroke="#2971A8" stroke-width="1.5" x1="94" x2="120" y1="50" y2="50"></line>
+<!-- WHERE -->
+<rect fill="#E8F2FA" height="40" rx="8" stroke="#2971A8" stroke-width="1" width="90" x="124" y="30"></rect>
+<text fill="#2971A8" text-anchor="middle" x="169" y="55">WHERE</text>
+<line marker-end="url(#arrowhead)" stroke="#2971A8" stroke-width="1.5" x1="214" x2="240" y1="50" y2="50"></line>
+<!-- GROUP BY -->
+<rect fill="#E4F5EC" height="40" rx="8" stroke="#1E7A4C" stroke-width="1" width="98" x="244" y="30"></rect>
+<text fill="#1E7A4C" text-anchor="middle" x="293" y="55">GROUP BY</text>
+<line marker-end="url(#arrowhead)" stroke="#1E7A4C" stroke-width="1.5" x1="342" x2="368" y1="50" y2="50"></line>
+<!-- HAVING -->
+<rect fill="#E4F5EC" height="40" rx="8" stroke="#1E7A4C" stroke-width="1" width="90" x="372" y="30"></rect>
+<text fill="#1E7A4C" text-anchor="middle" x="417" y="55">HAVING</text>
+<line marker-end="url(#arrowhead)" stroke="#1E7A4C" stroke-width="1.5" x1="462" x2="488" y1="50" y2="50"></line>
+<!-- SELECT -->
+<rect fill="#FBF0DD" height="40" rx="8" stroke="#9A6B1E" stroke-width="1" width="90" x="492" y="30"></rect>
+<text fill="#9A6B1E" text-anchor="middle" x="537" y="55">SELECT</text>
+<line marker-end="url(#arrowhead)" stroke="#9A6B1E" stroke-width="1.5" x1="582" x2="608" y1="50" y2="50"></line>
+<!-- ORDER BY -->
+<rect fill="#FBF0DD" height="40" rx="8" stroke="#9A6B1E" stroke-width="1" width="104" x="612" y="30"></rect>
+<text fill="#9A6B1E" text-anchor="middle" x="664" y="55">ORDER BY</text>
+</g>
+<text fill="#8A8985" font-family="-apple-system, sans-serif" font-size="10" text-anchor="middle" x="49" y="90">rows in</text>
+<text fill="#8A8985" font-family="-apple-system, sans-serif" font-size="10" text-anchor="middle" x="293" y="90">rows filtered</text>
+<text fill="#8A8985" font-family="-apple-system, sans-serif" font-size="10" text-anchor="middle" x="664" y="90">final output</text>
+</svg><div class="codeblock"><span class="cmt">-- NULL handling</span>
+<span class="kw">SELECT</span> <span class="fn">IFNULL</span>(score, <span class="num">0</span>) <span class="kw">AS</span> score_val <span class="kw">FROM</span> student;
+<span class="kw">SELECT</span> <span class="fn">COALESCE</span>(score1, score2, <span class="num">0</span>) <span class="kw">AS</span> score_val <span class="kw">FROM</span> student;
+<span class="cmt">-- COALESCE is more versatile — accepts multiple fallback values</span></div><div class="tip speakable" data-speech="💡 COALESCE &gt; IFNULL when you need multiple fallback values, not just one." role="button" tabindex="0" title="Click to listen; click again to stop">💡 COALESCE &gt; IFNULL when you need multiple fallback values, not just one.</div></div><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="COUNT star counts all rows including nulls. COUNT of a column only counts non-null values in that column — that difference matters when checking for duplicates." role="button" tabindex="0" title="Click to listen; click again to stop">Finding duplicates</p>
+</div>
+<p class="q-desc speakable" data-speech="COUNT(*) vs COUNT(column) — a subtle but important distinction." role="button" tabindex="0" title="Click to listen; click again to stop">COUNT(*) vs COUNT(column) — a subtle but important distinction.</p><div class="codeblock"><span class="kw">SELECT</span> name, <span class="fn">COUNT</span>(*), <span class="fn">COUNT</span>(student_id)  <span class="cmt">-- COUNT(column) only counts non-NULL values</span>
+<span class="kw">FROM</span> students
+<span class="kw">GROUP</span> <span class="kw">BY</span> name
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(*) &gt; <span class="num">1</span>;</div><div class="tip speakable" data-speech="💡 COUNT(*) counts all rows. COUNT(column) skips NULLs in that column." role="button" tabindex="0" title="Click to listen; click again to stop">💡 COUNT(*) counts all rows. COUNT(column) skips NULLs in that column.</div></div><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="This pattern finds rows in table A that have no matching key in table B — a classic anti-join using LEFT JOIN plus a NULL check." role="button" tabindex="0" title="Click to listen; click again to stop">Left Join — Anti-join pattern</p>
+</div>
+<p class="q-desc speakable" data-speech="Find rows in A whose key does NOT exist in B." role="button" tabindex="0" title="Click to listen; click again to stop">Find rows in A whose key does NOT exist in B.</p><div class="codeblock"><span class="kw">SELECT</span> a.*
+<span class="kw">FROM</span> a
+<span class="kw">LEFT</span> <span class="kw">JOIN</span> b <span class="kw">ON</span> a.key = b.key
+<span class="kw">WHERE</span> b.key <span class="kw">IS</span> <span class="kw">NULL</span>;</div><div class="tip speakable" data-speech="💡 This is the standard 'anti-join' pattern — LEFT JOIN + WHERE ... IS NULL." role="button" tabindex="0" title="Click to listen; click again to stop">💡 This is the standard 'anti-join' pattern — LEFT JOIN + WHERE ... IS NULL.</div></div><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="The five join types: inner join returns only matching rows, left join keeps all rows from the left table, right join keeps all from the right, self join joins a table to itself, and cross join produces every combination." role="button" tabindex="0" title="Click to listen; click again to stop">Joins &amp; Subqueries overview</p>
+</div>
+<p class="q-desc speakable" data-speech="Quick reference for the join family." role="button" tabindex="0" title="Click to listen; click again to stop">Quick reference for the join family.</p><div class="codeblock"><span class="kw">INNER</span> <span class="kw">JOIN</span> <span class="cmt">-- only matching rows on both sides</span>
+<span class="kw">LEFT</span> <span class="kw">JOIN</span> <span class="cmt">-- all rows from left, matched or NULL from right</span>
+<span class="kw">RIGHT</span> <span class="kw">JOIN</span> <span class="cmt">-- all rows from right, matched or NULL from left</span>
+<span class="kw">SELF</span> <span class="kw">JOIN</span> <span class="cmt">-- a table joined to itself</span>
+<span class="kw">CROSS</span> <span class="kw">JOIN</span> <span class="cmt">-- every combination (cartesian product)</span></div></div></div></details><details class="sql-topic" open=""><summary><h2 class="sql-section-title" id="window-functions">🧮 Window Functions</h2></summary><div class="sql-topic-content"><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="Window functions use PARTITION BY to group rows and ORDER BY to sequence them within each group, without collapsing rows the way GROUP BY does." role="button" tabindex="0" title="Click to listen; click again to stop">Window function basics</p>
+</div>
+<p class="q-desc speakable" data-speech="The building blocks: PARTITION BY, ORDER BY, and the functions that use them." role="button" tabindex="0" title="Click to listen; click again to stop">The building blocks: PARTITION BY, ORDER BY, and the functions that use them.</p><div class="codeblock"><span class="cmt">-- Ranking</span>
+<span class="fn">ROW_NUMBER</span>()   <span class="cmt">-- unique rank, no ties</span>
+<span class="fn">RANK</span>()         <span class="cmt">-- ties share rank, next rank skips</span>
+<span class="fn">DENSE_RANK</span>()   <span class="cmt">-- ties share rank, no skip</span>
+<span class="cmt">-- Analytics</span>
+<span class="fn">SUM</span>(), <span class="fn">AVG</span>(), <span class="fn">MIN</span>(), <span class="fn">MAX</span>() <span class="kw">OVER</span> (...)
+
+<span class="cmt">-- Positional</span>
+<span class="fn">LAG</span>()          <span class="cmt">-- access the PREVIOUS row</span>
+<span class="fn">LEAD</span>()         <span class="cmt">-- access the NEXT row</span>
+<span class="fn">FIRST_VALUE</span>(), <span class="fn">LAST_VALUE</span>()
+
+<span class="cmt">-- Example</span>
+<span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> user_id <span class="kw">ORDER</span> <span class="kw">BY</span> login_date)
+<span class="fn">LAG</span>(txn_date) <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> customer_id <span class="kw">ORDER</span> <span class="kw">BY</span> txn_date)</div><div class="tip speakable" data-speech="💡 PARTITION BY = 'group by' for window functions, but rows are NOT collapsed like GROUP BY does." role="button" tabindex="0" title="Click to listen; click again to stop">💡 PARTITION BY = 'group by' for window functions, but rows are NOT collapsed like GROUP BY does.</div></div></div></details><details class="sql-topic" open=""><summary><h2 class="sql-section-title" id="aggregation">💰 Aggregation, Spend &amp; Averages</h2></summary><div class="sql-topic-content"><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="First sum each customer's transactions per day, then average those daily totals, and filter for customers whose daily average exceeds 3." role="button" tabindex="0" title="Click to listen; click again to stop">Case 1: Average DAILY spend exceeds 3</p>
+</div>
+<p class="q-desc speakable" data-speech="Two-step aggregation: sum per day first, then average the daily sums." role="button" tabindex="0" title="Click to listen; click again to stop">Two-step aggregation: sum per day first, then average the daily sums.</p><span class="step-label">Sample data</span><table class="datatbl"><thead><tr><th>customer_id</th><th>txn_date</th><th>txn_amount</th></tr></thead><tbody><tr><td>1</td><td>2025-08-01</td><td>1.00</td></tr><tr><td>1</td><td>2025-08-01</td><td>2.00</td></tr><tr><td>1</td><td>2025-08-02</td><td>5.00</td></tr><tr><td>2</td><td>2025-08-01</td><td>4.00</td></tr><tr><td>2</td><td>2025-08-02</td><td>2.00</td></tr></tbody></table><div class="codeblock"><span class="kw">SELECT</span>
+  customer_id,
+  <span class="fn">AVG</span>(daily_sum) <span class="kw">AS</span> average_spend
+<span class="kw">FROM</span> (
+  <span class="kw">SELECT</span> customer_id, txn_date, <span class="fn">SUM</span>(txn_amount) <span class="kw">AS</span> daily_sum
+  <span class="kw">FROM</span> transaction
+  <span class="kw">GROUP</span> <span class="kw">BY</span> customer_id, txn_date
+) <span class="kw">AS</span> daily_spend
+<span class="kw">GROUP</span> <span class="kw">BY</span> customer_id
+<span class="kw">HAVING</span> <span class="fn">AVG</span>(daily_sum) &gt; <span class="num">3</span>;</div><span class="step-label">Result</span><table class="datatbl"><thead><tr><th>customer_id</th><th>daily sums</th><th>average</th><th>included?</th></tr></thead><tbody><tr><td>1</td><td>{3.00, 5.00}</td><td>4.00</td><td>✅ included</td></tr><tr><td>2</td><td>{4.00, 2.00}</td><td>3.00</td><td>❌ excluded (not &gt; 3)</td></tr></tbody></table><div class="tip speakable" data-speech="💡 Nested subquery pattern: aggregate once inside, aggregate again outside." role="button" tabindex="0" title="Click to listen; click again to stop">💡 Nested subquery pattern: aggregate once inside, aggregate again outside.</div></div><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="This is simpler — just average every individual transaction amount per customer directly, no daily grouping needed." role="button" tabindex="0" title="Click to listen; click again to stop">Case 2: Average PER TRANSACTION spend</p>
+</div>
+<p class="q-desc speakable" data-speech="Compare this to Case 1 — no need to group by day first." role="button" tabindex="0" title="Click to listen; click again to stop">Compare this to Case 1 — no need to group by day first.</p><div class="codeblock"><span class="kw">SELECT</span>
+  customer_id,
+  <span class="fn">AVG</span>(txn_amount) <span class="kw">AS</span> average_spend
+<span class="kw">FROM</span> transaction
+<span class="kw">GROUP</span> <span class="kw">BY</span> customer_id
+<span class="kw">HAVING</span> <span class="fn">AVG</span>(txn_amount) &gt; <span class="num">3</span>;</div><div class="tip speakable" data-speech="💡 Read the question carefully — 'average daily spend' and 'average per transaction' need different queries!" role="button" tabindex="0" title="Click to listen; click again to stop">💡 Read the question carefully — 'average daily spend' and 'average per transaction' need different queries!</div></div><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="Use LAG to pull each customer's previous transaction date into the same row, then compute the date difference, then average those gaps." role="button" tabindex="0" title="Click to listen; click again to stop">Average days between transactions</p>
+</div>
+<p class="q-desc speakable" data-speech="A classic three-step LAG pattern for measuring the gap between events." role="button" tabindex="0" title="Click to listen; click again to stop">A classic three-step LAG pattern for measuring the gap between events.</p><span class="step-label">Sample data</span><table class="datatbl"><thead><tr><th>customer_id</th><th>txn_date</th><th>txn_amount</th></tr></thead><tbody><tr><td>C1</td><td>2024-01-10</td><td>20</td></tr><tr><td>C1</td><td>2024-01-01</td><td>10</td></tr><tr><td>C1</td><td>2024-01-05</td><td>15</td></tr><tr><td>C2</td><td>2024-01-04</td><td>7</td></tr><tr><td>C2</td><td>2024-01-02</td><td>5</td></tr></tbody></table><div class="codeblock"><span class="cmt">-- Step 1: get previous transaction date</span>
+<span class="kw">WITH</span> transaction_date <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> customer_id, txn_date,
+        <span class="fn">LAG</span>(txn_date) <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> customer_id <span class="kw">ORDER</span> <span class="kw">BY</span> txn_date) <span class="kw">AS</span> prev_transaction_date
+    <span class="kw">FROM</span> transaction
+),
+<span class="cmt">-- Step 2: calculate days between transactions</span>
+date_diff <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> customer_id,
+        <span class="fn">DATEDIFF</span>(txn_date, prev_transaction_date) <span class="kw">AS</span> date_between_transactions
+    <span class="kw">FROM</span> transaction_date
+    <span class="kw">WHERE</span> prev_transaction_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+)
+<span class="cmt">-- Step 3: average</span>
+<span class="kw">SELECT</span> customer_id, <span class="fn">AVG</span>(date_between_transactions) <span class="kw">AS</span> avg_days_transactions
+<span class="kw">FROM</span> date_diff
+<span class="kw">GROUP</span> <span class="kw">BY</span> customer_id;</div><span class="step-label">Result</span><table class="datatbl"><thead><tr><th>customer_id</th><th>avg_days_transactions</th></tr></thead><tbody><tr><td>C1</td><td>4.5</td></tr><tr><td>C2</td><td>2.0</td></tr></tbody></table><div class="tip speakable" data-speech="💡 LAG automatically sorts by the ORDER BY inside OVER() first, THEN takes the previous row — the input order in the raw table doesn't matter." role="button" tabindex="0" title="Click to listen; click again to stop">💡 LAG automatically sorts by the ORDER BY inside OVER() first, THEN takes the previous row — the input order in the raw table doesn't matter.</div></div><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="Filter to the last 30 days, sum spend per user, sort descending, and take the top 10." role="button" tabindex="0" title="Click to listen; click again to stop">Top 10 spenders in last 30 days</p>
+</div>
+<p class="q-desc speakable" data-speech="A simple filter + aggregate + rank pattern." role="button" tabindex="0" title="Click to listen; click again to stop">A simple filter + aggregate + rank pattern.</p><div class="codeblock"><span class="kw">SELECT</span> user_id, <span class="fn">SUM</span>(amount) <span class="kw">AS</span> total_spend
+<span class="kw">FROM</span> transactions
+<span class="kw">WHERE</span> tx_time &gt;= <span class="fn">DATE_SUB</span>(<span class="fn">CURRENT_DATE</span>(), <span class="num">30</span>)
+<span class="kw">GROUP</span> <span class="kw">BY</span> user_id
+<span class="kw">ORDER</span> <span class="kw">BY</span> total_spend <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">10</span>;</div></div></div></details><details class="sql-topic" open=""><summary><h2 class="sql-section-title" id="consecutive-days">🔥 Consecutive Days</h2></summary><div class="sql-topic-content"><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="The trick is subtracting the row number from the login date. If dates are truly consecutive, that subtraction produces the SAME value for every row in the streak — giving you a free grouping key." role="button" tabindex="0" title="Click to listen; click again to stop">Consecutive 3-day logins (exact gap-of-1 method)</p>
+</div>
+<p class="q-desc speakable" data-speech="The classic 'row number minus date' trick to detect consecutive sequences." role="button" tabindex="0" title="Click to listen; click again to stop">The classic 'row number minus date' trick to detect consecutive sequences.</p><span class="step-label">Sample data</span><table class="datatbl"><thead><tr><th>user_id</th><th>login_date</th></tr></thead><tbody><tr><td>A</td><td>2025-01-01</td></tr><tr><td>A</td><td>2025-01-02</td></tr><tr><td>A</td><td>2025-01-03</td></tr><tr><td>A</td><td>2025-01-05</td></tr></tbody></table><div class="codeblock"><span class="cmt">-- Step 1: assign row numbers and calculate grouping flag</span>
+<span class="kw">WITH</span> t2_sub_flag <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> user_id, login_date,
+        <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> user_id <span class="kw">ORDER</span> <span class="kw">BY</span> login_date) <span class="kw">AS</span> rk,
+        <span class="fn">DATE_SUB</span>(login_date, <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> user_id <span class="kw">ORDER</span> <span class="kw">BY</span> login_date)) <span class="kw">AS</span> flag_date
+    <span class="kw">FROM</span> table1
+)
+<span class="cmt">-- Step 2: group and filter for continuous segments</span>
+, segments <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> user_id, flag_date, <span class="fn">COUNT</span>(<span class="num">1</span>) <span class="kw">AS</span> cnt,
+        <span class="fn">MIN</span>(login_date) <span class="kw">AS</span> min_login_date, <span class="fn">MAX</span>(login_date) <span class="kw">AS</span> max_login_date
+    <span class="kw">FROM</span> t2_sub_flag
+    <span class="kw">GROUP</span> <span class="kw">BY</span> user_id, flag_date
+    <span class="kw">HAVING</span> <span class="fn">COUNT</span>(<span class="num">1</span>) &gt;= <span class="num">3</span>
+)
+<span class="cmt">-- Step 3: join back for concrete dates</span>
+<span class="kw">SELECT</span> s.user_id, s.flag_date, s.cnt, s.min_login_date, s.max_login_date, t.login_date
+<span class="kw">FROM</span> segments s
+<span class="kw">JOIN</span> table1 t <span class="kw">ON</span> t.user_id = s.user_id
+             <span class="kw">AND</span> t.login_date <span class="kw">BETWEEN</span> s.min_login_date <span class="kw">AND</span> s.max_login_date
+<span class="kw">ORDER</span> <span class="kw">BY</span> s.user_id, t.login_date;</div><span class="step-label">Result</span><table class="datatbl"><thead><tr><th>user_id</th><th>login_date</th><th>rk</th><th>flag_date</th></tr></thead><tbody><tr><td>A</td><td>2025-01-01</td><td>1</td><td class="hl">2024-12-31</td></tr><tr><td>A</td><td>2025-01-02</td><td>2</td><td class="hl">2024-12-31</td></tr><tr><td>A</td><td>2025-01-03</td><td>3</td><td class="hl">2024-12-31</td></tr><tr><td>A</td><td>2025-01-05</td><td>4</td><td class="hl">2025-01-01</td></tr></tbody></table><details class="diagram-details"><summary>▶ Show execution process</summary><svg style="max-width:600px; display:block; margin:8px auto;" viewbox="0 0 680 320" width="100%">
+<defs><marker id="cd1" markerheight="7" markerwidth="7" orient="auto" refx="5" refy="3.5"><path d="M0,0 L7,3.5 L0,7 Z" fill="#888"></path></marker></defs>
+<rect fill="var(--accent-bg)" height="66" rx="8" stroke="var(--accent)" width="640" x="20" y="10"></rect>
+<text fill="var(--accent)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="30">Step 1 — ROW_NUMBER() and flag_date = login_date - rk</text>
+<text fill="var(--accent)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="48">01-01(rk1)-&gt;flag 12-31 | 01-02(rk2)-&gt;flag 12-31 | 01-03(rk3)-&gt;flag 12-31 | 01-05(rk4)-&gt;flag 01-01</text>
+<text fill="var(--accent)" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" text-anchor="middle" x="340" y="64">First 3 rows share the SAME flag_date — that's the consecutive signal</text>
+<line marker-end="url(#cd1)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="76" y2="102"></line>
+<rect fill="var(--warning-bg)" height="66" rx="8" stroke="var(--warning)" width="640" x="20" y="102"></rect>
+<text fill="var(--warning)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="122">Step 2 — GROUP BY user_id, flag_date  HAVING COUNT(*) &gt;= 3</text>
+<text fill="var(--warning)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="140">flag_date=2024-12-31: count=3 (passes) -&gt; min=01-01, max=01-03</text>
+<text fill="var(--warning)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="156">flag_date=2025-01-01: count=1 (fails, dropped by HAVING)</text>
+<line marker-end="url(#cd1)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="168" y2="194"></line>
+<rect fill="var(--surface)" height="52" rx="8" stroke="var(--border-strong)" width="640" x="20" y="194"></rect>
+<text fill="var(--text-primary)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="214">Step 3 — JOIN back to table1 on the (min_login_date, max_login_date) range</text>
+<text fill="var(--text-primary)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="232">Expands the single segment row back into its 3 concrete login_date rows</text>
+<line marker-end="url(#cd1)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="246" y2="272"></line>
+<rect fill="var(--success-bg)" height="36" rx="8" stroke="var(--success)" width="400" x="140" y="272"></rect>
+<text fill="var(--success)" font-family="-apple-system,sans-serif" font-size="12" font-weight="700" text-anchor="middle" x="340" y="294">Final output — 3 rows for the 01-01..01-03 streak</text>
+</svg></details><div class="tip speakable" data-speech="💡 flag_date stays IDENTICAL for a true consecutive streak (2024-12-31 repeats 3 times) — that's the whole trick." role="button" tabindex="0" title="Click to listen; click again to stop">💡 flag_date stays IDENTICAL for a true consecutive streak (2024-12-31 repeats 3 times) — that's the whole trick.</div></div><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="This version uses LAG to compute the gap in days between logins, flags any gap bigger than two days as a break, then uses a running sum of those flags to create segment IDs." role="button" tabindex="0" title="Click to listen; click again to stop">Variant: allow a 1-day gap</p>
+</div>
+<p class="q-desc speakable" data-speech="A more flexible version — tolerates small gaps instead of requiring exact consecutive dates." role="button" tabindex="0" title="Click to listen; click again to stop">A more flexible version — tolerates small gaps instead of requiring exact consecutive dates.</p><span class="step-label">Sample data</span><table class="datatbl"><thead><tr><th>user_id</th><th>login_date</th></tr></thead><tbody><tr><td>A</td><td>2025-01-01</td></tr><tr><td>A</td><td>2025-01-03</td></tr><tr><td>A</td><td>2025-01-05</td></tr><tr><td>A</td><td>2025-01-06</td></tr></tbody></table><div class="codeblock"><span class="kw">WITH</span> login_diffs <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> user_id, login_date,
+    <span class="fn">DATEDIFF</span>(login_date, <span class="fn">LAG</span>(login_date) <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> user_id <span class="kw">ORDER</span> <span class="kw">BY</span> login_date)) <span class="kw">AS</span> diff_days,
+    <span class="kw">CASE</span> <span class="kw">WHEN</span> <span class="fn">DATEDIFF</span>(login_date, <span class="fn">LAG</span>(login_date) <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> user_id <span class="kw">ORDER</span> <span class="kw">BY</span> login_date)) &gt; <span class="num">2</span>
+<span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span> <span class="kw">AS</span> gap_flag
+  <span class="kw">FROM</span> table1
+),
+segments <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> user_id, login_date,
+    <span class="fn">SUM</span>(gap_flag) <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> user_id <span class="kw">ORDER</span> <span class="kw">BY</span> login_date) <span class="kw">AS</span> segment_id
+  <span class="kw">FROM</span> login_diffs
+)
+<span class="kw">SELECT</span> user_id, segment_id,
+  <span class="fn">MIN</span>(login_date) <span class="kw">AS</span> min_login_date,
+  <span class="fn">MAX</span>(login_date) <span class="kw">AS</span> max_login_date,
+  <span class="fn">DATEDIFF</span>(<span class="fn">MAX</span>(login_date), <span class="fn">MIN</span>(login_date)) + <span class="num">1</span> <span class="kw">AS</span> continuous_days
+<span class="kw">FROM</span> segments
+<span class="kw">GROUP</span> <span class="kw">BY</span> user_id, segment_id
+<span class="kw">HAVING</span> <span class="fn">DATEDIFF</span>(<span class="fn">MAX</span>(login_date), <span class="fn">MIN</span>(login_date)) + <span class="num">1</span> &gt;= <span class="num">3</span>;</div><span class="step-label">Result</span><table class="datatbl"><thead><tr><th>user_id</th><th>segment_id</th><th>min_login_date</th><th>max_login_date</th><th>continuous_days</th></tr></thead><tbody><tr><td>A</td><td>0</td><td>2025-01-01</td><td>2025-01-06</td><td>6</td></tr></tbody></table><details class="diagram-details"><summary>▶ Show execution process</summary><svg style="max-width:600px; display:block; margin:8px auto;" viewbox="0 0 680 320" width="100%">
+<defs><marker id="cd2" markerheight="7" markerwidth="7" orient="auto" refx="5" refy="3.5"><path d="M0,0 L7,3.5 L0,7 Z" fill="#888"></path></marker></defs>
+<rect fill="var(--accent-bg)" height="66" rx="8" stroke="var(--accent)" width="640" x="20" y="10"></rect>
+<text fill="var(--accent)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="30">Step 1 — LAG(login_date) computes gap in days from the PREVIOUS login</text>
+<text fill="var(--accent)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="48">01-01(first,NULL) | 01-03(gap 2) | 01-05(gap 2) | 01-06(gap 1)</text>
+<text fill="var(--accent)" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" text-anchor="middle" x="340" y="64">All gaps &lt;= 2, so gap_flag = 0 for every row</text>
+<line marker-end="url(#cd2)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="76" y2="102"></line>
+<rect fill="var(--warning-bg)" height="66" rx="8" stroke="var(--warning)" width="640" x="20" y="102"></rect>
+<text fill="var(--warning)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="122">Step 2 — segment_id = running SUM(gap_flag) ordered by login_date</text>
+<text fill="var(--warning)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="140">Since no gap_flag ever turns to 1, the running sum stays at 0 the whole time</text>
+<text fill="var(--warning)" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" text-anchor="middle" x="340" y="156">All 4 rows land in segment_id = 0 — one single streak</text>
+<line marker-end="url(#cd2)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="168" y2="194"></line>
+<rect fill="var(--surface)" height="52" rx="8" stroke="var(--border-strong)" width="640" x="20" y="194"></rect>
+<text fill="var(--text-primary)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="214">Step 3 — GROUP BY user_id, segment_id  HAVING span &gt;= 3 days</text>
+<text fill="var(--text-primary)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="232">min=01-01, max=01-06, continuous_days = 6 -&gt; passes HAVING</text>
+<line marker-end="url(#cd2)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="246" y2="272"></line>
+<rect fill="var(--success-bg)" height="36" rx="8" stroke="var(--success)" width="400" x="140" y="272"></rect>
+<text fill="var(--success)" font-family="-apple-system,sans-serif" font-size="12" font-weight="700" text-anchor="middle" x="340" y="294">Final output — 1 row spanning 01-01 to 01-06 (6 days)</text>
+</svg></details><div class="tip speakable" data-speech="💡 Running SUM() of a 0/1 flag is a common trick to create segment IDs — each new '1' starts a new segment." role="button" tabindex="0" title="Click to listen; click again to stop">💡 Running SUM() of a 0/1 flag is a common trick to create segment IDs — each new '1' starts a new segment.</div></div></div></details>
+<details class="sql-topic" id="campaign-topic"><summary><h2 class="sql-section-title" id="campaign-intervals">🧩 Merge Date Ranges — Merge Intervals</h2></summary><div class="sql-topic-content campaign-guide">
+<section class="card"><h3>Problem — Merge overlapping date ranges</h3><p class="speakable" role="button" tabindex="0" title="Click to listen; click again to stop">Given <strong>cmp_id</strong>, <strong>start_date</strong>, and <strong>end_date</strong>, merge overlapping intervals for each campaign and return one row per merged interval.</p><p class="speakable" role="button" tabindex="0" title="Click to listen; click again to stop">If two ranges do not overlap, keep them as separate output rows.</p><p class="speakable" role="button" tabindex="0" title="Click to listen; click again to stop">This follows the same overlap rule as LeetCode 56: January 1–5 and January 6–8 do not overlap, so they remain separate.</p><p class="speakable" role="button" tabindex="0" title="Click to listen; click again to stop">Assume valid, non-null campaign IDs and dates, with start_date no later than end_date; validate or quarantine invalid rows first.</p><div class="tip"><p class="speakable" role="button" tabindex="0" title="Click to listen; click again to stop"><strong>Memory: Sort → Previous MAX → Mark non-overlap → Running SUM → Merge.</strong></p></div><p class="speakable" role="button" tabindex="0" title="Click to listen; click again to stop">This gaps-and-islands problem extends the preceding Consecutive Days chapter from individual dates to date ranges.</p><figure class="campaign-figure"><figcaption>Blue = input intervals · Green = merged coverage</figcaption><p><strong>A1 · January 2026</strong></p><div class="campaign-timeline-scroll"><div class="campaign-timeline" style="--days:17"><span>Day</span><span class="campaign-tick">1</span><span class="campaign-tick">2</span><span class="campaign-tick">3</span><span class="campaign-tick">4</span><span class="campaign-tick">5</span><span class="campaign-tick">6</span><span class="campaign-tick">7</span><span class="campaign-tick">8</span><span class="campaign-tick">9</span><span class="campaign-tick">10</span><span class="campaign-tick">11</span><span class="campaign-tick">12</span><span class="campaign-tick">13</span><span class="campaign-tick">14</span><span class="campaign-tick">15</span><span class="campaign-tick">16</span><span class="campaign-tick">17</span><span style="grid-column:1;grid-row:2">Row 1</span><span class="campaign-bar raw" style="grid-column:2/span 5;grid-row:2">1–5</span><span style="grid-column:1;grid-row:3">Row 2</span><span class="campaign-bar raw" style="grid-column:5/span 7;grid-row:3">4–10</span><span style="grid-column:1;grid-row:4">Row 3</span><span class="campaign-bar raw" style="grid-column:16/span 3;grid-row:4">15–17</span><span style="grid-column:1;grid-row:5">Merged</span><span class="campaign-bar merged" style="grid-column:2/span 10;grid-row:5">10 days</span><span class="campaign-bar merged" style="grid-column:16/span 3;grid-row:5">3 days</span></div></div><p><strong>A2 · February 2026</strong></p><div class="campaign-timeline-scroll"><div class="campaign-timeline" style="--days:10"><span>Day</span><span class="campaign-tick">1</span><span class="campaign-tick">2</span><span class="campaign-tick">3</span><span class="campaign-tick">4</span><span class="campaign-tick">5</span><span class="campaign-tick">6</span><span class="campaign-tick">7</span><span class="campaign-tick">8</span><span class="campaign-tick">9</span><span class="campaign-tick">10</span><span style="grid-column:1;grid-row:2">Row 1</span><span class="campaign-bar raw" style="grid-column:2/span 5;grid-row:2">1–5</span><span style="grid-column:1;grid-row:3">Row 2</span><span class="campaign-bar raw" style="grid-column:5/span 5;grid-row:3">4–8</span><span style="grid-column:1;grid-row:4">Row 3</span><span class="campaign-bar raw" style="grid-column:8/span 4;grid-row:4">7–10</span><span style="grid-column:1;grid-row:5">Merged</span><span class="campaign-bar merged" style="grid-column:2/span 10;grid-row:5">10 days</span></div></div><p class="speakable" role="button" tabindex="0" title="Click to listen; click again to stop"><strong>A1 outputs two merged intervals:</strong> January 1–10 and January 15–17.</p><p class="speakable" role="button" tabindex="0" title="Click to listen; click again to stop"><strong>A2 outputs one merged interval:</strong> February 1–10.</p></figure><span class="step-label">Input sample — sorted by cmp_id, start_date, end_date for readability</span><div class="campaign-table"><table class="datatbl"><thead><tr><th>cmp_id</th><th>start_date</th><th>end_date</th></tr></thead><tbody><tr><td>A1</td><td>2026-01-01</td><td>2026-01-05</td></tr><tr><td>A1</td><td>2026-01-04</td><td>2026-01-10</td></tr><tr><td>A1</td><td>2026-01-15</td><td>2026-01-17</td></tr><tr><td>A2</td><td>2026-02-01</td><td>2026-02-05</td></tr><tr><td>A2</td><td>2026-02-04</td><td>2026-02-08</td></tr><tr><td>A2</td><td>2026-02-07</td><td>2026-02-10</td></tr></tbody></table></div><p class="tiny-note speakable" data-speech="The sample is sorted only to make it easy to read. In a real table, row order is not guaranteed, so every window function explicitly orders by campaign ID, start date, and end date as needed." role="button" tabindex="0" title="Click to listen; click again to stop">Sample order is only for readability. In the real case, table storage order is not guaranteed; the solution defines ORDER BY explicitly inside each window.</p><pre class="codeblock syntax" data-lang="sql" id="campaign-demo-sql"><code><span class="c1">-- Sample is sorted only for readability.</span>
+<span class="c1">-- Real table row order is not guaranteed.</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="n">TEMP</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="n">campaign</span><span class="w"> </span><span class="k">AS</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="n">cmp_id</span><span class="p">,</span>
+<span class="w">    </span><span class="n">start_date</span><span class="p">,</span>
+<span class="w">    </span><span class="n">end_date</span>
+<span class="k">FROM</span><span class="w"> </span><span class="k">VALUES</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">'A1'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'2026-01-01'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'2026-01-05'</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">'A1'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'2026-01-04'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'2026-01-10'</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">'A1'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'2026-01-15'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'2026-01-17'</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">'A2'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'2026-02-01'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'2026-02-05'</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">'A2'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'2026-02-04'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'2026-02-08'</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">'A2'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'2026-02-07'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'2026-02-10'</span><span class="p">)</span>
+<span class="k">AS</span><span class="w"> </span><span class="n">demo</span><span class="p">(</span><span class="n">cmp_id</span><span class="p">,</span><span class="w"> </span><span class="n">start_date</span><span class="p">,</span><span class="w"> </span><span class="n">end_date</span><span class="p">);</span></code></pre><span class="step-label">Expected final result</span><div class="campaign-table"><table class="datatbl"><thead><tr><th>cmp_id</th><th>start_date</th><th>end_date</th><th>interval_days</th></tr></thead><tbody><tr><td>A1</td><td>2026-01-01</td><td>2026-01-10</td><td>10</td></tr><tr><td>A1</td><td>2026-01-15</td><td>2026-01-17</td><td>3</td></tr><tr><td>A2</td><td>2026-02-01</td><td>2026-02-10</td><td>10</td></tr></tbody></table></div><p class="speakable" role="button" tabindex="0" title="Click to listen; click again to stop"><strong>A1 must output two rows.</strong> January 15–17 does not overlap January 1–10, so it stays as a separate merged interval.</p><p class="speakable" role="button" tabindex="0" title="Click to listen; click again to stop">Run Steps 1–6 in order in the same Spark session, or run the complete CTE query at the end.</p></section>
+<section class="card" id="merge-thinking-summary">
+<h3 class="speakable" data-speech="How to think about it. SQL versus Python." role="button" tabindex="0" title="Click to listen; click again to stop">
+    How to Think About It — SQL vs Python
+  </h3>
+<p class="speakable analysis-lead" data-speech="SQL describes the grouping rules and lets the database derive the groups. Python keeps the current merged state and scans the intervals one by one." role="button" tabindex="0" title="Click to listen; click again to stop">
+<strong>SQL</strong> describes the grouping rules and lets the database derive the groups.
+    <strong>Python</strong> keeps the current merged state and scans the intervals one by one.
+  </p>
+<div class="study-table-wrap">
+<table class="study-table compare-table">
+<thead>
+<tr>
+<th>Memory Point</th>
+<th>SQL</th>
+<th>Python</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Group</strong></td>
+<td class="speakable" data-speech="Partition by campaign ID groups rows by campaign." role="button" tabindex="0" title="Click to listen; click again to stop">
+<code>PARTITION BY cmp_id</code><br/>
+            Group rows by <strong>campaign</strong>.
+          </td>
+<td class="speakable" data-speech="Default dict of list groups intervals by campaign ID." role="button" tabindex="0" title="Click to listen; click again to stop">
+<code>defaultdict(list)</code><br/>
+            Group intervals by <strong>cmp_id</strong>.
+          </td>
+</tr>
+<tr>
+<td><strong>2. Sort</strong></td>
+<td class="speakable" data-speech="Order by start date sorts the intervals inside each campaign." role="button" tabindex="0" title="Click to listen; click again to stop">
+<code>ORDER BY start_date</code><br/>
+            Sort inside each <strong>partition</strong>.
+          </td>
+<td class="speakable" data-speech="Intervals dot sort sorts each campaign's intervals by start." role="button" tabindex="0" title="Click to listen; click again to stop">
+<code>intervals.sort()</code><br/>
+            Sort each campaign's intervals.
+          </td>
+</tr>
+<tr>
+<td><strong>3. Previous coverage</strong></td>
+<td class="speakable" data-speech="Previous max end is the furthest end date already covered by earlier intervals." role="button" tabindex="0" title="Click to listen; click again to stop">
+<code>previous_max_end</code><br/>
+            Furthest end already covered by <strong>earlier rows</strong>.
+          </td>
+<td class="speakable" data-speech="Merged minus one, one is the end of the current merged interval." role="button" tabindex="0" title="Click to listen; click again to stop">
+<code>merged[-1][1]</code><br/>
+            End of the <strong>current merged interval</strong>.
+          </td>
+</tr>
+<tr>
+<td><strong>4. New group?</strong></td>
+<td class="speakable" data-speech="Case marks a new group when the current start is after previous coverage." role="button" tabindex="0" title="Click to listen; click again to stop">
+<code>CASE</code><br/>
+            If <code>start_date &gt; previous_max_end</code> → <strong>new group</strong>.
+          </td>
+<td class="speakable" data-speech="If start is greater than the last merged end, start a new interval." role="button" tabindex="0" title="Click to listen; click again to stop">
+<code>if start &gt; merged[-1][1]</code><br/>
+            → <strong>append a new interval</strong>.
+          </td>
+</tr>
+<tr>
+<td><strong>5. Keep state</strong></td>
+<td class="speakable" data-speech="Running sum of the flag creates the group ID." role="button" tabindex="0" title="Click to listen; click again to stop">
+<code>SUM(flag)</code> → <code>group_id</code><br/>
+            SQL stores state as <strong>derived columns</strong>.
+          </td>
+<td class="speakable" data-speech="Python keeps mutable state directly in the current merged interval." role="button" tabindex="0" title="Click to listen; click again to stop">
+<code>merged[-1]</code><br/>
+            Python keeps <strong>mutable state</strong> directly.
+          </td>
+</tr>
+<tr>
+<td><strong>6. Merge</strong></td>
+<td class="speakable" data-speech="Minimum start and maximum end merge each group into one interval." role="button" tabindex="0" title="Click to listen; click again to stop">
+<code>MIN(start)</code> + <code>MAX(end)</code><br/>
+            Merge after <strong>group_id</strong> is created.
+          </td>
+<td class="speakable" data-speech="Otherwise update the last merged end with the maximum end." role="button" tabindex="0" title="Click to listen; click again to stop">
+            Update <code>merged[-1][1]</code><br/>
+            Merge <strong>while scanning</strong>.
+          </td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="analysis-flowcharts">
+<div class="flowchart-card">
+<div class="flowchart-title speakable" data-speech="SQL flow. Create group IDs first, then merge." role="button" tabindex="0" title="Click to listen; click again to stop">
+        SQL Flow — Create groups first
+      </div>
+<svg aria-label="SQL merge intervals flowchart" class="merge-flow-svg" role="img" viewbox="0 0 760 640">
+<defs>
+<marker id="sql-arrow" markerheight="10" markerunits="strokeWidth" markerwidth="10" orient="auto" refx="8" refy="3">
+<path d="M0,0 L0,6 L9,3 z" fill="currentColor"></path>
+</marker>
+</defs>
+<g class="flow-node-svg">
+<rect height="62" rx="12" width="340" x="210" y="20"></rect>
+<text text-anchor="middle" x="380" y="47">Input rows</text>
+<text class="flow-subtext" text-anchor="middle" x="380" y="67">cmp_id, start_date, end_date</text>
+</g>
+<line class="flow-arrow-svg" marker-end="url(#sql-arrow)" x1="380" x2="380" y1="82" y2="112"></line>
+<g class="flow-node-svg">
+<rect height="72" rx="12" width="420" x="170" y="116"></rect>
+<text text-anchor="middle" x="380" y="145">PARTITION BY cmp_id</text>
+<text class="flow-subtext" text-anchor="middle" x="380" y="167">ORDER BY start_date, end_date</text>
+</g>
+<line class="flow-arrow-svg" marker-end="url(#sql-arrow)" x1="380" x2="380" y1="188" y2="218"></line>
+<g class="flow-node-svg emphasis-node">
+<rect height="76" rx="12" width="460" x="150" y="222"></rect>
+<text text-anchor="middle" x="380" y="251">previous_max_end</text>
+<text class="flow-subtext" text-anchor="middle" x="380" y="273">MAX(end_date) over earlier rows only</text>
+</g>
+<line class="flow-arrow-svg" marker-end="url(#sql-arrow)" x1="380" x2="380" y1="298" y2="328"></line>
+<g class="flow-node-svg decision-node">
+<rect height="78" rx="12" width="470" x="145" y="332"></rect>
+<text text-anchor="middle" x="380" y="361">start_date &gt; previous_max_end ?</text>
+<text class="flow-subtext" text-anchor="middle" x="380" y="384">Yes → flag = 1 · No → flag = 0</text>
+</g>
+<line class="flow-arrow-svg" marker-end="url(#sql-arrow)" x1="380" x2="380" y1="410" y2="440"></line>
+<g class="flow-node-svg">
+<rect height="72" rx="12" width="400" x="180" y="444"></rect>
+<text text-anchor="middle" x="380" y="473">SUM(flag) → group_id</text>
+<text class="flow-subtext" text-anchor="middle" x="380" y="495">Running sum creates islands</text>
+</g>
+<line class="flow-arrow-svg" marker-end="url(#sql-arrow)" x1="380" x2="380" y1="516" y2="546"></line>
+<g class="flow-node-svg output-node">
+<rect height="72" rx="12" width="450" x="155" y="550"></rect>
+<text text-anchor="middle" x="380" y="579">GROUP BY cmp_id, group_id</text>
+<text class="flow-subtext" text-anchor="middle" x="380" y="601">MIN(start_date) + MAX(end_date)</text>
+</g>
+</svg>
+<div class="flowchart-memory speakable" data-speech="SQL memory flow. Sort. Previous max end. Flag. Group ID. Minimum and maximum." role="button" tabindex="0" title="Click to listen; click again to stop">
+<strong>Memory:</strong>
+        sort → previous_max_end → flag → group_id → MIN/MAX
+      </div>
+</div>
+<div class="flowchart-card">
+<div class="flowchart-title speakable" data-speech="Python flow. Keep the current merged interval and update it while scanning." role="button" tabindex="0" title="Click to listen; click again to stop">
+        Python Flow — Merge while scanning
+      </div>
+<svg aria-label="Python grouped merge intervals flowchart" class="merge-flow-svg" role="img" viewbox="0 0 760 700">
+<defs>
+<marker id="py-arrow" markerheight="10" markerunits="strokeWidth" markerwidth="10" orient="auto" refx="8" refy="3">
+<path d="M0,0 L0,6 L9,3 z" fill="currentColor"></path>
+</marker>
+</defs>
+<g class="flow-node-svg">
+<rect height="62" rx="12" width="340" x="210" y="20"></rect>
+<text text-anchor="middle" x="380" y="47">Input records</text>
+<text class="flow-subtext" text-anchor="middle" x="380" y="67">[cmp_id, start, end]</text>
+</g>
+<line class="flow-arrow-svg" marker-end="url(#py-arrow)" x1="380" x2="380" y1="82" y2="112"></line>
+<g class="flow-node-svg">
+<rect height="72" rx="12" width="420" x="170" y="116"></rect>
+<text text-anchor="middle" x="380" y="145">defaultdict(list)</text>
+<text class="flow-subtext" text-anchor="middle" x="380" y="167">Group intervals by cmp_id</text>
+</g>
+<line class="flow-arrow-svg" marker-end="url(#py-arrow)" x1="380" x2="380" y1="188" y2="218"></line>
+<g class="flow-node-svg">
+<rect height="70" rx="12" width="380" x="190" y="222"></rect>
+<text text-anchor="middle" x="380" y="250">Sort intervals</text>
+<text class="flow-subtext" text-anchor="middle" x="380" y="271">intervals.sort(key=start)</text>
+</g>
+<line class="flow-arrow-svg" marker-end="url(#py-arrow)" x1="380" x2="380" y1="292" y2="322"></line>
+<g class="flow-node-svg emphasis-node">
+<rect height="70" rx="12" width="390" x="185" y="326"></rect>
+<text text-anchor="middle" x="380" y="354">Read next [start, end]</text>
+<text class="flow-subtext" text-anchor="middle" x="380" y="375">Current state = merged[-1]</text>
+</g>
+<line class="flow-arrow-svg" marker-end="url(#py-arrow)" x1="380" x2="380" y1="396" y2="426"></line>
+<g class="flow-node-svg decision-node">
+<polygon points="380,430 570,505 380,580 190,505"></polygon>
+<text text-anchor="middle" x="380" y="495">start &gt; merged[-1][1] ?</text>
+<text class="flow-subtext" text-anchor="middle" x="380" y="518">New interval?</text>
+</g>
+<line class="flow-arrow-svg" marker-end="url(#py-arrow)" x1="190" x2="92" y1="505" y2="505"></line>
+<text class="branch-label" text-anchor="middle" x="136" y="488">Yes</text>
+<g class="flow-node-svg output-node">
+<rect height="62" rx="12" width="170" x="10" y="474"></rect>
+<text text-anchor="middle" x="95" y="500">append()</text>
+<text class="flow-subtext" text-anchor="middle" x="95" y="520">Start new group</text>
+</g>
+<line class="flow-arrow-svg" marker-end="url(#py-arrow)" x1="570" x2="668" y1="505" y2="505"></line>
+<text class="branch-label" text-anchor="middle" x="624" y="488">No</text>
+<g class="flow-node-svg output-node">
+<rect height="62" rx="12" width="170" x="580" y="474"></rect>
+<text text-anchor="middle" x="665" y="498">extend end</text>
+<text class="flow-subtext" text-anchor="middle" x="665" y="520">max(last_end, end)</text>
+</g>
+<path class="flow-arrow-svg" d="M95 536 C95 625, 310 635, 350 600" fill="none" marker-end="url(#py-arrow)"></path>
+<path class="flow-arrow-svg" d="M665 536 C665 625, 450 635, 410 600" fill="none" marker-end="url(#py-arrow)"></path>
+<g class="flow-node-svg">
+<rect height="62" rx="12" width="300" x="230" y="612"></rect>
+<text text-anchor="middle" x="380" y="638">More intervals?</text>
+<text class="flow-subtext" text-anchor="middle" x="380" y="658">Yes → continue scan · No → output</text>
+</g>
+</svg>
+<div class="flowchart-memory speakable" data-speech="Python memory flow. Group. Sort. Compare the last end. Append or extend." role="button" tabindex="0" title="Click to listen; click again to stop">
+<strong>Memory:</strong>
+        group → sort → compare last end → append or extend
+      </div>
+</div>
+</div>
+<div class="memory-callouts">
+<div class="memory-callout difference">
+<div class="memory-title">BIGGEST DIFFERENCE</div>
+<p class="speakable" data-speech="SQL creates group IDs first, then merges. Python merges while scanning." role="button" tabindex="0" title="Click to listen; click again to stop">
+<strong>SQL:</strong> create <code>group_id</code> first, then merge.<br/>
+<strong>Python:</strong> merge while scanning.
+      </p>
+</div>
+<div class="memory-callout bridge">
+<div class="memory-title">BEST MEMORY BRIDGE</div>
+<p class="speakable" data-speech="SQL previous max end is conceptually the same as Python's current merged end. Both mean the furthest end covered so far." role="button" tabindex="0" title="Click to listen; click again to stop">
+<code>SQL previous_max_end</code> ≈ <code>Python merged[-1][1]</code><br/>
+        Both mean: <strong>the furthest end covered so far</strong>.
+      </p>
+</div>
+</div>
+<div class="memory-strip speakable" data-speech="One sentence memory. SQL creates groups then merges. Python merges while scanning." role="button" tabindex="0" title="Click to listen; click again to stop">
+<strong>One-sentence memory:</strong>
+    SQL = <strong>create groups, then merge</strong>.
+    Python = <strong>merge while scanning</strong>.
+  </div>
+</section>
+<section class="card" id="merge-two-versions"><h3>Two interview versions — SQL + Python / LeetCode-style</h3>
+<p class="speakable" role="button" tabindex="0" title="Click to listen; click again to stop">The core idea is the same: sort intervals, decide whether the current interval connects to existing coverage, then either merge it or start a new group.</p>
+<div class="merge-version-grid">
+<div class="merge-version-card">
+<span class="merge-version-label">SQL Version</span>
+<h4>Data Warehouse / Spark SQL</h4>
+<p>Use the running maximum end date because SQL must handle nested ranges, not only the immediately previous row.</p>
+<div class="merge-rule"><strong>New group:</strong> start_date &gt; previous_max_end</div>
+<pre class="codeblock syntax" data-lang="sql"><code><span class="k">WITH</span><span class="w"> </span><span class="n">base</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span>
+<span class="w">        </span><span class="n">cmp_id</span><span class="p">,</span>
+<span class="w">        </span><span class="n">start_date</span><span class="p">,</span>
+<span class="w">        </span><span class="n">end_date</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">campaign</span>
+<span class="p">),</span>
+<span class="n">ordered</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span>
+<span class="w">        </span><span class="n">cmp_id</span><span class="p">,</span>
+<span class="w">        </span><span class="n">start_date</span><span class="p">,</span>
+<span class="w">        </span><span class="n">end_date</span><span class="p">,</span>
+
+<span class="w">        </span><span class="c1">-- Step 1: previous_max_end = furthest end_date from EARLIER rows.</span>
+<span class="w">        </span><span class="k">MAX</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span>
+<span class="w">            </span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">cmp_id</span>
+<span class="w">            </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">start_date</span><span class="p">,</span><span class="w"> </span><span class="n">end_date</span>
+<span class="w">            </span><span class="k">ROWS</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="n">UNBOUNDED</span><span class="w"> </span><span class="n">PRECEDING</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">PRECEDING</span>
+<span class="w">        </span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">previous_max_end</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">base</span>
+<span class="p">),</span>
+<span class="n">marked</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span>
+<span class="w">        </span><span class="n">cmp_id</span><span class="p">,</span>
+<span class="w">        </span><span class="n">start_date</span><span class="p">,</span>
+<span class="w">        </span><span class="n">end_date</span><span class="p">,</span>
+
+<span class="w">        </span><span class="c1">-- Step 2: no overlap -&gt; start a new group.</span>
+<span class="w">        </span><span class="k">CASE</span>
+<span class="w">            </span><span class="k">WHEN</span><span class="w"> </span><span class="n">previous_max_end</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
+<span class="w">              </span><span class="k">OR</span><span class="w"> </span><span class="n">start_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">previous_max_end</span>
+<span class="w">            </span><span class="k">THEN</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="k">ELSE</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">        </span><span class="k">END</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">is_new_group</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">ordered</span>
+<span class="p">),</span>
+<span class="n">grouped</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span>
+<span class="w">        </span><span class="n">cmp_id</span><span class="p">,</span>
+<span class="w">        </span><span class="n">start_date</span><span class="p">,</span>
+<span class="w">        </span><span class="n">end_date</span><span class="p">,</span>
+
+<span class="w">        </span><span class="c1">-- Step 3: cumulative flags create group_id.</span>
+<span class="w">        </span><span class="c1">-- ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW can be omitted here.</span>
+<span class="w">        </span><span class="k">SUM</span><span class="p">(</span><span class="n">is_new_group</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span>
+<span class="w">            </span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">cmp_id</span>
+<span class="w">            </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">start_date</span><span class="p">,</span><span class="w"> </span><span class="n">end_date</span>
+<span class="w">        </span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">group_id</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">marked</span>
+<span class="p">)</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="n">cmp_id</span><span class="p">,</span>
+<span class="w">    </span><span class="k">MIN</span><span class="p">(</span><span class="n">start_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">merged_start</span><span class="p">,</span>
+<span class="w">    </span><span class="k">MAX</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">merged_end</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">grouped</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">cmp_id</span><span class="p">,</span>
+<span class="w">    </span><span class="n">group_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">cmp_id</span><span class="p">,</span>
+<span class="w">    </span><span class="n">merged_start</span><span class="p">;</span></code></pre>
+<div class="merge-rule"><strong>SQL demo output:</strong><br>A1 | 2026-01-01 | 2026-01-10<br>A1 | 2026-01-15 | 2026-01-17<br>A2 | 2026-02-01 | 2026-02-10</br></br></br></div>
+<p class="tiny-note">This SQL version matches LeetCode 56 semantics: merge <strong>overlapping</strong> ranges only. A non-overlapping range starts a new output row.</p>
+</div>
+<div class="merge-version-card">
+<span class="merge-version-label">Python / LeetCode-style</span>
+<h4>Grouped Merge Intervals — with cmp_id</h4>
+<p>
+<strong>LeetCode 56 core + cmp_id grouping.</strong>
+    First group by <code>cmp_id</code>, then run the standard merge logic inside each group.
+  </p>
+<div class="merge-rule">
+<strong>Core:</strong>
+    group by cmp_id → sort → merge → add cmp_id back
+  </div>
+<span class="step-label">Input</span>
+<pre class="codeblock syntax" data-lang="python"><code><span class="n">records</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s2">"A1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"A1"</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"A1"</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"A2"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"A2"</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"A2"</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+<span class="p">]</span></code></pre>
+<span class="step-label">Output</span>
+<pre class="codeblock syntax" data-lang="python"><code><span class="p">[</span>
+    <span class="p">[</span><span class="s2">"A1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"A1"</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"A2"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+<span class="p">]</span></code></pre>
+<pre class="codeblock syntax" data-lang="python"><code><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mergeByCampaign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">]:</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+        <span class="c1"># Step 1: group intervals by cmp_id.</span>
+        <span class="k">for</span> <span class="n">cmp_id</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+            <span class="n">groups</span><span class="p">[</span><span class="n">cmp_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">])</span>
+
+        <span class="c1"># groups now looks like:</span>
+        <span class="c1"># {</span>
+        <span class="c1">#     "A1": [[1, 5], [4, 10], [15, 17]],</span>
+        <span class="c1">#     "A2": [[1, 5], [4, 8], [7, 10]]</span>
+        <span class="c1"># }</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Step 2: merge intervals inside each cmp_id.</span>
+        <span class="k">for</span> <span class="n">cmp_id</span><span class="p">,</span> <span class="n">intervals</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">intervals</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">merged</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">intervals</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">merged</span> <span class="ow">or</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">merged</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">end</span><span class="p">)</span>
+
+            <span class="c1"># Step 3: add cmp_id back.</span>
+            <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">merged</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">cmp_id</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">])</span>
+
+        <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">result</span></code></pre>
+<div class="tip">
+<strong>Decision:</strong>
+    start &gt; merged[-1][1] → new interval; otherwise merge with max end.
+  </div>
+</div>
+</div>
+<div class="tip merge-compare"><strong>Memory:</strong> SQL = previous running MAX; Python = last merged end. Both answer the same question: “Does this interval connect to coverage already built?”</div>
+</section>
+</div></details>
+<details class="sql-topic" open=""><summary><h2 class="sql-section-title" id="sales-ranking">📊 Sales Ranking &amp; Top-N</h2></summary><div class="sql-topic-content"><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="First aggregate sales by city and date, then use three window functions together: ROW_NUMBER to rank cities within each day, SUM partitioned by date only for the daily total, and a cumulative SUM ordered by sales for the running total." role="button" tabindex="0" title="Click to listen; click again to stop">Daily city sales ranking</p>
+</div>
+<p class="q-desc speakable" data-speech="Three window functions in one query, each with a different PARTITION/ORDER combination." role="button" tabindex="0" title="Click to listen; click again to stop">Three window functions in one query, each with a different PARTITION/ORDER combination.</p><span class="step-label">Sample data</span><table class="datatbl"><thead><tr><th>order_id</th><th>city</th><th>order_date</th><th>sales</th></tr></thead><tbody><tr><td>1</td><td>Beijing</td><td>2025-01-01</td><td>100</td></tr><tr><td>2</td><td>Shanghai</td><td>2025-01-01</td><td>150</td></tr><tr><td>3</td><td>Guangzhou</td><td>2025-01-01</td><td>120</td></tr><tr><td>4</td><td>Beijing</td><td>2025-01-02</td><td>300</td></tr><tr><td>5</td><td>Shanghai</td><td>2025-01-02</td><td>250</td></tr><tr><td>6</td><td>Guangzhou</td><td>2025-01-02</td><td>180</td></tr><tr><td>7</td><td>Beijing</td><td>2025-01-02</td><td>50</td></tr></tbody></table><div class="codeblock"><span class="kw">WITH</span> aggregated <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> city, order_date, <span class="fn">SUM</span>(sales) <span class="kw">AS</span> daily_sales
+  <span class="kw">FROM</span> orders
+  <span class="kw">GROUP</span> <span class="kw">BY</span> city, order_date
+)
+<span class="kw">SELECT</span>
+    order_date, city, daily_sales,
+    <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> order_date <span class="kw">ORDER</span> <span class="kw">BY</span> daily_sales <span class="kw">DESC</span>) <span class="kw">AS</span> <span class="fn">rank</span>,
+    <span class="fn">SUM</span>(daily_sales) <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> order_date) <span class="kw">AS</span> total,
+    <span class="fn">SUM</span>(daily_sales) <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> order_date <span class="kw">ORDER</span> <span class="kw">BY</span> daily_sales <span class="kw">DESC</span>) <span class="kw">AS</span> cumulative
+<span class="kw">FROM</span> aggregated
+<span class="kw">ORDER</span> <span class="kw">BY</span> order_date, daily_sales <span class="kw">DESC</span>;</div><span class="step-label">Result</span><table class="datatbl"><thead><tr><th>order_date</th><th>city</th><th>daily_sales</th><th>rank</th><th>total</th><th>cumulative</th></tr></thead><tbody><tr><td>2025-01-01</td><td>Shanghai</td><td>150</td><td>1</td><td>370</td><td>150</td></tr><tr><td>2025-01-01</td><td>Guangzhou</td><td>120</td><td>2</td><td>370</td><td>270</td></tr><tr><td>2025-01-01</td><td>Beijing</td><td>100</td><td>3</td><td>370</td><td>370</td></tr><tr><td>2025-01-02</td><td>Beijing</td><td>350</td><td>1</td><td>780</td><td>350</td></tr><tr><td>2025-01-02</td><td>Shanghai</td><td>250</td><td>2</td><td>780</td><td>600</td></tr><tr><td>2025-01-02</td><td>Guangzhou</td><td>180</td><td>3</td><td>780</td><td>780</td></tr></tbody></table><details class="diagram-details"><summary>▶ Show execution process</summary><svg style="max-width:600px; display:block; margin:8px auto;" viewbox="0 0 680 420" width="100%">
+<defs><marker id="rk1" markerheight="7" markerwidth="7" orient="auto" refx="5" refy="3.5"><path d="M0,0 L7,3.5 L0,7 Z" fill="#888"></path></marker></defs>
+<rect fill="var(--surface)" height="30" rx="6" stroke="var(--border-strong)" width="600" x="40" y="10"></rect>
+<text fill="var(--text-primary)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="29">Step 1 — Raw orders (7 rows)</text>
+<line marker-end="url(#rk1)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="40" y2="66"></line>
+<rect fill="var(--accent-bg)" height="70" rx="8" stroke="var(--accent)" width="640" x="20" y="66"></rect>
+<text fill="var(--accent)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="84">Step 2 — GROUP BY city, order_date  (aggregated CTE)</text>
+<text fill="var(--accent)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="102">Beijing 01-02: two rows (300+50) collapse into daily_sales = 350</text>
+<text fill="var(--accent)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="120">7 raw rows -&gt; 6 aggregated rows (one per city per day)</text>
+<line marker-end="url(#rk1)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="136" y2="162"></line>
+<rect fill="var(--warning-bg)" height="150" rx="8" stroke="var(--warning)" width="640" x="20" y="162"></rect>
+<text fill="var(--warning)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="182">Step 3 — 3 window functions run over the aggregated rows</text>
+<rect fill="var(--surface)" height="30" rx="6" stroke="var(--warning)" stroke-width="0.7" width="600" x="40" y="196"></rect>
+<text fill="var(--text-primary)" font-family="-apple-system,sans-serif" font-size="10.5" x="60" y="215">rank: ROW_NUMBER() PARTITION order_date ORDER daily_sales DESC -&gt; 1,2,3 per day</text>
+<rect fill="var(--surface)" height="30" rx="6" stroke="var(--warning)" stroke-width="0.7" width="600" x="40" y="232"></rect>
+<text fill="var(--text-primary)" font-family="-apple-system,sans-serif" font-size="10.5" x="60" y="251">total: SUM() PARTITION order_date, no ORDER BY -&gt; whole day's sum repeated on every row</text>
+<rect fill="var(--surface)" height="30" rx="6" stroke="var(--warning)" stroke-width="0.7" width="600" x="40" y="268"></rect>
+<text fill="var(--text-primary)" font-family="-apple-system,sans-serif" font-size="10.5" x="60" y="287">cumulative: SUM() PARTITION order_date ORDER daily_sales DESC -&gt; running total</text>
+<line marker-end="url(#rk1)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="312" y2="338"></line>
+<rect fill="var(--success-bg)" height="44" rx="8" stroke="var(--success)" width="440" x="120" y="338"></rect>
+<text fill="var(--success)" font-family="-apple-system,sans-serif" font-size="12" font-weight="700" text-anchor="middle" x="340" y="356">Step 4 — Final output</text>
+<text fill="var(--success)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="373">ORDER BY order_date, daily_sales DESC (outer clause, controls display order)</text>
+</svg></details><div class="tip speakable" data-speech="💡 Beijing has 2 rows on 2025-01-02 (300+50) — they get summed to 350 during the first aggregation step." role="button" tabindex="0" title="Click to listen; click again to stop">💡 Beijing has 2 rows on 2025-01-02 (300+50) — they get summed to 350 during the first aggregation step.</div></div><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="Sum sales by city, date, and operator first, then rank operators within each city-and-date group, and keep only the top 3." role="button" tabindex="0" title="Click to listen; click again to stop">Top 3 operators per city per day</p>
+</div>
+<p class="q-desc speakable" data-speech="Same ranking pattern as before, but partitioned by two columns instead of one." role="button" tabindex="0" title="Click to listen; click again to stop">Same ranking pattern as before, but partitioned by two columns instead of one.</p><span class="step-label">Sample data</span><table class="datatbl"><thead><tr><th>order_id</th><th>city</th><th>order_date</th><th>operator_id</th><th>sales</th></tr></thead><tbody><tr><td>1</td><td>Beijing</td><td>2025-01-01</td><td>101</td><td>200</td></tr><tr><td>2</td><td>Beijing</td><td>2025-01-01</td><td>101</td><td>300</td></tr><tr><td>3</td><td>Beijing</td><td>2025-01-01</td><td>102</td><td>300</td></tr><tr><td>4</td><td>Beijing</td><td>2025-01-01</td><td>103</td><td>250</td></tr><tr><td>5</td><td>Beijing</td><td>2025-01-01</td><td>104</td><td>100</td></tr><tr><td>6</td><td>Shanghai</td><td>2025-01-01</td><td>201</td><td>400</td></tr><tr><td>7</td><td>Shanghai</td><td>2025-01-01</td><td>202</td><td>300</td></tr><tr><td>8</td><td>Shanghai</td><td>2025-01-01</td><td>203</td><td>200</td></tr><tr><td>9</td><td>Shanghai</td><td>2025-01-01</td><td>204</td><td>100</td></tr></tbody></table><div class="codeblock"><span class="kw">WITH</span> operator_sales <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> city, order_date, operator_id, <span class="fn">SUM</span>(sales) <span class="kw">AS</span> total_sales
+    <span class="kw">FROM</span> orders
+    <span class="kw">GROUP</span> <span class="kw">BY</span> city, order_date, operator_id
+),
+ranked <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> city, order_date, operator_id, total_sales,
+        <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> city, order_date <span class="kw">ORDER</span> <span class="kw">BY</span> total_sales <span class="kw">DESC</span>) <span class="kw">AS</span> rn
+    <span class="kw">FROM</span> operator_sales
+)
+<span class="kw">SELECT</span> city, order_date, operator_id, total_sales, rn
+<span class="kw">FROM</span> ranked
+<span class="kw">WHERE</span> rn &lt;= <span class="num">3</span>
+<span class="kw">ORDER</span> <span class="kw">BY</span> city, order_date, rn;</div><span class="step-label">Result</span><table class="datatbl"><thead><tr><th>city</th><th>order_date</th><th>operator_id</th><th>total_sales</th><th>rn</th></tr></thead><tbody><tr><td>Beijing</td><td>2025-01-01</td><td>101</td><td>500</td><td>1</td></tr><tr><td>Beijing</td><td>2025-01-01</td><td>102</td><td>300</td><td>2</td></tr><tr><td>Beijing</td><td>2025-01-01</td><td>103</td><td>250</td><td>3</td></tr><tr><td>Shanghai</td><td>2025-01-01</td><td>201</td><td>400</td><td>1</td></tr><tr><td>Shanghai</td><td>2025-01-01</td><td>202</td><td>300</td><td>2</td></tr><tr><td>Shanghai</td><td>2025-01-01</td><td>203</td><td>200</td><td>3</td></tr></tbody></table><details class="diagram-details"><summary>▶ Show execution process</summary><svg style="max-width:600px; display:block; margin:8px auto;" viewbox="0 0 680 460" width="100%">
+<defs><marker id="rk2" markerheight="7" markerwidth="7" orient="auto" refx="5" refy="3.5"><path d="M0,0 L7,3.5 L0,7 Z" fill="#888"></path></marker></defs>
+<rect fill="var(--surface)" height="30" rx="6" stroke="var(--border-strong)" width="600" x="40" y="10"></rect>
+<text fill="var(--text-primary)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="29">Step 1 — Raw orders (9 rows, 2 cities x 4-5 operators)</text>
+<line marker-end="url(#rk2)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="40" y2="66"></line>
+<rect fill="var(--accent-bg)" height="70" rx="8" stroke="var(--accent)" width="640" x="20" y="66"></rect>
+<text fill="var(--accent)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="84">Step 2 — operator_sales CTE: GROUP BY city, order_date, operator_id</text>
+<text fill="var(--accent)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="102">Beijing operator 101: two rows (200+300) collapse into total_sales = 500</text>
+<text fill="var(--accent)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="120">9 raw rows -&gt; 8 aggregated rows (one per operator per city per day)</text>
+<line marker-end="url(#rk2)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="136" y2="162"></line>
+<rect fill="var(--warning-bg)" height="66" rx="8" stroke="var(--warning)" width="640" x="20" y="162"></rect>
+<text fill="var(--warning)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="182">Step 3 — ranked CTE: ROW_NUMBER()</text>
+<text fill="var(--warning)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="200">PARTITION BY city, order_date  ORDER BY total_sales DESC</text>
+<text fill="var(--warning)" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" x="340" y="216">Two partition columns -&gt; one ranking group per (city, day) combination</text>
+<line marker-end="url(#rk2)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="228" y2="254"></line>
+<rect fill="var(--surface)" height="130" rx="8" stroke="var(--border-strong)" width="640" x="20" y="254"></rect>
+<text fill="var(--text-primary)" font-family="-apple-system,sans-serif" font-size="12" font-weight="600" text-anchor="middle" x="340" y="274">Step 4 — WHERE rn &lt;= 3 (keep only top 3 per group)</text>
+<rect fill="var(--danger-bg, #FBECEA)" height="88" rx="6" stroke="#B14A3F" width="270" x="40" y="286"></rect>
+<text fill="#B14A3F" font-family="-apple-system,sans-serif" font-size="11" font-weight="600" text-anchor="middle" x="175" y="304">Beijing 2025-01-01</text>
+<text fill="#B14A3F" font-family="-apple-system,sans-serif" font-size="10.5" text-anchor="middle" x="175" y="322">101=500 (rn 1) kept</text>
+<text fill="#B14A3F" font-family="-apple-system,sans-serif" font-size="10.5" text-anchor="middle" x="175" y="338">102=300 (rn 2) kept</text>
+<text fill="#B14A3F" font-family="-apple-system,sans-serif" font-size="10.5" text-anchor="middle" x="175" y="354">103=250 (rn 3) kept</text>
+<text fill="#B14A3F" font-family="-apple-system,sans-serif" font-size="10.5" text-anchor="middle" x="175" y="370">104=100 (rn 4) dropped</text>
+<rect fill="var(--danger-bg, #FBECEA)" height="88" rx="6" stroke="#B14A3F" width="270" x="370" y="286"></rect>
+<text fill="#B14A3F" font-family="-apple-system,sans-serif" font-size="11" font-weight="600" text-anchor="middle" x="505" y="304">Shanghai 2025-01-01</text>
+<text fill="#B14A3F" font-family="-apple-system,sans-serif" font-size="10.5" text-anchor="middle" x="505" y="322">201=400 (rn 1) kept</text>
+<text fill="#B14A3F" font-family="-apple-system,sans-serif" font-size="10.5" text-anchor="middle" x="505" y="338">202=300 (rn 2) kept</text>
+<text fill="#B14A3F" font-family="-apple-system,sans-serif" font-size="10.5" text-anchor="middle" x="505" y="354">203=200 (rn 3) kept</text>
+<text fill="#B14A3F" font-family="-apple-system,sans-serif" font-size="10.5" text-anchor="middle" x="505" y="370">204=100 (rn 4) dropped</text>
+<line marker-end="url(#rk2)" stroke="#888" stroke-width="1.3" x1="340" x2="340" y1="384" y2="410"></line>
+<rect fill="var(--success-bg)" height="36" rx="8" stroke="var(--success)" width="400" x="140" y="410"></rect>
+<text fill="var(--success)" font-family="-apple-system,sans-serif" font-size="12" font-weight="700" text-anchor="middle" x="340" y="432">Step 5 — Final output: 6 rows (3 per city)</text>
+</svg></details><div class="tip speakable" data-speech="💡 PARTITION BY city, order_date — partitioning by TWO columns creates one ranking group per city-date combination. Operator 104 (Beijing) and 204 (Shanghai) both rank 4th and get filtered out." role="button" tabindex="0" title="Click to listen; click again to stop">💡 PARTITION BY city, order_date — partitioning by TWO columns creates one ranking group per city-date combination. Operator 104 (Beijing) and 204 (Shanghai) both rank 4th and get filtered out.</div></div></div></details><details class="retention-collapse sql-topic">
+<summary id="retention"><h2 class="retention-title">🔄 Retention</h2><span class="skip-note">（标注不用看）</span></summary>
+<div class="retention-content"><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="Rolling retention checks, for every day, whether today's active users came back within 30 days of their previous activity. Cohort retention groups users by their first-ever use date, then tracks whether that whole group comes back within a fixed future window." role="button" tabindex="0" title="Click to listen; click again to stop">Rolling vs Cohort retention — the concept</p>
+</div>
+<p class="q-desc speakable" data-speech="The key conceptual difference before writing any SQL." role="button" tabindex="0" title="Click to listen; click again to stop">The key conceptual difference before writing any SQL.</p><div class="tip speakable" data-speech="💡 Rolling = 'check every day who came back.' Cohort = 'take a batch of new users and see how many return.'" role="button" tabindex="0" title="Click to listen; click again to stop">💡 Rolling = 'check every day who came back.' Cohort = 'take a batch of new users and see how many return.'</div></div><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="Use LAG to get each seller's previous transaction date, compute the gap in days, then for each day count how many sellers were active, how many were even eligible to be repeaters, and how many actually returned within 30 days." role="button" tabindex="0" title="Click to listen; click again to stop">A) Rolling 30-day retention</p>
+</div>
+<p class="q-desc speakable" data-speech="Gap-based approach — measures the gap between EACH pair of consecutive transactions." role="button" tabindex="0" title="Click to listen; click again to stop">Gap-based approach — measures the gap between EACH pair of consecutive transactions.</p><span class="step-label">Sample data</span><table class="datatbl"><thead><tr><th>seller_id</th><th>transaction_date</th><th>note</th></tr></thead><tbody><tr><td>201</td><td>2024-01-02</td><td></td></tr><tr><td>201</td><td>2024-01-20</td><td>← return within 30 days ✅</td></tr><tr><td>201</td><td>2024-02-02</td><td>← return within 30 days ✅</td></tr><tr><td>202</td><td>2024-01-02</td><td></td></tr><tr><td>202</td><td>2024-01-25</td><td>← return within 30 days ✅</td></tr><tr><td>203</td><td>2024-01-02</td><td>← no return ❌</td></tr></tbody></table><div class="codeblock"><span class="cmt">-- Step 1: previous date + gap</span>
+<span class="kw">SELECT</span> seller_id, transaction_date,
+  <span class="fn">LAG</span>(transaction_date) <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> seller_id <span class="kw">ORDER</span> <span class="kw">BY</span> transaction_date) <span class="kw">AS</span> prev_date,
+  <span class="fn">DATEDIFF</span>(transaction_date,
+    <span class="fn">LAG</span>(transaction_date) <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> seller_id <span class="kw">ORDER</span> <span class="kw">BY</span> transaction_date)) <span class="kw">AS</span> gap_days
+<span class="kw">FROM</span> transactions;
+
+<span class="cmt">-- Step 2: daily retention rate</span>
+, daily <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> transaction_date,
+    <span class="fn">COUNT</span>(*) <span class="kw">AS</span> total_active,
+    <span class="fn">COUNT</span>(prev_date) <span class="kw">AS</span> eligible_repeaters,
+    <span class="fn">SUM</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> gap_days &lt;= <span class="num">30</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> retained
+  <span class="kw">FROM</span> with_gap
+  <span class="kw">GROUP</span> <span class="kw">BY</span> transaction_date
+)
+<span class="kw">SELECT</span> transaction_date, total_active, eligible_repeaters, retained,
+  <span class="kw">CASE</span> <span class="kw">WHEN</span> eligible_repeaters = <span class="num">0</span> <span class="kw">THEN</span> <span class="kw">NULL</span>
+<span class="kw">ELSE</span> <span class="kw">ROUND</span>(retained * <span class="num">1.0</span> / eligible_repeaters, <span class="num">2</span>) <span class="kw">END</span> <span class="kw">AS</span> rate_among_eligible
+<span class="kw">FROM</span> daily
+<span class="kw">ORDER</span> <span class="kw">BY</span> transaction_date;</div><div class="tip speakable" data-speech="💡 eligible_repeaters excludes first-time transactions (they have no previous date to measure a gap from)." role="button" tabindex="0" title="Click to listen; click again to stop">💡 eligible_repeaters excludes first-time transactions (they have no previous date to measure a gap from).</div></div><div class="card">
+<div class="q-head">
+<p class="q-title speakable" data-speech="Anchor every seller to their very first transaction date — that's their cohort. Then check if they have any return transaction within 30 days after that anchor, collapse to a 0 or 1 flag per seller, and finally average those flags per cohort date." role="button" tabindex="0" title="Click to listen; click again to stop">B) Cohort 30-day retention</p>
+</div>
+<p class="q-desc speakable" data-speech="Four-step process: anchor date, candidate returns, per-seller flag, cohort-level rate." role="button" tabindex="0" title="Click to listen; click again to stop">Four-step process: anchor date, candidate returns, per-seller flag, cohort-level rate.</p><span class="step-label">Sample data</span><table class="datatbl"><thead><tr><th>seller_id</th><th>transaction_date</th><th>note</th></tr></thead><tbody><tr><td>201</td><td>2024-01-02</td><td></td></tr><tr><td>201</td><td>2024-01-20</td><td>← within 30 days ✅</td></tr><tr><td>201</td><td>2024-02-02</td><td>← 31 days, NOT within 30 ❌</td></tr><tr><td>202</td><td>2024-01-02</td><td></td></tr><tr><td>202</td><td>2024-01-25</td><td>← within 30 days ✅</td></tr><tr><td>203</td><td>2024-01-02</td><td>← no return ❌</td></tr></tbody></table><div class="codeblock"><span class="cmt">-- Step 1: first transaction per seller (cohort anchor)</span>
+<span class="kw">WITH</span> first_txn <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> seller_id, <span class="fn">MIN</span>(transaction_date) <span class="kw">AS</span> first_date
+  <span class="kw">FROM</span> transactions
+  <span class="kw">GROUP</span> <span class="kw">BY</span> seller_id
+),
+<span class="cmt">-- Step 2: candidate returns within (0, 30] days after first_date</span>
+cand_returns <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> f.seller_id, f.first_date, t.transaction_date <span class="kw">AS</span> return_date,
+    <span class="fn">DATEDIFF</span>(t.transaction_date, f.first_date) <span class="kw">AS</span> gap_days
+  <span class="kw">FROM</span> first_txn f
+  <span class="kw">LEFT</span> <span class="kw">JOIN</span> transactions t
+    <span class="kw">ON</span> t.seller_id = f.seller_id
+   <span class="kw">AND</span> <span class="fn">DATEDIFF</span>(t.transaction_date, f.first_date) <span class="kw">BETWEEN</span> <span class="num">1</span> <span class="kw">AND</span> <span class="num">30</span>
+),
+<span class="cmt">-- Step 3: collapse to per-seller retained flag (0/1)</span>
+flags <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> seller_id, first_date,
+    <span class="kw">CASE</span> <span class="kw">WHEN</span> <span class="fn">COUNT</span>(return_date) &gt; <span class="num">0</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span> <span class="kw">AS</span> retained_30d
+  <span class="kw">FROM</span> cand_returns
+  <span class="kw">GROUP</span> <span class="kw">BY</span> seller_id, first_date
+)
+<span class="cmt">-- Step 4: final cohort retention rate</span>
+<span class="kw">SELECT</span> first_date <span class="kw">AS</span> cohort_date,
+  <span class="fn">COUNT</span>(*) <span class="kw">AS</span> cohort_size,
+  <span class="fn">SUM</span>(retained_30d) <span class="kw">AS</span> retained_30d,
+  <span class="kw">ROUND</span>(<span class="fn">SUM</span>(retained_30d) * <span class="num">1.0</span> / <span class="fn">COUNT</span>(*), <span class="num">2</span>) <span class="kw">AS</span> retention_rate_30d
+<span class="kw">FROM</span> flags
+<span class="kw">GROUP</span> <span class="kw">BY</span> first_date
+<span class="kw">ORDER</span> <span class="kw">BY</span> cohort_date;</div><span class="step-label">Result</span><table class="datatbl"><thead><tr><th>cohort_date</th><th>cohort_size</th><th>retained_30d</th><th>retention_rate_30d</th></tr></thead><tbody><tr><td>2024-01-02</td><td>3</td><td>2</td><td>0.67</td></tr><tr><td>2024-03-01</td><td>1</td><td>1</td><td>1.00</td></tr></tbody></table><div class="tip speakable" data-speech="💡 The LEFT JOIN in Step 2 is essential — sellers with NO return still need a row (with a NULL return_date) so they correctly get flagged as 0 in Step 3." role="button" tabindex="0" title="Click to listen; click again to stop">💡 The LEFT JOIN in Step 2 is essential — sellers with NO return still need a row (with a NULL return_date) so they correctly get flagged as 0 in Step 3.</div></div>
+</div>
+</details></main>
+</div>
+<script>
+let voices = [];
+let currentTarget = null;
+let currentUtterance = null;
+const speechSupported = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+const voiceSelect = document.getElementById('voiceSelect');
+const rateSlider = document.getElementById('rateSlider');
+const rateLabel = document.getElementById('rateLabel');
+const stopAllBtn = document.getElementById('stopAllBtn');
+
+function normalizeText(text) {
+  return (text || '').replace(/\s+/g, ' ').trim();
+}
+
+function stopSpeech() {
+  if (speechSupported) window.speechSynthesis.cancel();
+  if (currentTarget) currentTarget.classList.remove('speaking');
+  currentTarget = null;
+  currentUtterance = null;
+}
+
+function loadVoices() {
+  if (!speechSupported || !voiceSelect) return;
+  const all = window.speechSynthesis.getVoices();
+  voices = all.filter(v => /^en[-_]/i.test(v.lang) || /^English/i.test(v.name));
+  voiceSelect.innerHTML = '';
+
+  const fallback = document.createElement('option');
+  fallback.value = '';
+  fallback.textContent = voices.length ? 'System English voice' : 'System English voice (loading…)';
+  voiceSelect.appendChild(fallback);
+
+  voices.forEach((voice, index) => {
+    const option = document.createElement('option');
+    option.value = String(index);
+    option.textContent = `${voice.name} — ${voice.lang}`;
+    voiceSelect.appendChild(option);
+  });
+
+  // Prefer Google UK English Female (en-GB) by default when available.
+  let preferred = voices.findIndex(v => /Google UK English Female/i.test(v.name) && /^en-GB$/i.test(v.lang || ''));
+  if (preferred < 0) preferred = voices.findIndex(v => /Google UK English Female/i.test(v.name));
+  if (preferred < 0) preferred = voices.findIndex(v => /^en-GB$/i.test(v.lang || '') && /female/i.test(v.name));
+  if (preferred < 0) preferred = voices.findIndex(v => /^en-GB$/i.test(v.lang || ''));
+  if (preferred < 0) preferred = voices.findIndex(v => /^en/i.test(v.lang || ''));
+  if (preferred >= 0) voiceSelect.value = String(preferred);
+}
+
+function speakElement(el) {
+  if (!speechSupported) {
+    alert('Text-to-speech is not supported in this browser.');
+    return;
+  }
+
+  if (currentTarget === el && el.classList.contains('speaking')) {
+    stopSpeech();
+    return;
+  }
+
+  stopSpeech();
+  const text = normalizeText(el.dataset.speech || el.textContent);
+  if (!text) return;
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  const voiceIndex = Number.parseInt(voiceSelect?.value ?? '', 10);
+  if (Number.isInteger(voiceIndex) && voices[voiceIndex]) utterance.voice = voices[voiceIndex];
+  utterance.lang = utterance.voice?.lang || 'en-US';
+  utterance.rate = Math.min(1.2, Math.max(0.7, Number(rateSlider?.value || 0.92)));
+
+  utterance.onstart = () => {
+    currentTarget = el;
+    currentUtterance = utterance;
+    el.classList.add('speaking');
+  };
+  const clear = () => {
+    if (currentUtterance === utterance) {
+      el.classList.remove('speaking');
+      currentTarget = null;
+      currentUtterance = null;
+    }
+  };
+  utterance.onend = clear;
+  utterance.onerror = clear;
+  window.speechSynthesis.speak(utterance);
+}
+
+function activateSpeakable(el) {
+  if (el) speakElement(el);
+}
+
+document.addEventListener('click', event => {
+  const el = event.target.closest('.speakable');
+  if (el && !event.target.closest('a, button, select, input, summary')) activateSpeakable(el);
+});
+
+document.addEventListener('keydown', event => {
+  if ((event.key === 'Enter' || event.key === ' ') && event.target.classList.contains('speakable')) {
+    event.preventDefault();
+    activateSpeakable(event.target);
+  }
+});
+
+if (rateSlider && rateLabel) {
+  rateSlider.addEventListener('input', () => { rateLabel.textContent = `${rateSlider.value}x`; });
+}
+if (stopAllBtn) stopAllBtn.addEventListener('click', stopSpeech);
+
+if (speechSupported) {
+  loadVoices();
+  window.speechSynthesis.addEventListener?.('voiceschanged', loadVoices);
+  setTimeout(loadVoices, 150);
+  setTimeout(loadVoices, 800);
+} else if (voiceSelect) {
+  voiceSelect.innerHTML = '<option>Text-to-speech unavailable</option>';
+  voiceSelect.disabled = true;
+}
+
+
+const themeToggle = document.getElementById('themeToggle');
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  if(themeToggle){
+    const dark = theme === 'dark';
+    themeToggle.textContent = dark ? '☀️' : '🌙';
+    themeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    themeToggle.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+  }
+}
+let currentTheme = 'light';
+try { currentTheme = localStorage.getItem('dw-sql-theme') || 'light'; } catch(e) {}
+applyTheme(currentTheme);
+if(themeToggle){
+  themeToggle.addEventListener('click', () => {
+    currentTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(currentTheme);
+    try { localStorage.setItem('dw-sql-theme', currentTheme); } catch(e) {}
+  });
+}
+
+// The new lesson reads visible text, without a separate speech transcript.
+document.querySelectorAll('.campaign-guide th, .campaign-guide td').forEach(el => {
+  el.classList.add('speakable');
+  el.setAttribute('role', 'button');
+  el.tabIndex = 0;
+  el.title = 'Click to listen; click again to stop';
+});
+document.querySelector('a[href="#campaign-intervals"]').addEventListener('click', () => {
+  document.getElementById('campaign-topic').open = true;
+});
+const campaignCopyBtn = document.getElementById('campaign-copy');
+if (campaignCopyBtn) {
+  campaignCopyBtn.addEventListener('click', async () => {
+    const status = document.getElementById('campaign-copy-status');
+    const sqlBlock = document.getElementById('campaign-complete-sql');
+    if (!sqlBlock) return;
+    const sql = sqlBlock.textContent;
+    try {
+      await navigator.clipboard.writeText(sql);
+      if (status) status.textContent = 'Copied.';
+    } catch (_) {
+      const range = document.createRange();
+      range.selectNodeContents(sqlBlock);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      if (status) status.textContent = 'SQL selected. Press Ctrl+C or Command+C to copy.';
+    }
+  });
+}
+
+</script></body>
+</html>
