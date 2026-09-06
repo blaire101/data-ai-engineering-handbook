@@ -1200,8 +1200,8 @@ const slaMasterPathVisual=`
 const slaCaseVisual=`
 <div class="sla-case-banner" aria-label="Cross-border remittance case and data distribution">
   <section class="sla-case-main">
-    <h3>Business Job · 2024 annual remittance analytics</h3>
-    <p><strong>Scale:</strong> about 12 million transactions and 50 billion RMB inbound volume.</p>
+    <h3>Business Job · daily year-to-date remittance analytics</h3>
+    <p><strong>Scale:</strong> the 2024 full-year data set contains about 12 million transactions and 50 billion RMB inbound volume.</p>
     <p><strong>Dimensions:</strong> sender country, remittance partner, and currency.</p>
     <p><strong>Metrics:</strong> transaction count, distinct senders, inbound amount, and average amount.</p>
   </section>
@@ -1245,14 +1245,14 @@ const slaBeforeVisual=`
   <div class="sla-runtime-node"><b>Stage waits</b><span>Two stragglers drive spill, GC, OOM risk, and the SLA miss.</span></div>
 </div>
 <div class="sla-task-view" aria-label="Representative Spark UI task duration pattern">
-  <div class="sla-task-head"><span>Spark UI · aggregation Stage</span><span>Representative shape of 200 planned Reduce Tasks</span></div>
+  <div class="sla-task-head"><span>Spark UI · aggregation Stage</span><span>Representative demo metrics · not claimed as production measurements</span></div>
   <div class="sla-task-grid">
-    <div class="sla-task" style="height:24%">normal</div><div class="sla-task" style="height:29%">normal</div><div class="sla-task hot" style="height:100%">Task A</div><div class="sla-task" style="height:25%">normal</div><div class="sla-task" style="height:31%">normal</div><div class="sla-task" style="height:27%">normal</div><div class="sla-task hot" style="height:88%">Task B</div><div class="sla-task" style="height:23%">normal</div><div class="sla-task" style="height:30%">normal</div><div class="sla-task" style="height:26%">normal</div>
+    <div class="sla-task" style="height:24%">~110MB</div><div class="sla-task" style="height:29%">~130MB</div><div class="sla-task hot" style="height:100%">A · 1.2GB</div><div class="sla-task" style="height:25%">~115MB</div><div class="sla-task" style="height:31%">~145MB</div><div class="sla-task" style="height:27%">~120MB</div><div class="sla-task hot" style="height:82%">B · 0.9GB</div><div class="sla-task" style="height:23%">~105MB</div><div class="sla-task" style="height:30%">~140MB</div><div class="sla-task" style="height:26%">~120MB</div>
   </div>
-  <div class="sla-task-legend"><span>Most Tasks finish near the median.</span><strong>Spark UI shows Task IDs and metrics—not business key values.</strong></div>
+  <div class="sla-task-legend"><span>Demo median Shuffle Read: about 120MB.</span><strong>Task A is about 10× the median; Task B is about 7.5×.</strong></div>
 </div>
 <div class="sla-diagnosis-flow" aria-label="Two-step skew diagnosis from Spark UI to business keys">
-  <div class="sla-diagnosis-step ui"><b>1 · Spark UI finds WHERE</b><span>Two Reduce Tasks have 5GB+ Shuffle Read, long duration, high spill, and high GC.</span></div>
+  <div class="sla-diagnosis-step ui"><b>1 · Spark UI finds WHERE</b><span>In the representative demo, Task A reads about 1.2GB and Task B about 0.9GB versus a roughly 120MB median; both also show long duration, spill, and GC.</span></div>
   <div class="sla-diagnosis-step sql"><b>2 · Frequency SQL finds WHICH KEY</b><span>GROUP BY country, partner, currency and ORDER BY row count descending.</span></div>
   <div class="sla-diagnosis-step key"><b>3 · Business keys confirmed</b><span>US + Wise + USD and KR + PandaRemit + KRW dominate the distribution.</span></div>
 </div>
@@ -1310,7 +1310,7 @@ const slaFinalVisual=`
 
 const slaInterviewVisual=`
 <div class="interview-map" aria-label="Six-part interview answer structure">
-  <div class="interview-part"><b>1 · Context</b><span>12M transactions · 50B RMB · critical annual report</span></div>
+  <div class="interview-part"><b>1 · Context</b><span>Daily critical-path report · year-to-date data · 12M annual rows</span></div>
   <div class="interview-part"><b>2 · Spark UI</b><span>Find two outlier Tasks from Shuffle Read, duration, spill, and GC</span></div>
   <div class="interview-part"><b>3 · Frequency SQL</b><span>Find US-Wise-USD and KR-PandaRemit-KRW</span></div>
   <div class="interview-part"><b>4 · Config first</b><span>Reduce general pressure, then state the remaining limit</span></div>
@@ -1320,15 +1320,21 @@ const slaInterviewVisual=`
 
 const slaStoryChapters = [
   {
-    id:'sla-case',phase:'case',title:'Case Scope — One Cross-Border Remittance Job, One Data Set, One SLA',desc:'Fix the example first: 12M transactions, 50B RMB, annual distinct-sender analytics, and two real hot key combinations.',
+    id:'sla-case',phase:'case',title:'Case Scope — One Daily Remittance Job over 12M Annual Rows, One Data Set, One SLA',desc:'Fix the example first: a daily year-to-date report over 12M annual transactions, 50B RMB, distinct-sender analytics, and two hot key combinations.',
     visual:slaMasterPathVisual,
     cards:[{
       title:'Business Example — What the Spark Job Calculated',
       memory:'12M transactions → country + partner + currency → distinct senders + amount',
-      speak:'This entire SLA Story uses one cross-border remittance example. The annual Spark job processed about twelve million transactions and fifty billion RMB of inbound volume. It grouped data by sender country, remittance partner, and currency, then calculated transaction count, distinct senders, inbound amount, and average amount. Two combinations dominated the distribution: United States, Wise, and US dollars; and Korea, PandaRemit, and Korean won.',
-      desc:'The small rows below explain the business grain. The million-row values are the production-scale hot-key pattern.',
+      speak:'This entire SLA Story uses one cross-border remittance example. A daily Spark report processed the year-to-date data set, which reached about twelve million transactions and fifty billion RMB of inbound volume for 2024. It grouped data by sender country, remittance partner, and currency, then calculated transaction count, distinct senders, inbound amount, and average amount. Two combinations dominated the distribution: United States, Wise, and US dollars; and Korea, PandaRemit, and Korean won.',
+      desc:'The small rows below explain the business grain. The annual business volumes define the case; the Task-level Shuffle Read values in Diagnosis are explicitly representative demo metrics.',
       html:slaCaseVisual,
       table:[['Example Group','Approximate Transactions','Role in the Story'],['US + Wise + USD','4 million','Extreme hot key'],['KR + PandaRemit + KRW','3 million','Extreme hot key'],['Other combinations','Normal-sized groups','Most Tasks finish near the median']]
+    },{
+      title:'My Ownership — Protect the Deadline Without Changing the Business Metric',
+      memory:'critical path → exact result → safe release',
+      speak:'I owned the stability of this critical-path Spark job. My goal was to finish reliably inside the SLA window without changing the exact compliance and business-reporting metrics. I therefore diagnosed with evidence, tried reversible configuration first, changed code only when the remaining hot-key limit was proven, reconciled every output group, and retained a rollback path.',
+      desc:'This is the missing Task in the STAR story: the responsibility was not merely to tune Spark, but to restore a reliable deadline while preserving exact results.',
+      table:[['Responsibility','Why It Mattered','Release Standard'],['Meet the daily SLA','Downstream compliance and business reports depended on this Job','Stable completion inside the deadline'],['Preserve exact metrics','Distinct senders and money amounts could not become approximate','Old and new outputs match at every business group'],['Control production risk','A fast fix still needed safe rollback','Document SQL/config diff, monitor, and rollback path']]
     },{
       title:'Original Query — Correct Business Logic, Unsafe Physical Distribution',
       memory:'correct SQL + skewed keys = correct result but unstable execution',
@@ -1357,7 +1363,7 @@ GROUP BY t.sender_country, t.partner_org, t.currency;`,
       title:'Two-Step Investigation — UI Finds the Symptom; SQL Finds the Cause',
       memory:'Spark UI: where is slow → key-frequency SQL: which key is hot',
       speak:'In Spark UI, I first identified two abnormally large Reduce Tasks with much higher Shuffle Read, duration, and GC time than the median. Spark UI showed the abnormal Tasks, not the business key values. I then ran a key-frequency analysis on country, partner, and currency. The result identified US + Wise + USD and KR + PandaRemit + KRW as the two dominant combinations.',
-      desc:'The chart shows the shape of the 200 planned Reduce Tasks. The SQL below is what connects the Spark symptom to the actual business keys.',
+      desc:'The chart uses a plausible order-of-magnitude for this 12-million-row example: about 120MB median Shuffle Read, with outliers around 1.2GB and 0.9GB. The 4-million-row and 3-million-row hot groups have a similar 4:3 ratio. Actual Shuffle Read depends on projection, encoding, compression, and distinct cardinality, so these are teaching values—not asserted production measurements. The SQL below connects the Spark symptom to the actual business keys.',
       code:`SELECT
   sender_country AS country,
   partner_org AS partner,
@@ -1368,7 +1374,7 @@ FROM remittance_txn
 WHERE fdate BETWEEN '20240101' AND '20241231'
 GROUP BY sender_country, partner_org, currency
 ORDER BY row_count DESC;`,
-      table:[['Investigation Step','Evidence','Conclusion'],['1 · Spark UI','Two Tasks: 5GB+ Shuffle Read, long duration, high spill and GC','Aggregation Stage has severe partition skew'],['2 · Key-frequency SQL','Sort country + partner + currency combinations by row count','US-Wise-USD and KR-PandaRemit-KRW dominate'],['3 · Cross-check','Most Tasks and most business combinations remain near normal size','This is hot-key skew, not a uniformly undersized cluster']],
+      table:[['Investigation Step','Representative Evidence','Conclusion'],['1 · Spark UI','Median Task ~120MB Shuffle Read; Task A ~1.2GB; Task B ~0.9GB; both have long duration, spill, and GC','Aggregation Stage has severe partition skew'],['2 · Key-frequency SQL','Sort country + partner + currency combinations by row count','US-Wise-USD and KR-PandaRemit-KRW dominate'],['3 · Cross-check','Most Tasks and most business combinations remain near normal size','This is hot-key skew, not a uniformly undersized cluster']],
       tips:['Interview memory: Spark UI tells you where the skew appears; SQL tells you which business key caused it.']
     }]
   },
@@ -1476,16 +1482,21 @@ GROUP BY sender_country, partner_org, currency;`,
       speak:'I reconciled the original and optimized outputs at the full country, partner, and currency grain. I checked the two hot combinations separately, reran representative high-volume periods, compared totals and distinct sender counts, and reviewed the new Task distribution in Spark UI. I released with the original SQL and configuration documented as a rollback path. Runtime fell from seventy-five minutes to thirteen minutes, recurring out-of-memory errors were resolved, garbage collection pauses fell from above five hundred to below one hundred, and on-time SLA compliance improved from about ninety-five percent to above ninety-nine percent.',
       desc:'The final result comes from the combined Spark Job changes. The workflow controls make future SLA misses easier to prevent and detect.',
       table:[['Validation Layer','Check','Pass Condition'],['Business output','Compare every country + partner + currency group','Original and optimized metrics are equal'],['Hot-key output','Reconcile US + Wise + USD and KR + PandaRemit + KRW separately','Exact sender and transaction counts match'],['Spark execution','Compare maximum Task with median Task; review spill and GC','Extreme long tail disappears or materially shrinks'],['Representative rerun','Test normal and peak-volume periods','Stable completion within the SLA window'],['Release safety','Keep SQL/config diff, owner, window, and rollback path','Fast rollback is possible without redefining metrics']],
-      tips:['Monitor runtime, max-to-median Task duration, Shuffle Read, spill, GC, OOM count, and hot-key growth.','Workflow dependency cleanup and alerting support the same SLA, but they do not replace the Spark root-cause fix.']
+      tips:['Monitor runtime, max-to-median Task duration, Shuffle Read, spill, GC, OOM count, and hot-key growth.','An on-time rate near 95% means roughly 1 deadline miss in 20 runs; above 99% means fewer than 1 in 100.','Workflow dependency cleanup and alerting support the same SLA, but they do not replace the Spark root-cause fix.']
     }]
   },
   {
     id:'sla-interview',phase:'interview',title:'Interview Delivery — Explain the Same Case in 60 Seconds Without Mixing Examples',desc:'Tell one causal story: business scale → Spark evidence → config-first mitigation → proven limit → code fix → measured result.',
     visual:slaInterviewVisual,
     cards:[{
+      title:'30-Second Answer — Situation, Ownership, Action, Result',
+      memory:'missed SLA → prove skew → config first → exact code fix → 13 minutes',
+      speak:'I owned a critical daily Spark report that was missing its SLA and occasionally hitting Executor out-of-memory errors. Spark UI exposed two skewed Reduce Tasks, and a key-frequency query identified US + Wise + USD and KR + PandaRemit + KRW. I first reduced general pressure with reversible configuration, then used exact two-stage aggregation and deterministic eight-way targeted salting because configuration could not split one identical hot key. Runtime fell from seventy-five to thirteen minutes, recurring out-of-memory errors disappeared, and on-time SLA compliance improved from about ninety-five percent to above ninety-nine percent.',
+      desc:'Use this concise version first. Expand into the evidence, configuration boundary, code change, and validation only when the interviewer asks.'
+    },{
       title:'60-Second Answer — Say This First',
       memory:'Context → Evidence → Config first → Code fix → Validation → Result',
-      speak:'I owned a critical Spark job for annual cross-border remittance analytics, covering twelve million transactions and fifty billion RMB. Runtime varied from thirty to seventy-five minutes and sometimes caused Executor out-of-memory errors. In Spark UI, I first identified two abnormally large Reduce Tasks with much higher Shuffle Read and GC time than the median. Spark UI showed the symptom, not the business keys. I then ran a key-frequency analysis on country, partner, and currency, which identified US + Wise + USD and KR + PandaRemit + KRW. I first increased shuffle partitions, enabled AQE and dynamic allocation, reviewed memory, and broadcast the small FX table. This reduced general pressure but could not split one identical aggregation key. I therefore applied two-stage aggregation and deterministic eight-way salting only to the two hot keys. After exact result reconciliation, runtime fell from seventy-five to thirteen minutes, OOM disappeared, and SLA improved from about ninety-five percent to above ninety-nine percent.',
+      speak:'I owned a critical daily Spark report over year-to-date cross-border remittance data, covering about twelve million annual transactions and fifty billion RMB. Runtime varied from thirty to seventy-five minutes and sometimes caused Executor out-of-memory errors. In Spark UI, I first identified two abnormally large Reduce Tasks with much higher Shuffle Read and GC time than the median. In the interview demo, I describe the median as about one hundred twenty megabytes and the two outliers as about one point two gigabytes and zero point nine gigabytes; I make clear that these are representative values unless the real Spark UI metrics are available. Spark UI showed the symptom, not the business keys. I then ran a key-frequency analysis on country, partner, and currency, which identified US + Wise + USD and KR + PandaRemit + KRW. I first increased shuffle partitions, enabled AQE and dynamic allocation, reviewed memory, and broadcast the small FX table. This reduced general pressure but could not split one identical aggregation key. I therefore applied two-stage aggregation and deterministic eight-way salting only to the two hot keys. After exact result reconciliation, runtime fell from seventy-five to thirteen minutes, OOM disappeared, and SLA improved from about ninety-five percent to above ninety-nine percent.',
       desc:'This answer presents engineering ownership and decision quality, not only a salting technique.'
     },{
       title:'Follow-Up Answers — Keep Each Decision Connected to the Same Job',
@@ -1805,14 +1816,90 @@ try{initialTheme=localStorage.getItem('dwSparkTheme')||'light';}catch(e){}
 applyTheme(initialTheme);
 if(themeToggle) themeToggle.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
 
-document.querySelectorAll('.tab-btn').forEach(b=>b.onclick=()=>{ const target=document.getElementById(b.dataset.tab); if(!target) return; document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active')); b.classList.add('active'); target.classList.add('active'); const isDetail=detailTopicIds.includes(b.dataset.tab); detailTools.hidden=!isDetail; if(isDetail)resetDetailSearch(b.dataset.tab); });
-let voices=[],active=null; const synth=window.speechSynthesis, sel=document.getElementById('voice'), rate=document.getElementById('rate'), rv=document.getElementById('rv');
-function load(){ voices=synth.getVoices().filter(v=>v.lang.toLowerCase().startsWith('en')); sel.innerHTML=''; voices.forEach((v,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=`${v.name} (${v.lang})`; sel.appendChild(o); }); let i=voices.findIndex(v=>v.name.toLowerCase()==='google uk english female'); if(i<0) i=voices.findIndex(v=>v.lang.toLowerCase().startsWith('en-gb')); if(i>=0) sel.value=i; }
+document.querySelectorAll('.tab-btn').forEach(b=>b.onclick=()=>{ stopSpeech(); const target=document.getElementById(b.dataset.tab); if(!target) return; document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active')); b.classList.add('active'); target.classList.add('active'); const isDetail=detailTopicIds.includes(b.dataset.tab); detailTools.hidden=!isDetail; if(isDetail)resetDetailSearch(b.dataset.tab); });
+let voices=[],active=null,pendingSpeechTarget=null,speechTimer=null,speechRunId=0; const synth=window.speechSynthesis, sel=document.getElementById('voice'), rate=document.getElementById('rate'), rv=document.getElementById('rv');
+function load(){
+  voices=synth.getVoices().filter(v=>v.lang.toLowerCase().startsWith('en'));
+  sel.innerHTML='';
+  voices.forEach((v,i)=>{
+    const o=document.createElement('option');
+    o.value=i;
+    o.textContent=`${v.localService?'Local · ':'Online · '}${v.name} (${v.lang})`;
+    sel.appendChild(o);
+  });
+  // Keep the user's preferred British female voice as the default. The page's
+  // centralized queue and cleanup logic prevents the previous residual audio.
+  let i=voices.findIndex(v=>v.name.toLowerCase()==='google uk english female');
+  if(i<0)i=voices.findIndex(v=>v.name.toLowerCase().includes('google uk english female'));
+  if(i<0)i=voices.findIndex(v=>v.localService&&v.lang.toLowerCase().startsWith('en-gb'));
+  if(i<0)i=voices.findIndex(v=>v.lang.toLowerCase().startsWith('en-gb'));
+  if(i<0)i=voices.findIndex(v=>v.localService&&v.lang.toLowerCase().startsWith('en'));
+  if(i<0)i=0;
+  if(voices.length)sel.value=i;
+}
 load(); synth.onvoiceschanged=load; rate.oninput=()=>rv.textContent=rate.value+'x';
-function reset(){ document.querySelectorAll('.listen.speaking,.cell-audio.speaking,.table-audio-cell.speaking,.speakable.speaking').forEach(b=>b.classList.remove('speaking')); active=null; }
-document.addEventListener('click',e=>{ const b=e.target.closest('[data-speak]'); if(!b) return; if(active===b){ synth.cancel(); reset(); return; } synth.cancel(); reset(); const stored=decodeURIComponent(b.dataset.speak||''); const visible=String(b.textContent||'').replace(/\s+/g,' ').trim(); const speechText=b.matches('.listen,.cell-audio')?stored:(visible||stored); const u=new SpeechSynthesisUtterance(speechText); if(voices[sel.value]) u.voice=voices[sel.value]; u.lang='en-GB'; u.rate=parseFloat(rate.value); u.onstart=()=>{ b.classList.add('speaking'); active=b; }; u.onend=reset; u.onerror=reset; synth.speak(u); });
+function reset(){ document.querySelectorAll('.listen.speaking,.cell-audio.speaking,.table-audio-cell.speaking,.speakable.speaking').forEach(b=>b.classList.remove('speaking')); active=null; pendingSpeechTarget=null; }
+function stopSpeech(){
+  speechRunId+=1;
+  if(speechTimer!==null){clearTimeout(speechTimer);speechTimer=null;}
+  try{synth.cancel();}catch(e){}
+  reset();
+}
+function sanitizeSpeechText(value){
+  return String(value||'')
+    .normalize('NFKC')
+    .replace(/[\u200B-\u200D\u2060\uFE0E\uFE0F]/g,'')
+    .replace(/\p{Extended_Pictographic}/gu,' ')
+    .replace(/[←↔]/g,' to ')
+    .replace(/[→➜➝➞➟➠➡]/g,' to ')
+    .replace(/≫/g,' much greater than ')
+    .replace(/≪/g,' much less than ')
+    .replace(/≥/g,' greater than or equal to ')
+    .replace(/≤/g,' less than or equal to ')
+    .replace(/≠/g,' is not equal to ')
+    .replace(/≈/g,' approximately ')
+    .replace(/[·•]/g,', ')
+    .replace(/\s*\|\s*/g,', ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function playSpeech(text,target=null){
+  const normalized=sanitizeSpeechText(text);
+  const clean=normalized&&!/[.!?]$/.test(normalized)?normalized+'.':normalized;
+  if(!clean)return;
+  stopSpeech();
+  const runId=speechRunId;
+  pendingSpeechTarget=target;
+  // Chrome's network voices can leave a short residual sound when cancel()
+  // and speak() run in the same event tick. Let the old queue clear first.
+  speechTimer=setTimeout(()=>{
+    speechTimer=null;
+    if(runId!==speechRunId)return;
+    const u=new SpeechSynthesisUtterance(clean);
+    if(voices[sel.value])u.voice=voices[sel.value];
+    u.lang='en-GB';
+    u.rate=parseFloat(rate.value);
+    u.onstart=()=>{if(runId!==speechRunId)return;if(target)target.classList.add('speaking');active=target;pendingSpeechTarget=null;};
+    u.onend=()=>{if(runId===speechRunId){try{synth.cancel();}catch(e){}reset();}};
+    u.onerror=()=>{if(runId===speechRunId){try{synth.cancel();}catch(e){}reset();}};
+    synth.speak(u);
+  },160);
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-speak]');
+  if(!b)return;
+  e.preventDefault();
+  e.stopPropagation();
+  if(active===b||pendingSpeechTarget===b){stopSpeech();return;}
+  let stored='';
+  try{stored=decodeURIComponent(b.dataset.speak||'');}catch(e){stored=String(b.dataset.speak||'');}
+  const visible=String(b.textContent||'').replace(/\s+/g,' ').trim();
+  playSpeech(stored||visible,b);
+});
 document.addEventListener('keydown',e=>{ const cell=e.target.closest('.table-audio-cell[data-speak]'); if(!cell||!['Enter',' '].includes(e.key))return; e.preventDefault(); cell.click(); });
-document.getElementById('stop').onclick=()=>{ synth.cancel(); reset(); };
+document.getElementById('stop').onclick=stopSpeech;
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopSpeech();});
+window.addEventListener('pagehide',stopSpeech);
 </script>
 
 <script>
@@ -2005,6 +2092,22 @@ document.getElementById('stop').onclick=()=>{ synth.cancel(); reset(); };
         const target = ${JSON.stringify(tabId)};
         const tocItems = ${configJSON};
 
+        // Hard-disable independent iframe playback. Legacy imported scripts may
+        // still call speechSynthesis directly; proxy those calls to the parent
+        // so the whole file can own only one audible queue.
+        try{
+          const embeddedSynth=window.speechSynthesis;
+          if(embeddedSynth){
+            embeddedSynth.speak=function(utterance){
+              const text=String(utterance&&utterance.text||'').replace(/\s+/g,' ').trim();
+              if(text)parent.postMessage({type:'spark-import-speak',tab:target,text:text},'*');
+            };
+            embeddedSynth.cancel=function(){
+              parent.postMessage({type:'spark-import-stop',tab:target},'*');
+            };
+          }
+        }catch(e){}
+
         function removeLegacyShell(){
           const app = document.querySelector('.app');
           if (!app) return;
@@ -2141,11 +2244,28 @@ document.getElementById('stop').onclick=()=>{ synth.cancel(); reset(); };
           });
         }
 
+        // Imported documents originally shipped with their own speech engine.
+        // Intercept those controls in the capture phase and route every request
+        // to the one parent controller so two utterances can never overlap.
+        document.addEventListener('click',event=>{
+          const control=event.target.closest('[data-action="speak"],[data-text],[data-speak]');
+          if(!control||control.closest('.import-table-audio-cell')&&!control.matches('button,[role="button"]'))return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          let raw=control.dataset.text||control.dataset.speak||'';
+          try{raw=decodeURIComponent(raw);}catch(e){}
+          const visible=String(control.textContent||'').replace(/\s+/g,' ').replace(/^\s*Listen\s*/i,'').trim();
+          const text=String(raw||visible).replace(/\s+/g,' ').trim();
+          if(text)parent.postMessage({type:'spark-import-speak',tab:target,text:text},'*');
+        },true);
+
         document.addEventListener('click',event=>{
           const cell=event.target.closest('.import-table-audio-cell[data-cell-speak]');
           if(!cell||event.target.closest('button,a,input,select,textarea'))return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
           parent.postMessage({type:'spark-import-speak',tab:target,text:decodeURIComponent(cell.dataset.cellSpeak||'')},'*');
-        });
+        },true);
         document.addEventListener('keydown',event=>{
           const cell=event.target.closest('.import-table-audio-cell[data-cell-speak]');
           if(!cell||!['Enter',' '].includes(event.key))return;
@@ -2234,13 +2354,12 @@ document.getElementById('stop').onclick=()=>{ synth.cancel(); reset(); };
     if (message.type === 'spark-import-speak') {
       const text=String(message.text||'').replace(/\s+/g,' ').trim();
       if(!text)return;
-      synth.cancel();
-      reset();
-      const utterance=new SpeechSynthesisUtterance(text);
-      if(voices[sel.value])utterance.voice=voices[sel.value];
-      utterance.lang='en-GB';
-      utterance.rate=parseFloat(rate.value);
-      synth.speak(utterance);
+      playSpeech(text,null);
+      return;
+    }
+
+    if (message.type === 'spark-import-stop') {
+      stopSpeech();
       return;
     }
 
