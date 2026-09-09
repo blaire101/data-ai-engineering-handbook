@@ -662,7 +662,7 @@
 
 
 /* ===== V25: compact PySpark nav + beginner skew primer ===== */
-.pyspark-mini-nav{max-width:980px;margin:0 auto 10px;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.pyspark-mini-nav{max-width:980px;margin:0 auto 10px;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px}
 .pyspark-nav-link{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:48px;padding:6px 5px;border:1px solid var(--border);border-radius:9px;background:var(--accent-bg);color:var(--text);text-decoration:none;text-align:center;line-height:1.2;transition:.15s ease}
 .pyspark-nav-link:hover{border-color:var(--accent);transform:translateY(-1px)}
 .pyspark-nav-no{font-size:9.5px;font-weight:900;color:var(--accent);margin-bottom:3px}
@@ -3178,8 +3178,132 @@ function pysparkChapterSectionsHTML(chapters, openFirst=false){
   }).join('');
 }
 
-// Build 8 compact H2 chapters. Keep all 11 original knowledge cards, but group related topics.
+
+const pysparkOneProgramCard = {
+  title:'One End-to-End PySpark Program — Window + UDF',
+  speak:'This single program reviews the main PySpark flow: create DataFrames, filter and derive columns, broadcast a small dimension, use a window with row number to keep the latest row, apply a Python UDF for custom logic, aggregate to a business grain, cache the small result, and collect only when the result is safely small.',
+  desc:'Use this as the one-page recap. Focus on the Window pattern and the UDF pattern first; the rest of the program connects the major DataFrame operations around them.',
+  memory:'Create → Filter/Derive → Broadcast Join → Window → UDF → Aggregate → Collect',
+  table:[
+    ['Part','Code Pattern','What to Remember'],
+    ['Window','partitionBy + orderBy + row_number','Keep latest row / deduplicate / Top-N inside each group'],
+    ['Python UDF','@F.udf(returnType=...)','Custom Python logic; prefer built-in functions when they can express the rule'],
+    ['Broadcast Join','join(F.broadcast(dim), ...)','Small dimension goes to Executors; avoid large-side Shuffle'],
+    ['Aggregation','groupBy + agg','State the output business grain first'],
+    ['Collect','small_df.collect()','Action; return only a safely small result to the Driver']
+  ],
+  code:`from pyspark.sql import SparkSession, functions as F
+from pyspark.sql.window import Window
+from pyspark.sql.types import StringType
+
+spark = SparkSession.builder.appName("one-pyspark-example").getOrCreate()
+# SparkSession = entry point for DataFrame / Spark SQL work.
+
+orders = [
+    ("O1", "M1", "2026-09-01 10:00:00", 100.0, "PAID"),
+    ("O2", "M1", "2026-09-01 11:00:00", 180.0, "PAID"),
+    ("O3", "M2", "2026-09-01 09:00:00", 90.0, "CANCELLED"),
+    ("O4", "M2", "2026-09-01 12:00:00", 220.0, "PAID")
+]
+# Input orders: M1 has two PAID rows; M2 has one CANCELLED row and one PAID row.
+
+orders_df = spark.createDataFrame(
+    orders,
+    ["order_id", "merchant_id", "event_time", "amount", "status"]
+)
+# createDataFrame() turns Python rows into a structured DataFrame.
+
+merchant_df = spark.createDataFrame(
+    [("M1", "SG"), ("M2", "MY")],
+    ["merchant_id", "country"]
+)
+# Small dimension table used for the broadcast join.
+
+paid_df = orders_df.filter(F.col("status") == "PAID")
+# Filter is a lazy Transformation: keep O1, O2, and O4.
+
+paid_df = paid_df.withColumn(
+    "amount_with_fee",
+    F.round(F.col("amount") * F.lit(1.02), 2)
+)
+# Built-in function example: derive a new column without a Python UDF.
+# O1 -> 102.00, O2 -> 183.60, O4 -> 224.40.
+
+enriched_df = paid_df.join(
+    F.broadcast(merchant_df),
+    on="merchant_id",
+    how="left"
+)
+# Broadcast the small dimension so the large order side avoids a full Shuffle.
+# M1 -> SG, M2 -> MY.
+
+w = Window.partitionBy("merchant_id").orderBy(F.col("event_time").desc())
+# Window: one partition per merchant; newest event comes first.
+
+ranked_df = enriched_df.withColumn("rn", F.row_number().over(w))
+# row_number(): M1/O2 gets rn=1, M1/O1 gets rn=2, M2/O4 gets rn=1.
+
+latest_df = ranked_df.filter(F.col("rn") == 1)
+# Keep only the latest PAID row for each merchant.
+# Output rows now: O2 for M1 and O4 for M2.
+
+@F.udf(returnType=StringType())
+def amount_label(amount):
+    if amount is None:
+        return "UNKNOWN"
+    return "HIGH" if amount >= 200 else "NORMAL"
+# Python UDF = custom Python logic executed through a Python worker.
+# For simple conditions like this, F.when(...) is normally preferred; this UDF is for learning the pattern.
+
+labeled_df = latest_df.withColumn("amount_label", amount_label(F.col("amount")))
+# UDF output: M1/O2 -> NORMAL; M2/O4 -> HIGH.
+
+country_summary = (
+    labeled_df
+    .groupBy("country")
+    .agg(
+        F.count("*").alias("merchant_count"),
+        F.sum("amount_with_fee").alias("latest_amount_with_fee")
+    )
+)
+# Business grain: one row per country.
+# Expected: SG -> 1 merchant, 183.60; MY -> 1 merchant, 224.40.
+
+country_summary = country_summary.cache()
+# cache() keeps this distributed result for reuse after the first Action materializes it.
+
+country_summary.show()
+# Action: executes the lazy plan and prints the small distributed result.
+# +-------+--------------+----------------------+
+# |country|merchant_count|latest_amount_with_fee|
+# +-------+--------------+----------------------+
+# |     SG|             1|                 183.6|
+# |     MY|             1|                 224.4|
+# +-------+--------------+----------------------+
+
+small_result = country_summary.collect()
+# collect() returns all result rows to the Driver; safe here because the result has only two rows.
+
+country_summary.unpersist()
+# Release cached data when it is no longer needed.`,
+  tips:[
+    'Window memory: partitionBy defines the group → orderBy defines the sequence → row_number assigns the rank → filter rn = 1 keeps the latest row.',
+    'UDF memory: built-in first; Python UDF only when custom logic cannot be expressed cleanly with Spark functions.'
+  ],
+  warn:'Do not use collect() on a large DataFrame, and do not reach for a Python UDF when a built-in Spark expression can do the same job.'
+};
+
+data.pyspark.push(pysparkOneProgramCard);
+
+// Build 9 compact H2 chapters. The first chapter is one end-to-end recap; the remaining 8 keep the focused learning sequence.
 const pysparkGroups = [
+  {
+    id:'pyspark-one-program', icon:'🧪', title:'One PySpark Program — Window + UDF',
+    desc:'One compact program connects the main DataFrame APIs, with Window and Python UDF as the two key patterns.',
+    badge:'ONE PROGRAM', steps:['Create / Filter','Broadcast Join','Window','UDF','Aggregate'],
+    note:'Use this first when you need one complete example instead of opening many separate chapters.',
+    cardIndexes:[11]
+  },
   {
     id:'pyspark-entry-lazy', icon:'🧭', title:'Entry & Lazy Execution',
     desc:'SparkSession is the entry point; transformations stay lazy until an Action triggers execution.',
@@ -3250,7 +3374,7 @@ const pysparkChapters = pysparkGroups.map(group => ({
 
 
 function pysparkMiniNavHTML(){
-  const shortNames=['Entry','DataFrame','Aggregate','Join','Window','Tune','UDF','RDD'];
+  const shortNames=['One Program','Entry','DataFrame','Aggregate','Join','Window','Tune','UDF','RDD'];
   return `<nav class="pyspark-mini-nav" aria-label="PySpark chapter navigation">${pysparkChapters.map((chapter,index)=>`<a class="pyspark-nav-link" href="#${chapter.id}"><span class="pyspark-nav-no">${String(index+1).padStart(2,'0')}</span><span class="pyspark-nav-name">${shortNames[index]}</span></a>`).join('')}</nav>`;
 }
 
